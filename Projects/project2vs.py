@@ -92,8 +92,7 @@ class Network:
 
     def eta_der(self, x):
         """The derivative of the hypothesis function."""
-        val = 1
-        return val
+        return 1
 
     def forward_function(self): 
         """Calculate and return Z."""
@@ -163,6 +162,31 @@ class Network:
         Y0_chunk = Y_0[:,start:start+chunk] 
         C_chunk = C[start:start+chunk]
         return Y0_chunk, C_chunk 
+
+
+    # Perhaps there should be one class per part of the Hamiltonian and
+    # this hould be a method of those classes? (or an abstract class 
+    # for the complete Hamiltonian?)
+    # Also fine to leave it here, since it uses all the attributes from the object.  
+    def Hamiltonian_gradient(self):
+        """Calculate the gradient of F, according to the theoretical derivation.
+        
+        In general it is used for the entire Hamiltonian F, but since we are 
+        working with separable Hamiltonians, it can be used on both T and V.
+        """
+
+        # Here I have assumed that Y_list is Z^(k) from the report. 
+        gradient = self.U.omega*np.transpose((self.eta_der(\
+            np.transpose(self.Y_list[self.K,:,:])+self.U.my*np.ones(self.d))))
+        for i in range(self.K-1, -1, 0):
+            gradient *= (np.identity(self.d) + self.U.W_k[i,:,:]*self.h* \
+                np.transpose(self.sigma_der(self.U.W_k[i,:,:]*self.Y_list[i,:,:] \
+                    + self.U.b_k_I[i,:,:])))
+        
+        # Could either set the gradient as an attribute of the object
+        self.hamiltonian_gradient = gradient
+        # or just return the gradient. 
+        return gradient
 
     
 def algorithm(I,d,K,h,iterations,function):
@@ -353,5 +377,3 @@ NN = algorithm(I,d,K,h,iterations,function)
 function.embed_input(d,I)
 function.generate_solution(I)
 testing(NN,function,I,d0)
-    
-        
