@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import math
 import numpy.linalg as la
 from mpl_toolkits import mplot3d
+from import_data import generate_data, concatenate
 
 class Parameters:
     """Class for the parameters in the Neural Network."""
