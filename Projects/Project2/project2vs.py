@@ -180,8 +180,8 @@ class Network:
         # Here I have assumed that Y_list is Z^(k) from the report. 
         one_vec = np.ones((self.I,1)) 
         gradient = self.theta.w*np.transpose((self.eta_der( \
-            np.transpose(self.Z_list[self.K,:,:])+self.theta.my*one_vec))
-        for i in range(self.K-1, -1, 0):
+            np.transpose(self.Z_list[self.K,:,:])+self.theta.my*one_vec)))
+        for i in range(self.K-1, -1, -1):
             gradient *= (np.identity(self.d) + self.theta.W_k[i,:,:]*self.h* \
                 np.transpose(self.sigma_der(self.theta.W_k[i,:,:]*self.Z_list[i,:,:] \
                     + self.theta.b_k_I[i,:,:])))
@@ -196,12 +196,10 @@ def algorithm(I,d,K,h,iterations,function):
     """Main training algorithm."""
     tau = 0.1
       
-    Y_0 = function.input
+    Z_0 = function.input
     c = function.solution
-    #print(c)
-        
 
-    NN = Network(K,d,I,h,Y_0,c,iterations)
+    NN = Network(K,d,I,h,Z_0,c,iterations)
     
     # For plotting J. 
     J_list = np.zeros(iterations)
@@ -210,15 +208,13 @@ def algorithm(I,d,K,h,iterations,function):
     for j in range(1,iterations+1):
         
         Z = NN.forward_function() # See comment in forward function about returning Z. 
-        #print("Z:")
-        #print(Z.shape)
         
         # Tried to calculate the gradient using SGD instead, but the dimension of Z is wrong. 
         # Should not this be of dimension d x ?
         # Still think SGD could be used, but I am probably doing it wrongly.
         #Z_chunk, c_chunk = NN.stochastic_elements(Z, c, I/10)
         gradient = NN.back_propagation(Z,c)
-        NN.U.update_parameters(gradient,"adams",tau,j)
+        NN.theta.update_parameters(gradient,"adams",tau,j)
         
         #print("J:")
         #print(NN.J(Z,c))
