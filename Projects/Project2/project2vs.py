@@ -189,6 +189,25 @@ class Network:
         # or just return the gradient. 
         return gradient
 
+    # Adding the numerical methods below. Not sure if they fit in here either. 
+    def symplectic_euler(y, h): # These should probably be attributes instead of being passed.
+        """Symplectic Euler; first order method for integrating functions numerically."""
+        # Assume that the input is passed as a vector y = [q, p]. 
+        # Not sure how it will be passed, but this may be changed easily later. 
+
+        q1 = y[0] + h*self.Hamiltonian_gradient(y[1]) # Need to be able to pass arg like this!
+        p1 = y[1] - h*self.Hamiltonian_gradient(q1) # Need to be able to pass arg like this!
+        # Therefore need to change the Hamiltonian_gradient as well. 
+
+        return np.array([q1, p1]) # Returns the solution as a np.array.
+
+
+    def stormer_verlet():
+        """Størmer-Verlet; second order method for integrating functions numerically."""
+        # Assume that the input is passed as a vector y = [q, p]. 
+        # Not sure how it will be passed, but this may be changed easily later. 
+        pass
+        # Not sure how to implement this one (with the p + 1/2 for example. )
     
 def algorithm(I,d,K,h,iterations,function):
     """Main training algorithm."""
@@ -340,6 +359,7 @@ def testing(Network,function,I,d0):
     The parameters found from the training of the Neural Network are employed.
     """
     Y_0 = function.input
+    print(Y_0)
     c = function.solution
     
     Y_list = np.zeros((Network.K+1,d,I))
@@ -367,12 +387,12 @@ K = 20 # Amount of hidden layers in the network.
 d = 4 # Dimension of the hidden layers in the network. 
 h = 0.1 # Scaling of the activation function application in algorithm.  
 iterations = 1000
-d0 = 2 # Dimensin of the input layer. 
+d0 = 1 # Dimensin of the input layer. 
 
-#function = TestFunction1([-2,2],d0,d,I)
+function = TestFunction1([-2,2],d0,d,I)
 #function = TestFunction2([-np.pi/3,np.pi/3],d0,d,I)
 #function = TestFunction3([[-2,2],[-2,2]],d0,d,I)
-function = TestFunction4([[-1,1],[-1,1]],d0,d,I)
+#function = TestFunction4([[-1,1],[-1,1]],d0,d,I)
 NN = algorithm(I,d,K,h,iterations,function)
 
 function.embed_input(d,I)
