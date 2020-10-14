@@ -14,7 +14,7 @@ class Parameters:
         for i in range(K):
             self.b_k_I[i,:,:] = self.b_k[i,:,:]
 
-        self.omega = np.random.randn(d)  
+        self.w = np.random.randn(d)  
         self.my = np.random.rand()
         self.K = K
         
@@ -32,7 +32,7 @@ class Parameters:
             self.b_k = self.b_k - tau*gradient[1]
             for i in range(self.K):
                 self.b_k_I[i,:,:] = self.b_k[i,:,:]
-            self.omega = self.omega - tau*gradient[2]
+            self.w = self.w - tau*gradient[2]
             self.my = self.my - tau*gradient[3]
             
         elif(method == "adams"):
@@ -47,7 +47,7 @@ class Parameters:
             self.b_k = self.b_k - subtract[1]
             for i in range(self.K):
                 self.b_k_I[i,:,:] = self.b_k[i,:,:]
-            self.omega = self.omega - subtract[2]
+            self.w = self.w - subtract[2]
             self.my = self.my - subtract[3]      
                       
         else:
@@ -62,19 +62,19 @@ class Parameters:
 
 class Network:
     """Class for the Neural Network (ResNet)."""
-    def __init__(self,K,d,I,h,Y_0,c,iterations):
-        self.U = Parameters(K,d,I,iterations)
-        self.Y_list = np.zeros((K+1,d,I))
-        self.Y_list[0,:,:] = Y_0
+    def __init__(self,K,d,I,h,Z_0,c,iterations):
+        self.theta = Parameters(K,d,I,iterations)
+        self.Z_list = np.zeros((K+1,d,I))
+        self.Z_list[0,:,:] = Z_0
         self.h = h
         self.K = K
         self.I = I
         self.d = d
-        self.Z = None
+        self.Y = None
     
-    def J(self,Z,c): 
+    def J(self,Y,c): 
         """Objective function."""
-        return 0.5 * la.norm(Z - c)**2
+        return 0.5 * la.norm(Y - c)**2
     
     def sigma(self, x):
         """Sigmoid activation function."""
@@ -99,45 +99,46 @@ class Network:
         """Calculate and return Z."""
         for i in range(self.K):
             #jmf. formel (1) i heftet
-            self.Y_list[i+1,:,:] = self.Y_list[i,:,:] + \
-                self.h*self.sigma(self.U.W_k[i,:,:] @ self.Y_list[i,:,:] + self.U.b_k_I[i,:,:])
+            self.Z_list[i+1,:,:] = self.Z_list[i,:,:] + \
+                self.h*self.sigma(self.theta.W_k[i,:,:] @ \
+                    self.Z_list[i,:,:] + self.theta.b_k_I[i,:,:])
             
-        YT_K = np.transpose(self.Y_list[-1,:,:]) #Enklere notasjon
+        ZT_K = np.transpose(self.Z_list[-1,:,:]) #Enklere notasjon
         one_vec = np.ones(self.I)
         '''
         print("comp1")
-        print(YT_K @ self.U.omega)
+        print(ZT_K @ self.theta.w)
         print("comp2")
-        print(self.U.my*one_vec)
+        print(self.theta.my*one_vec)
         print("input Z")
-        print(YT_K @ self.U.omega + self.U.my*one_vec)
+        print(ZT_K @ self.theta.w + self.theta.my*one_vec)
         '''
-        Z = self.eta(YT_K @ self.U.omega + self.U.my*one_vec)
-        self.Z = Z
-        return Z  #Z er en Ix1 vektor
-        # Why return Z here, when it is saved as an attribute of the class? 
+        Y = self.eta(ZT_K @ self.theta.w + self.theta.my*one_vec)
+        self.Y = Y
+        return Y  #Y er en Ix1 vektor
+        # Why return Y here, when it is saved as an attribute of the class? 
         # Could just take it from the object when needed instead. 
         
     
-    def back_propagation(self,Z,c):
+    def back_propagation(self,Y,c):
         """Calculate and return the gradient of the objective function."""
-        YT_K = np.transpose(self.Y_list[-1,:,:])
+        ZT_K = np.transpose(self.Z_list[-1,:,:])
         one_vec = np.ones(self.I)
-        J_der_my =  np.transpose(one_vec) @ (Z-c)
-        #eta_der(YT_K @ self.U.omega + self.U.my*one_vec) @ (Z-c)#Blir en skalar  
-        J_der_omega = self.Y_list[-1,:,:] @ ((Z-c) * \
-                            self.eta_der(YT_K @ self.U.omega + self.U.my*one_vec))
+        J_der_my =  np.transpose(one_vec) @ (Y-c)
+        #eta_der(ZT_K @ self.theta.w + self.theta.my*one_vec) @ (Y-c)#Blir en skalar  
+        J_der_omega = self.Z_list[-1,:,:] @ ((Y-c) * \
+                            self.eta_der(ZT_K @ self.theta.w + self.theta.my*one_vec))
         
-        P_K = np.outer(self.U.omega,(Z-c)*self.eta_der(YT_K @ \
-                                            self.U.omega + self.U.my*one_vec)) #Blir en dxI matrise
+        P_K = np.outer(self.theta.w,(Y-c)*self.eta_der(ZT_K @ \
+                                            self.theta.w + self.theta.my*one_vec)) #Blir en dxI matrise
         
         
         P_list = np.zeros((self.K,self.d,self.I)) #K matriser, skal ikke ha med P_0
         P_list[-1,:,:] = P_K      #Legger P_K bakerst i P_list
         for i in range(self.K-1,0,-1):  #Starter på P_k(=indeks K-1) og helt til og med P_1(=indeks 0)
-            P_list[i-1,:,:] = P_list[i,:,:] + self.h*np.transpose(self.U.W_k[i-1,:,:]) @ \
-            (self.sigma_der(self.U.W_k[i-1,:,:] @ self.Y_list[i-1,:,:] + \
-                            self.U.b_k_I[i-1,:,:]) * P_list[i,:,:])
+            P_list[i-1,:,:] = P_list[i,:,:] + self.h*np.transpose(self.theta.W_k[i-1,:,:]) @ \
+            (self.sigma_der(self.theta.W_k[i-1,:,:] @ self.Z_list[i-1,:,:] + \
+                            self.theta.b_k_I[i-1,:,:]) * P_list[i,:,:])
 
         J_der_W = np.zeros((self.K,self.d,self.d))
         J_der_b = np.zeros((self.K,self.d,1))
@@ -145,9 +146,9 @@ class Network:
         #P_Kk går fra P_1(=indeks 0) til P_K(=indeks K-1)
         
         for i in range(self.K):
-            val = P_list[i,:,:] * self.sigma_der(self.U.W_k[i,:,:] @ \
-                                                 self.Y_list[i,:,:] + self.U.b_k_I[i,:,:])
-            J_der_W[i,:,:] = self.h*(val @ np.transpose(self.Y_list[i,:,:]))
+            val = P_list[i,:,:] * self.sigma_der(self.theta.W_k[i,:,:] @ \
+                                                 self.Z_list[i,:,:] + self.theta.b_k_I[i,:,:])
+            J_der_W[i,:,:] = self.h*(val @ np.transpose(self.Z_list[i,:,:]))
             J_der_b[i,:,:] = self.h*(val @ one_vec)
         
         gradient = np.array((J_der_W,J_der_b,J_der_omega,J_der_my))
@@ -157,12 +158,12 @@ class Network:
     # SGD should be used when calculating the gradient, to reduce the computations.
     # We should at least test and see how much it affects the convergence. 
     # This does not draw without replacement however, does it?
-    def stochastic_elements(self,Y_0, C, chunk): 
+    def stochastic_elements(self,Z_0, C, chunk): 
         """Pick out a fixed amount of elements from Z."""        
         start = np.random.randint(self.I-chunk)
-        Y0_chunk = Y_0[:,start:start+chunk] 
+        Z0_chunk = Z_0[:,start:start+chunk] 
         C_chunk = C[start:start+chunk]
-        return Y0_chunk, C_chunk 
+        return Z0_chunk, C_chunk 
 
 
     # Perhaps there should be one class per part of the Hamiltonian and
@@ -177,12 +178,13 @@ class Network:
         """
 
         # Here I have assumed that Y_list is Z^(k) from the report. 
-        gradient = self.U.omega*np.transpose((self.eta_der(\
-            np.transpose(self.Y_list[self.K,:,:])+self.U.my*np.ones(self.d))))
-        for i in range(self.K-1, -1, 0):
-            gradient *= (np.identity(self.d) + self.U.W_k[i,:,:]*self.h* \
-                np.transpose(self.sigma_der(self.U.W_k[i,:,:]*self.Y_list[i,:,:] \
-                    + self.U.b_k_I[i,:,:])))
+        one_vec = np.ones((self.I,1)) 
+        gradient = self.theta.w*np.transpose((self.eta_der( \
+            np.transpose(self.Z_list[self.K,:,:])+self.theta.my*one_vec)))
+        for i in range(self.K-1, -1, -1):
+            gradient *= (np.identity(self.d) + self.theta.W_k[i,:,:]*self.h* \
+                np.transpose(self.sigma_der(self.theta.W_k[i,:,:]*self.Z_list[i,:,:] \
+                    + self.theta.b_k_I[i,:,:])))
         
         # Could either set the gradient as an attribute of the object
         self.hamiltonian_gradient = gradient
@@ -194,12 +196,10 @@ def algorithm(I,d,K,h,iterations,function):
     """Main training algorithm."""
     tau = 0.1
       
-    Y_0 = function.input
+    Z_0 = function.input
     c = function.solution
-    #print(c)
-        
 
-    NN = Network(K,d,I,h,Y_0,c,iterations)
+    NN = Network(K,d,I,h,Z_0,c,iterations)
     
     # For plotting J. 
     J_list = np.zeros(iterations)
@@ -208,15 +208,13 @@ def algorithm(I,d,K,h,iterations,function):
     for j in range(1,iterations+1):
         
         Z = NN.forward_function() # See comment in forward function about returning Z. 
-        #print("Z:")
-        #print(Z.shape)
         
         # Tried to calculate the gradient using SGD instead, but the dimension of Z is wrong. 
         # Should not this be of dimension d x ?
         # Still think SGD could be used, but I am probably doing it wrongly.
         #Z_chunk, c_chunk = NN.stochastic_elements(Z, c, I/10)
         gradient = NN.back_propagation(Z,c)
-        NN.U.update_parameters(gradient,"adams",tau,j)
+        NN.theta.update_parameters(gradient,"adams",tau,j)
         
         #print("J:")
         #print(NN.J(Z,c))
