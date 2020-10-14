@@ -4,6 +4,8 @@ import math
 import numpy.linalg as la
 from mpl_toolkits import mplot3d
 from import_data import generate_data, concatenate
+from testing import*
+
 
 class Parameters:
     """Class for the parameters in the Neural Network."""
@@ -192,12 +194,12 @@ class Network:
         return gradient
 
     
-def algorithm(I,d,K,h,iterations,function):
+def algorithm(I,d,K,h,iterations,function,domain):
     """Main training algorithm."""
     tau = 0.1
       
-    Z_0 = function.input
-    c = function.solution
+    Z_0 = generate_input(function,domain,d0,I,d)
+    c = get_solution(function,Z_0,d,I,d0)
 
     NN = Network(K,d,I,h,Z_0,c,iterations)
     
@@ -228,151 +230,85 @@ def algorithm(I,d,K,h,iterations,function):
     plt.show()
     
     return NN
-    
-class TestFunction1D: 
-    """Abstract class for testing the presented 1D test functions.
-    
-    This is inherited in other classes to make the concrete testing classes.
-    """
-    def __init__(self,domain,d0,d,I):
-        self.domain = domain
-        self.input = self.embed_input(d,I)
-        self.solution = self.generate_solution(I)
-        self.d0 = d0
-
-    
-    def embed_input(self,d,I):
-        """Embed input in d-dimensional space.
-        
-        Done by drawing from a uniform distribution on the domain.
-        """
-        result = np.zeros((d,I))
-        for i in range(I):
-            num = np.random.uniform(self.domain[0],self.domain[1])
-            result[:,i] = np.repeat(num,d)
-        return result
-    
-    def generate_solution(self,I):
-        """Generate points from the test function on the given domain."""
-        result = np.zeros(I)
-        for i in range(I):
-            result[i] = self.f(self.input[0,i])
-        return result
-    
-    def plot_graph(self):
-        """Plot the graph of the test function on the given domain."""
-        x = np.linspace(self.domain[0],self.domain[1])
-        plt.plot(x,self.f(x))
-
-class TestFunction1(TestFunction1D):
-    """First given test function (in 1 dimension)."""
-    def f(self, x):
-        return 0.5*x**2
-    
-class TestFunction2(TestFunction1D):
-    """Second given test function (in 1 dimension)."""
-    def f(self, x):
-        return 1 - np.cos(x)
- 
- 
-class TestFunction2D:
-    """Abstract class for testing the presented 2D test functions.
-    
-    This is inherited in other classes to make the concrete testing classes.
-    """
-    def __init__(self,domain,d0,d,I):
-        self.domain = domain
-        self.input = self.embed_input(d,I)
-        self.solution = self.generate_solution(I)
-        self.d0 = d0
-
-    
-    def embed_input(self,d,I):
-        """Embed input in d-dimensional space.
-        
-        Done by drawing from a uniform distribution on the domain.
-        """
-        result = np.zeros((d,I))
-        for i in range(I):
-            num = np.random.uniform(self.domain[0][0],self.domain[0][1])
-            result[:int(d/2),i] = np.repeat(num,d/2)
-        for i in range(I):
-            num = np.random.uniform(self.domain[1][0],self.domain[1][1])
-            result[int(d/2):,i] = np.repeat(num,d/2)
-            
-        return result
-    
-    def generate_solution(self,I):
-        """Generate points from the test function on the given domain."""
-        result = np.zeros(I)
-        for i in range(I):
-            result[i] = self.f(self.input[0,i],self.input[2,i])
-        return result
-    
-    def plot_graph(self):
-        """Plot the graph of the test function on the given domain."""
-        x = np.linspace(self.domain[0][0], self.domain[0][1], 30)
-        y = np.linspace(self.domain[1][0], self.domain[1][1], 30)
-        
-        ax = plt.axes(projection='3d')
-        X, Y = np.meshgrid(x, y)
-        Z = self.f(X, Y)
-        fig = plt.figure()
-        ax.contour3D(X, Y, Z, 50, cmap='binary')
-    
-class TestFunction3(TestFunction2D):
-    """Third given test function (in 2 dimensions)."""
-    def f(self, x,y):
-        return 0.5*(x**2 + y**2)
-
-class TestFunction4(TestFunction2D):
-    """Fourth given test function (in 2 dimensions)."""
-    def f(self, x,y):
-        return -1/np.sqrt(x**2+y**2)
-    
-    
-# Testing the trained Neural Network with new random data.
-def testing(Network,function,I,d0):
-    """Testing the Neural Network with new random data. 
-    
-    The parameters found from the training of the Neural Network are employed.
-    """
-    Y_0 = function.input
-    c = function.solution
-    
-    Y_list = np.zeros((Network.K+1,d,I))
-    Y_list[0,:,:] = Y_0
-    Network.Y_list = Y_list
-    Z = NN.forward_function()
-    
-    # Plotting.
-    function.plot_graph()
-    if d0 == 1:
-        x = Y_0[0,:]
-        plt.scatter(x,Z)
-    elif d0 == 2:
-        ax = plt.axes(projection='3d')
-        zdata = Z
-        xdata = Y_0[0,:]
-        ydata = Y_0[2,:]
-        ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Greens')
-    plt.show()
 
 
+""" 
+Below, we train and test the neural network with the provided test functions.
+"""
 
-I = 1000 # Amount of points ran through the network at once. 
+I = 500 # Amount of points ran through the network at once. 
 K = 20 # Amount of hidden layers in the network.
-d = 4 # Dimension of the hidden layers in the network. 
+d = 2 # Dimension of the hidden layers in the network. 
 h = 0.1 # Scaling of the activation function application in algorithm.  
 iterations = 1000
-d0 = 2 # Dimensin of the input layer. 
 
-#function = TestFunction1([-2,2],d0,d,I)
-#function = TestFunction2([-np.pi/3,np.pi/3],d0,d,I)
-#function = TestFunction3([[-2,2],[-2,2]],d0,d,I)
-function = TestFunction4([[-1,1],[-1,1]],d0,d,I)
-NN = algorithm(I,d,K,h,iterations,function)
+#================#
+#Test function 1 #
+#================#
 
-function.embed_input(d,I)
-function.generate_solution(I)
-testing(NN,function,I,d0)
+"""
+
+d0 = 1 # Dimensin of the input layer. 
+domain = [-2,2]
+def test_function1(x):
+    return 0.5*x**2
+
+NN = algorithm(I,d,K,h,iterations,test_function1,domain)
+test_input = generate_input(function,domain,d0,I,d)
+output = testing(NN, test_input, test_function1, domain, d0, I)
+plot_graph_and_output(output, test_input, test_function1, domain, d0,d, I)
+
+"""
+#================#
+#Test function 2 #
+#================#
+""""
+
+d0 = 1 # Dimensin of the input layer. 
+domain = [-2,2]
+def test_function2(x):
+    return 1 - np.cos(x)
+
+NN = algorithm(I,d,K,h,iterations,test_function2,domain)
+test_input = generate_input(test_function2,domain,d0,I,d)
+output = testing(NN, test_input, test_function2, domain, d0, d, I)
+plot_graph_and_output(output,test_input, test_function2, domain, d0,d)
+"""
+#================#
+#Test function 3 #
+#================#
+
+
+
+d0 = 2
+d = 4
+domain = [[-2,2],[-2,2]]
+def test_function3(x,y):
+    return 0.5*(x**2 + y**2)
+
+NN = algorithm(I,d,K,h,iterations,test_function3,domain)
+
+test_input = generate_input(test_function3,domain,d0,I,d)
+output = testing(NN, test_input, test_function3, domain, d0, d, I)
+plot_graph_and_output(output, test_input, test_function3, domain, d0,d)
+
+
+#================#
+#Test function 4 #
+#================#
+"""
+d0 = 2
+d = 4
+domain = [[-2,2],[-2,2]]
+def test_function4(x,y):
+    return -1/np.sqrt(x**2 + y**2)
+
+NN = algorithm(I,d,K,h,iterations,test_function4,domain)
+
+test_input = generate_input(test_function4,domain,d0,I,d)
+output = testing(NN, test_input, test_function4, domain, d0, d,  I)
+plot_graph_and_output(output,test_input, test_function4, domain, d0,d)
+
+"""
+
+
