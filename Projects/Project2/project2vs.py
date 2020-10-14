@@ -241,8 +241,12 @@ class TestFunction1D:
         self.input = self.embed_input(d,I)
         self.solution = self.generate_solution(I)
         self.d0 = d0
+        
+        # Scaling parameters. 
+        self.alpha = 0.2
+        self.beta = 0.8
+        # These are not found for some reason?
 
-    
     def embed_input(self,d,I):
         """Embed input in d-dimensional space.
         
@@ -252,6 +256,17 @@ class TestFunction1D:
         for i in range(I):
             num = np.random.uniform(self.domain[0],self.domain[1])
             result[:,i] = np.repeat(num,d)
+        #print("result", result)
+        # Add some scaling here.
+        minim = min(result[0,:]) # Since all the columns are the same anyway. 
+        maxim = max(result[0,:]) # Since all the columns are the same anyway. 
+
+        alpha = 0.2
+        beta = 0.8
+        for i in range(len(result)):
+            result[i, :] = 1/(maxim - minim)*((maxim-result[i, :])*alpha + (result[i, :]-minim)*beta)
+    
+        #print("result2", result)
         return result
     
     def generate_solution(self,I):
@@ -259,6 +274,16 @@ class TestFunction1D:
         result = np.zeros(I)
         for i in range(I):
             result[i] = self.f(self.input[0,i])
+
+        # Scaled here also - Just testing now, should make a function for scaling later. 
+        minim = min(result)
+        maxim = max(result)
+
+        alpha = 0.2
+        beta = 0.8
+
+        result = 1/(maxim - minim)*((maxim-result)*alpha + (result-minim)*beta)
+
         return result
     
     def plot_graph(self):
@@ -346,6 +371,10 @@ def testing(Network,function,I,d0):
     Y_list[0,:,:] = Y_0
     Network.Y_list = Y_list
     Z = NN.forward_function()
+
+    # Scale this Z up again before plotting. 
+    # I think I need to use the min and max from each of the functions above to scale back!
+    # Try later. 
     
     # Plotting.
     function.plot_graph()
@@ -364,15 +393,15 @@ def testing(Network,function,I,d0):
 
 I = 1000 # Amount of points ran through the network at once. 
 K = 20 # Amount of hidden layers in the network.
-d = 4 # Dimension of the hidden layers in the network. 
+d = 2 # Dimension of the hidden layers in the network. 
 h = 0.1 # Scaling of the activation function application in algorithm.  
 iterations = 1000
-d0 = 2 # Dimensin of the input layer. 
+d0 = 1 # Dimensin of the input layer. 
 
-#function = TestFunction1([-2,2],d0,d,I)
+function = TestFunction1([-2,2],d0,d,I)
 #function = TestFunction2([-np.pi/3,np.pi/3],d0,d,I)
 #function = TestFunction3([[-2,2],[-2,2]],d0,d,I)
-function = TestFunction4([[-1,1],[-1,1]],d0,d,I)
+#function = TestFunction4([[-1,1],[-1,1]],d0,d,I)
 NN = algorithm(I,d,K,h,iterations,function)
 
 function.embed_input(d,I)
