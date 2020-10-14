@@ -258,8 +258,8 @@ class TestFunction1D:
             result[:,i] = np.repeat(num,d)
         #print("result", result)
         # Add some scaling here.
-        minim = min(result[0,:]) # Since all the columns are the same anyway. 
-        maxim = max(result[0,:]) # Since all the columns are the same anyway. 
+        self.inp_minim = minim = min(result[0,:]) # Since all the columns are the same anyway. 
+        self.inp_maxim = maxim = max(result[0,:]) # Since all the columns are the same anyway. 
 
         alpha = 0.2
         beta = 0.8
@@ -276,8 +276,8 @@ class TestFunction1D:
             result[i] = self.f(self.input[0,i])
 
         # Scaled here also - Just testing now, should make a function for scaling later. 
-        minim = min(result)
-        maxim = max(result)
+        self.sol_minim = minim = min(result)
+        self.sol_maxim = maxim = max(result)
 
         alpha = 0.2
         beta = 0.8
@@ -372,9 +372,15 @@ def testing(Network,function,I,d0):
     Network.Y_list = Y_list
     Z = NN.forward_function()
 
-    # Scale this Z up again before plotting. 
-    # I think I need to use the min and max from each of the functions above to scale back!
-    # Try later. 
+    # Scale Z with the opposite scaling from the input (Scale back).
+    
+    # Make function later (since this code is copied between several different places. 
+    alpha = 0.2
+    beta = 0.8
+    maxim = function.inp_maxim
+    minim = function.inp_minim
+
+    Z = (maxim*(Z-alpha) + alpha*(beta - Z))/(beta - alpha)
     
     # Plotting.
     function.plot_graph()
