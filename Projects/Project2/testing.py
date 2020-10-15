@@ -4,7 +4,6 @@ import math
 import numpy.linalg as la
 from mpl_toolkits import mplot3d
 
-
 plt.style.use('seaborn')
 
 def testing(Network, test_input, function, domain, d0, d, I):
@@ -60,23 +59,23 @@ def plot_graph_and_output(output,input,function,domain,d0,d):
     Plot results from testing the network together with the analytical graph
     """
     if d0 == 1:
-        #Plotting the output from the network.
+        # Plotting the output from the network.
         x = input[0,:]
         plt.scatter(x,output)
 
-        #Plotting the analytical solution
+        # Plotting the analytical solution
         x = np.linspace(domain[0],domain[1])
         plt.plot(x,function(x))
         plt.show()
     elif d0 == 2:
-        #Plotting output
+        # Plotting output
         ax = plt.axes(projection='3d')
         zdata = output
         xdata = input[0,:]
         ydata = input[int(d/2),:]
         ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Reds')
         
-        #Plotting analytical graph
+        # Plotting analytical graph
         x = np.linspace(domain[0][0],domain[0][1], 30)
         y = np.linspace(domain[1][0], domain[1][1], 30)
         
@@ -86,13 +85,3 @@ def plot_graph_and_output(output,input,function,domain,d0,d):
         ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
                 cmap='Greys', edgecolor='none', alpha = 0.5)
         plt.show()
-        
-
-
-
-
-
-
-
-
-
