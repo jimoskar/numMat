@@ -246,7 +246,6 @@ iterations = 1000
 #Test function 1 #
 #================#
 
-"""
 
 d0 = 1 # Dimensin of the input layer. 
 domain = [-2,2]
@@ -254,11 +253,10 @@ def test_function1(x):
     return 0.5*x**2
 
 NN = algorithm(I,d,K,h,iterations,test_function1,domain)
-test_input = generate_input(function,domain,d0,I,d)
-output = testing(NN, test_input, test_function1, domain, d0, I)
-plot_graph_and_output(output, test_input, test_function1, domain, d0,d, I)
+test_input = generate_input(test_function1,domain,d0,I,d)
+output = testing(NN, test_input, test_function1, domain, d0, d, I)
+plot_graph_and_output(output, test_input, test_function1, domain, d0,d)
 
-"""
 #================#
 #Test function 2 #
 #================#
@@ -276,7 +274,7 @@ plot_graph_and_output(output,test_input, test_function2, domain, d0,d)
 #================#
 #Test function 3 #
 #================#
-
+"""
 d0 = 2
 d = 4
 domain = [[-2,2],[-2,2]]
@@ -288,6 +286,7 @@ NN = algorithm(I,d,K,h,iterations,test_function3,domain)
 test_input = generate_input(test_function3,domain,d0,I,d)
 output = testing(NN, test_input, test_function3, domain, d0, d, I)
 plot_graph_and_output(output, test_input, test_function3, domain, d0,d)
+"""
 
 #================#
 #Test function 4 #
