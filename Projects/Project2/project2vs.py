@@ -4,7 +4,8 @@ import math
 import numpy.linalg as la
 from mpl_toolkits import mplot3d
 from import_data import generate_data, concatenate
-from testing import*
+from testing import *
+from utilities import stochastic_elements
 
 
 class Parameters:
@@ -156,16 +157,6 @@ class Network:
         gradient = np.array((J_der_W,J_der_b,J_der_omega,J_der_my))
         
         return gradient
-    
-    # SGD should be used when calculating the gradient, to reduce the computations.
-    # We should at least test and see how much it affects the convergence. 
-    # This does not draw without replacement however, does it?
-    def stochastic_elements(self,Z_0, C, chunk): 
-        """Pick out a fixed amount of elements from Z."""        
-        start = np.random.randint(self.I-chunk)
-        Z0_chunk = Z_0[:,start:start+chunk] 
-        C_chunk = C[start:start+chunk]
-        return Z0_chunk, C_chunk 
 
 
     # Perhaps there should be one class per part of the Hamiltonian and
@@ -201,7 +192,11 @@ def algorithm(I,d,K,h,iterations,function,domain):
     Z_0 = generate_input(function,domain,d0,I,d)
     c = get_solution(function,Z_0,d,I,d0)
 
-    NN = Network(K,d,I,h,Z_0,c,iterations)
+    # Try with SGD: Pick out only 1/10 of the points at a time. 
+    chunk = I//10
+    Z_0, c = stochastic_elements(Z_0, c, I, chunk)
+    
+    NN = Network(K,d,chunk,h,Z_0,c,iterations)
     
     # For plotting J. 
     J_list = np.zeros(iterations)
@@ -209,17 +204,11 @@ def algorithm(I,d,K,h,iterations,function,domain):
     
     for j in range(1,iterations+1):
         
-        Z = NN.forward_function() # See comment in forward function about returning Z. 
+        Z = NN.forward_function() # See comment in forward function about returning Z.
         
-        # Tried to calculate the gradient using SGD instead, but the dimension of Z is wrong. 
-        # Should not this be of dimension d x ?
-        # Still think SGD could be used, but I am probably doing it wrongly.
-        #Z_chunk, c_chunk = NN.stochastic_elements(Z, c, I/10)
         gradient = NN.back_propagation(Z,c)
         NN.theta.update_parameters(gradient,"adams",tau,j)
         
-        #print("J:")
-        #print(NN.J(Z,c))
         J_list[j-1] = NN.J(Z,c)
         it[j-1] = j
         
@@ -228,6 +217,8 @@ def algorithm(I,d,K,h,iterations,function,domain):
     plt.ylabel("J")
     plt.xlabel("iteration")
     plt.show()
+
+    print("Objective function in iteration", str(iterations) + ": " + str(J_list[-1]))
     
     return NN
 
@@ -246,8 +237,7 @@ iterations = 1000
 #Test function 1 #
 #================#
 
-
-d0 = 1 # Dimensin of the input layer. 
+d0 = 1 # Dimension of the input layer. 
 domain = [-2,2]
 def test_function1(x):
     return 0.5*x**2
