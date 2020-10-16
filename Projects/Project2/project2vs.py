@@ -177,8 +177,9 @@ class Network:
         """
 
         # Here I have assumed that Y_list is Z^(k) from the report. 
+        one_vec = np.ones((self.I,1)) 
         gradient = self.U.omega*np.transpose((self.eta_der(\
-            np.transpose(self.Y_list[self.K,:,:])+self.U.my*np.ones(self.d))))
+            np.transpose(self.Y_list[self.K,:,:])@self.U.omega+self.U.my*one_vec))
         for i in range(self.K-1, -1, 0):
             gradient *= (np.identity(self.d) + self.U.W_k[i,:,:]*self.h* \
                 np.transpose(self.sigma_der(self.U.W_k[i,:,:]*self.Y_list[i,:,:] \
