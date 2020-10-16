@@ -29,3 +29,34 @@ We need to construct NN for each of the configurations and save the objective fu
 (perhaps only the last value) somewhere. From these values we can find max, min, argmax and argmin :)
 
 """
+
+# I am going to write some easy tests to begin with, to test (the tests ;))
+
+from project2vs import *
+
+# For the one-dimensional test function 1.
+K_values = [10, 15, 20, 23]
+d_values = [2, 3, 4]
+h_values = [0.05, 0.1, 0.3, 0.6, 0.8]
+
+config = {}
+i = 1
+for K in K_values:
+    config[K] = {}
+    for d in d_values:
+        config[K][d] = {}
+        for h in h_values:
+            NN = algorithm(I,d,K,h,iterations,test_function1,domain) # This only tests convergence when training. 
+            # Could also test with random data, via testing!
+            config[K][d][h] = NN.J_list # add the value of J in the last iteration to the hash table.
+            print(i)
+            del NN # Safety measure to avoid leak. 
+            i += 1
+
+# Now, find max and argmax from the hash-table config. 
+import pickle
+filename = 'cats'
+outfile = open(filename,'wb')
+pickle.dump(config, outfile)
+outfile.close()
+#print(config)

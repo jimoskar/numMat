@@ -79,6 +79,8 @@ class Network:
         self.I = I
         self.d = d
         self.Y = None
+
+        self.J_list = None # For use in the testing (instead of returning J from algorithm, save in NN)
     
     def J(self,Y,c): 
         """Objective function."""
@@ -227,7 +229,8 @@ def algorithm(I,d,K,h,iterations,function,domain):
         #print(NN.J(Z,c))
         J_list[j-1] = NN.J(Z,c)
         it[j-1] = j
-        
+    
+    """
     fig, ax = plt.subplots()
     ax.plot(it,J_list)
     fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
@@ -237,7 +240,9 @@ def algorithm(I,d,K,h,iterations,function,domain):
             horizontalalignment="center", verticalalignment="center", 
             transform=ax.transAxes, fontsize = 16)
     #plt.savefig("objTest1.pdf")
-    plt.show()
+    #plt.show()
+    """
+    NN.J_list = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
     
     return NN
 
@@ -261,12 +266,12 @@ d0 = 1 # Dimensin of the input layer.
 domain = [-2,2]
 def test_function1(x):
     return 0.5*x**2
-
+"""
 NN = algorithm(I,d,K,h,iterations,test_function1,domain)
 test_input = generate_input(test_function1,domain,d0,I,d)
 output = testing(NN, test_input, test_function1, domain, d0, d, I)
 plot_graph_and_output(output, test_input, test_function1, domain, d0,d)
-
+"""
 #================#
 #Test function 2 #
 #================#
