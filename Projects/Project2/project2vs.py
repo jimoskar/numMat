@@ -90,12 +90,16 @@ class Network:
 
     def eta(self, x):
         """Hypothesis function. Appears in the final layer of the neural network."""
-        return x
+        val = x
+        #val = 0.5*(1+ np.tanh(x/2))
+        return val
 
 
     def eta_der(self, x):
         """The derivative of the hypothesis function."""
-        return 1
+        val = 1
+        #val = 0.25*self.sigma_der(x/2) 
+        return val
 
     def forward_function(self): 
         """Calculate and return Z."""
@@ -194,12 +198,16 @@ class Network:
         return gradient
 
     
-def algorithm(I,d,K,h,iterations,function,domain):
+def algorithm(I,d,K,h,iterations,function,domain,scaling, alpha, beta):
     """Main training algorithm."""
     tau = 0.1
       
     Z_0 = generate_input(function,domain,d0,I,d)
     c = get_solution(function,Z_0,d,I,d0)
+    if scaling:
+        Z_0, a1, b1 = scale_data(alpha,beta,Z_0)
+        c, a2, b2 = scale_data(alpha,beta,c)
+    
 
     NN = Network(K,d,I,h,Z_0,c,iterations)
     
@@ -218,8 +226,7 @@ def algorithm(I,d,K,h,iterations,function,domain):
         gradient = NN.back_propagation(Z,c)
         NN.theta.update_parameters(gradient,"adams",tau,j)
         
-        #print("J:")
-        #print(NN.J(Z,c))
+
         J_list[j-1] = NN.J(Z,c)
         it[j-1] = j
         
@@ -232,44 +239,55 @@ def algorithm(I,d,K,h,iterations,function,domain):
     return NN
 
 
+
 """ 
 Below, we train and test the neural network with the provided test functions.
 """
 
-I = 500 # Amount of points ran through the network at once. 
+I = 300 # Amount of points ran through the network at once. 
 K = 20 # Amount of hidden layers in the network.
 d = 2 # Dimension of the hidden layers in the network. 
 h = 0.1 # Scaling of the activation function application in algorithm.  
 iterations = 1000
+
+#For scaling
+scaling = True
+alpha = 0.2
+beta = 0.8 
 
 #================#
 #Test function 1 #
 #================#
 
 
-d0 = 1 # Dimensin of the input layer. 
+d0 = 1 # Dimension of the input layer. 
 domain = [-2,2]
 def test_function1(x):
     return 0.5*x**2
 
-NN = algorithm(I,d,K,h,iterations,test_function1,domain)
+NN = algorithm(I,d,K,h,iterations,test_function1,domain,scaling, alpha, beta)
 test_input = generate_input(test_function1,domain,d0,I,d)
-output = testing(NN, test_input, test_function1, domain, d0, d, I)
-plot_graph_and_output(output, test_input, test_function1, domain, d0,d)
+
+#The a's and b's are for potential scaling fo the data
+output, a1, b1, a2, b2 = testing(NN, test_input, test_function1, domain, d0, d, I, True, alpha, beta)
+plot_graph_and_output(output, test_input, test_function1, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
 
 #================#
 #Test function 2 #
 #================#
-""""
+"""
 d0 = 1 # Dimensin of the input layer. 
 domain = [-2,2]
 def test_function2(x):
     return 1 - np.cos(x)
 
-NN = algorithm(I,d,K,h,iterations,test_function2,domain)
+NN = algorithm(I,d,K,h,iterations,test_function2,domain, scaling, alpha, beta)
 test_input = generate_input(test_function2,domain,d0,I,d)
-output = testing(NN, test_input, test_function2, domain, d0, d, I)
-plot_graph_and_output(output,test_input, test_function2, domain, d0,d)
+
+#The a's and b's are for potential scaling fo the data
+output, a1, b1, a2, b2 = testing(NN, test_input, test_function2, domain, d0, d, I, scaling, alpha, beta)
+plot_graph_and_output(output, test_input, test_function2, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
+
 """
 #================#
 #Test function 3 #
@@ -281,16 +299,18 @@ domain = [[-2,2],[-2,2]]
 def test_function3(x,y):
     return 0.5*(x**2 + y**2)
 
-NN = algorithm(I,d,K,h,iterations,test_function3,domain)
-
+NN = algorithm(I,d,K,h,iterations,test_function3,domain,scaling,alpha,beta)
 test_input = generate_input(test_function3,domain,d0,I,d)
-output = testing(NN, test_input, test_function3, domain, d0, d, I)
-plot_graph_and_output(output, test_input, test_function3, domain, d0,d)
+
+#The a's and b's are for potential scaling fo the data
+output, a1, b1, a2, b2 = testing(NN, test_input, test_function3, domain, d0, d, I, scaling, alpha, beta)
+plot_graph_and_output(output, test_input, test_function3, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
 """
 
 #================#
 #Test function 4 #
 #================#
+
 """
 d0 = 2
 d = 4
@@ -298,10 +318,11 @@ domain = [[-2,2],[-2,2]]
 def test_function4(x,y):
     return -1/np.sqrt(x**2 + y**2)
 
-NN = algorithm(I,d,K,h,iterations,test_function4,domain)
-
+NN = algorithm(I,d,K,h,iterations,test_function4,domain,scaling,alpha,beta)
 test_input = generate_input(test_function4,domain,d0,I,d)
-output = testing(NN, test_input, test_function4, domain, d0, d,  I)
-plot_graph_and_output(output,test_input, test_function4, domain, d0,d)
 
+#The a's and b's are for potential scaling fo the data
+output, a1, b1, a2, b2 = testing(NN, test_input, test_function4, domain, d0, d, I, scaling, alpha, beta)
+plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
 """
+
