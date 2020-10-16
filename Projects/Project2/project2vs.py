@@ -211,15 +211,7 @@ def algorithm(I,d,K,h,iterations,function,domain):
     Z_0 = generate_input(function,domain,d0,I,d)
     c = get_solution(function,Z_0,d,I,d0)
 
-<<<<<<< Updated upstream
     NN = Network(K,d,I,h,Z_0,c,iterations)
-=======
-    # Try with SGD: Pick out only 1/10 of the points at a time. 
-    #chunk = I//10
-    #Z_0, c = stochastic_elements(Z_0, c, I, chunk)
-    
-    NN = Network(K,d,i,h,Z_0,c,iterations)
->>>>>>> Stashed changes
     
     # For plotting J. 
     J_list = np.zeros(iterations)
