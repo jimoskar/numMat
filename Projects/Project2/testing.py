@@ -1,10 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import math
 import numpy.linalg as la
 from mpl_toolkits import mplot3d
 
 plt.style.use('seaborn')
+
+# Add parameters for plotting. 
+mpl.rcParams['figure.titleweight'] = "bold"
+mpl.rcParams['font.size'] = 14
+mpl.rcParams['axes.titlesize'] = 13
+mpl.rcParams['axes.titleweight'] = "bold"
 
 def testing(Network, test_input, function, domain, d0, d, I):
     """Testing the Neural Network with new random data. 
@@ -61,12 +68,20 @@ def plot_graph_and_output(output,input,function,domain,d0,d):
     if d0 == 1:
         # Plotting the output from the network.
         x = input[0,:]
-        plt.scatter(x,output)
+
+        fig, ax = plt.subplots()
+        ax.scatter(x,output, color="orange", label="Network")
+        fig.suptitle("Analytical Solution Compared to Output From Network", fontweight = "bold")
+        ax.set_xlabel("Domain [y]")
+        ax.set_ylabel("F(y)")
 
         # Plotting the analytical solution
         x = np.linspace(domain[0],domain[1])
-        plt.plot(x,function(x))
+        ax.plot(x,function(x), color="blue", label="Function")
+        ax.legend()
+        #plt.savefig("compTest1.pdf")
         plt.show()
+
     elif d0 == 2:
         # Plotting output
         ax = plt.axes(projection='3d')
