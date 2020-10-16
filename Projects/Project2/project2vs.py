@@ -95,7 +95,7 @@ class Network:
 
     def eta_der(self, x):
         """The derivative of the hypothesis function."""
-        return 1
+        return np.ones_like(x)
 
     def forward_function(self): 
         """Calculate and return Z."""
@@ -180,14 +180,24 @@ class Network:
         """
 
         # Here I have assumed that Y_list is Z^(k) from the report. 
+    
         one_vec = np.ones((self.I,1)) 
-        gradient = self.theta.w*np.transpose((self.eta_der( \
-            np.transpose(self.Z_list[self.K,:,:])+self.theta.my*one_vec)))
-        for i in range(self.K-1, -1, -1):
-            gradient *= (np.identity(self.d) + self.theta.W_k[i,:,:]*self.h* \
-                np.transpose(self.sigma_der(self.theta.W_k[i,:,:]*self.Z_list[i,:,:] \
-                    + self.theta.b_k_I[i,:,:])))
+        gradient = np.ones((self.d, self.I))
         
+        # VIKTIG!!!!
+        self.theta.w = self.theta.w.reshape((4,1)) # Dette er viktig! Spørs om ikke dette burde være sånn flere steder også!?
+    
+        for i in range(self.K-1, -1, -1):
+            # Annenhver transponert og ikke! Dette blir rett for K like...
+            # Dette gir ikke mening med mindre alle disse matrisene er kvadratiske spør du meg...
+            if not i % 2: 
+                gradient = gradient@(np.ones((self.d, self.I)) + (self.h*self.theta.W_k[0,:,:]@ \
+                    self.sigma_der((self.theta.W_k[0,:,:]@self.Z_list[0,:,:]) + self.theta.b_k_I[0,:,:])))
+            else:
+                gradient = gradient@(np.ones((self.d, self.I)) + (self.h*self.theta.W_k[0,:,:]@ \
+                    self.sigma_der((self.theta.W_k[0,:,:]@self.Z_list[0,:,:]) + self.theta.b_k_I[0,:,:]))).T
+
+
         # Could either set the gradient as an attribute of the object
         self.hamiltonian_gradient = gradient
         # or just return the gradient. 
@@ -201,7 +211,15 @@ def algorithm(I,d,K,h,iterations,function,domain):
     Z_0 = generate_input(function,domain,d0,I,d)
     c = get_solution(function,Z_0,d,I,d0)
 
+<<<<<<< Updated upstream
     NN = Network(K,d,I,h,Z_0,c,iterations)
+=======
+    # Try with SGD: Pick out only 1/10 of the points at a time. 
+    #chunk = I//10
+    #Z_0, c = stochastic_elements(Z_0, c, I, chunk)
+    
+    NN = Network(K,d,i,h,Z_0,c,iterations)
+>>>>>>> Stashed changes
     
     # For plotting J. 
     J_list = np.zeros(iterations)
@@ -227,6 +245,8 @@ def algorithm(I,d,K,h,iterations,function,domain):
     plt.plot(it,J_list)
     plt.ylabel("J")
     plt.xlabel("iteration")
+    plt.text(0.5, 0.5, 'matplotlib', horizontalalignment='center', 
+        verticalalignment='center', transform=plt.gca().transAxes)
     plt.show()
     
     return NN
@@ -246,7 +266,7 @@ iterations = 1000
 #Test function 1 #
 #================#
 
-
+"""
 d0 = 1 # Dimensin of the input layer. 
 domain = [-2,2]
 def test_function1(x):
@@ -256,12 +276,12 @@ NN = algorithm(I,d,K,h,iterations,test_function1,domain)
 test_input = generate_input(test_function1,domain,d0,I,d)
 output = testing(NN, test_input, test_function1, domain, d0, d, I)
 plot_graph_and_output(output, test_input, test_function1, domain, d0,d)
-
+"""
 #================#
 #Test function 2 #
 #================#
 """"
-d0 = 1 # Dimensin of the input layer. 
+d0 = 1 # Dimension of the input layer. 
 domain = [-2,2]
 def test_function2(x):
     return 1 - np.cos(x)
@@ -305,3 +325,22 @@ output = testing(NN, test_input, test_function4, domain, d0, d,  I)
 plot_graph_and_output(output,test_input, test_function4, domain, d0,d)
 
 """
+
+## Test the Hamiltonian function below!
+# Test with Kepler two-body problem.
+
+def exact_grad_T(p1, p2):
+    
+    return p1+p2
+
+# Make neural network for T.
+d0 = 2
+d = 4
+domain = [[-2,2],[-2,2]]
+I = 500
+K = 20
+
+NNT = algorithm(I,d,K,h,iterations,exact_grad_T,domain)
+grad = NNT.Hamiltonian_gradient()
+test_input = generate_input(exact_grad_T, domain, d0, I, d)
+print(la.norm(grad - test_input)) # Her har de forskjellig dimensjon...
