@@ -1,11 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import math
 import numpy.linalg as la
 from mpl_toolkits import mplot3d
 from import_data import generate_data, concatenate
-from testing import*
+from testing import *
 
+# Add parameters for plotting. 
+mpl.rcParams['figure.titleweight'] = "bold"
+mpl.rcParams['font.size'] = 14
+mpl.rcParams['axes.titlesize'] = 13
+mpl.rcParams['axes.titleweight'] = "bold"
 
 class Parameters:
     """Class for the parameters in the Neural Network."""
@@ -206,7 +212,6 @@ def algorithm(I,d,K,h,iterations,function,domain):
     # For plotting J. 
     J_list = np.zeros(iterations)
     it = np.zeros(iterations)
-    
     for j in range(1,iterations+1):
         
         Z = NN.forward_function() # See comment in forward function about returning Z. 
@@ -223,10 +228,15 @@ def algorithm(I,d,K,h,iterations,function,domain):
         J_list[j-1] = NN.J(Z,c)
         it[j-1] = j
         
-    plt.figure()
-    plt.plot(it,J_list)
-    plt.ylabel("J")
-    plt.xlabel("iteration")
+    fig, ax = plt.subplots()
+    ax.plot(it,J_list)
+    fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
+    ax.set_ylabel("J")
+    ax.set_xlabel("Iteration")
+    plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+            horizontalalignment="center", verticalalignment="center", 
+            transform=ax.transAxes, fontsize = 16)
+    #plt.savefig("objTest1.pdf")
     plt.show()
     
     return NN
