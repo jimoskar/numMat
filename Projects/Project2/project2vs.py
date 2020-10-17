@@ -218,55 +218,6 @@ class Network:
         return gradient
 
     
-def algorithm(I,d,K,h,iterations, tau, SGD, chunk, function,domain,scaling, alpha, beta):
-    """Main training algorithm."""
-      
-    Z_0 = generate_input(function,domain,d0,I,d)
-    c = get_solution(function,Z_0,d,I,d0)
-    if scaling:
-        Z_0, a1, b1 = scale_data(alpha,beta,Z_0)
-        c, a2, b2 = scale_data(alpha,beta,c)
-
-    if SGD:
-        Z_chunk = Z_0[:,0:chunk]
-        c_chunk = c[0:chunk]
-        NN = Network(K,d,chunk,h,Z_chunk,c_chunk,iterations)
-    else:
-        NN = Network(K,d,I,h,Z_0,c,iterations)
-    
-    # For plotting J. 
-    J_list = np.zeros(iterations)
-    it = np.zeros(iterations)
-    for j in range(1,iterations+1):
-        for k in range(int(I/chunk)-1):
-        
-            Z = NN.forward_function() # See comment in forward function about returning Z. 
-            
-
-            #Z_chunk, c_chunk = NN.stochastic_elements(Z, c, I/10)
-            gradient = NN.back_propagation(Z,c)
-            NN.theta.update_parameters(gradient,"adams",tau,j)
-
-    
-            NN.Z_list[0,:,:] = Z_0[:,chunk*(k+1):chunk*(k+2)]
-            NN.c = c[chunk*(k + 1):chunk*(k + 2)]
-            
-
-            J_list[j-1] = NN.J(Z)
-            it[j-1] = j
-        
-    fig, ax = plt.subplots()
-    ax.plot(it,J_list)
-    fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
-    ax.set_ylabel("J")
-    ax.set_xlabel("Iteration")
-    plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
-            horizontalalignment="center", verticalalignment="center", 
-            transform=ax.transAxes, fontsize = 16)
-    #plt.savefig("objTest1.pdf")
-    plt.show()
-    
-    return NN
 
 
 def algorithm_sgd(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
@@ -294,7 +245,7 @@ def algorithm_sgd(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha
         
         NN.forward_function()
         gradient = NN.back_propagation()
-        NN.theta.update_parameters(gradient,"adams",tau,j)
+        NN.theta.update_parameters(gradient,"vanilla",tau,j)
 
         if counter < I/chunk - 1:
             NN.Z_list[0,:,:] = input[:,chunk*(counter+1):chunk*(counter+2)]
@@ -343,7 +294,7 @@ beta = 0.8
 
 d0 = 1 # Dimension of the input layer. 
 domain = [-2,2]
-chunk = int(I/1)
+chunk = int(I/10)
 def test_function1(x):
     return 0.5*x**2
 
