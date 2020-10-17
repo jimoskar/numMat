@@ -79,7 +79,7 @@ def plot_graph_and_output(output,input,function,domain,d0,d):
         x = np.linspace(domain[0],domain[1])
         ax.plot(x,function(x), color="blue", label="Function")
         ax.legend()
-        #plt.savefig("compTest1.pdf")
+        plt.savefig("compTest1Pic2.pdf", bbox_inches='tight')
         plt.show()
 
     elif d0 == 2:
@@ -100,3 +100,7 @@ def plot_graph_and_output(output,input,function,domain,d0,d):
         ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
                 cmap='Greys', edgecolor='none', alpha = 0.5)
         plt.show()
+
+def get_residue(true_vals, network_vals):
+    """Find difference between function values and values from network."""
+    return la.norm(true_vals - network_vals)

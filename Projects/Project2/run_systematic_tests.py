@@ -37,7 +37,8 @@ from project2vs import *
 # For the one-dimensional test function 1.
 K_values = [10, 15, 20, 23]
 d_values = [2, 3, 4]
-h_values = [0.05, 0.1, 0.3, 0.6, 0.8]
+h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
+iterations = 2000
 
 config = {}
 i = 1
@@ -46,16 +47,23 @@ for K in K_values:
     for d in d_values:
         config[K][d] = {}
         for h in h_values:
+            # Only training. 
             NN = algorithm(I,d,K,h,iterations,test_function1,domain) # This only tests convergence when training. 
-            # Could also test with random data, via testing!
-            config[K][d][h] = NN.J_list # add the value of J in the last iteration to the hash table.
+            # The below adds the J_list from training. 
+            #config[K][d][h] = NN.J_list # add the value of J in the last iteration to the hash table.
+
+            # Training and testing (uncomment this also)
+            test_input = generate_input(test_function1,domain,d0,I,d)
+            output = testing(NN, test_input, test_function1, domain, d0, d, I)
+            config[K][d][h] = NN.J(output, test_input)
+            
             print(i)
             del NN # Safety measure to avoid leak. 
             i += 1
 
 # Now, find max and argmax from the hash-table config. 
 import pickle
-filename = 'cats'
+filename = 'testing_testfunc1'
 outfile = open(filename,'wb')
 pickle.dump(config, outfile)
 outfile.close()
