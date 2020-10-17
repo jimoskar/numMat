@@ -4,16 +4,6 @@ This is in order to fint he optimal values of the parameters in the network,
 by method of experimentation (systematic tests).
 """
 
-# Python's unittest module? 
-# Or write tests ourselves. Google a bit!
-
-#https://towardsdatascience.com/how-to-rapidly-test-dozens-of-deep-learning-models-in-python-cb839b518531
-
-# This needs to be thought through in detail before doing!
-# Maybe run the code on Markow since it will probably take a very long time!
-
-# Perhaps make a hash table (dictionary) of the different parameters. 
-
 """
 Parameters to test for:
 - K
@@ -30,8 +20,6 @@ We need to construct NN for each of the configurations and save the objective fu
 
 """
 
-# I am going to write some easy tests to begin with, to test (the tests ;))
-
 from project2vs import *
 
 # For the one-dimensional test function 1.
@@ -47,24 +35,39 @@ for K in K_values:
     for d in d_values:
         config[K][d] = {}
         for h in h_values:
+
+            # Test function 1:
             # Only training. 
             NN = algorithm(I,d,K,h,iterations,test_function1,domain) # This only tests convergence when training. 
             # The below adds the J_list from training. 
             #config[K][d][h] = NN.J_list # add the value of J in the last iteration to the hash table.
 
-            # Training and testing (uncomment this also)
+            # Training and testing (uncomment this also if both)
             test_input = generate_input(test_function1,domain,d0,I,d)
             output = testing(NN, test_input, test_function1, domain, d0, d, I)
             config[K][d][h] = NN.J(output, test_input)
+
+            """
+            # Test function 2:
+            # Only training. 
+            NN = algorithm(I,d,K,h,iterations,test_function2,domain) # This only tests convergence when training. 
+            # The below adds the J_list from training. 
+            #config[K][d][h] = NN.J_list # add the value of J in the last iteration to the hash table.
+
+            # Training and testing (uncomment this also if both)
+            test_input = generate_input(test_function2,domain,d0,I,d)
+            output = testing(NN, test_input, test_function2, domain, d0, d, I)
+            config[K][d][h] = NN.J(output, test_input)
+            """
+            # Etc. 
             
             print(i)
             del NN # Safety measure to avoid leak. 
             i += 1
 
-# Now, find max and argmax from the hash-table config. 
+# Save data to file. 
 import pickle
 filename = 'testing_testfunc1'
 outfile = open(filename,'wb')
 pickle.dump(config, outfile)
 outfile.close()
-#print(config)

@@ -100,7 +100,3 @@ def plot_graph_and_output(output,input,function,domain,d0,d):
         ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
                 cmap='Greys', edgecolor='none', alpha = 0.5)
         plt.show()
-
-def get_residue(true_vals, network_vals):
-    """Find difference between function values and values from network."""
-    return la.norm(true_vals - network_vals)
