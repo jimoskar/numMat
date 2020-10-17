@@ -19,17 +19,15 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
     
     The parameters found from the training of the Neural Network are employed.
     """
-    c = get_solution(function, test_input, d, I, d0)
+    test_output = get_solution(function, test_input, d, I, d0)
     a1, b1, a2, b2 = None, None, None, None
     if scaling:
         test_input, a1, b1 = scale_data(alpha,beta,test_input)
         c, a2, b2 = scale_data(alpha,beta,c)
 
-
-    Z_list = np.zeros((Network.K+1,d,I))
-    Z_list[0,:,:] = test_input
-    Network.Z_list = Z_list
-    output = Network.forward_function()
+    Network.embed_test_input(test_input, test_output)
+    Network.forward_function()
+    output = Network.Y
     
     return output, a1, b1, a2, b2
 
