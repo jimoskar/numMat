@@ -239,7 +239,7 @@ def algorithm(I,d,K,h,iterations,function,domain):
     plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
             horizontalalignment="center", verticalalignment="center", 
             transform=ax.transAxes, fontsize = 16)
-    plt.savefig("objTest1Pic2.pdf", bbox_inches='tight')
+    #plt.savefig("objTest1Pic2.pdf", bbox_inches='tight')
     plt.show()
     
     NN.J_list = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
@@ -252,9 +252,9 @@ Below, we train and test the neural network with the provided test functions.
 """
 
 I = 500 # Amount of points ran through the network at once. 
-K = 15 # Amount of hidden layers in the network.
+K = 20 # Amount of hidden layers in the network.
 d = 2 # Dimension of the hidden layers in the network. 
-h = 0.1 # Scaling of the activation function application in algorithm.  
+h = 0.4 # Scaling of the activation function application in algorithm.  
 iterations = 2000
 
 #================#
@@ -271,7 +271,7 @@ NN = algorithm(I,d,K,h,iterations,test_function1,domain)
 test_input = generate_input(test_function1,domain,d0,I,d)
 output = testing(NN, test_input, test_function1, domain, d0, d, I)
 plot_graph_and_output(output, test_input, test_function1, domain, d0,d)
-
+print(NN.J(output, test_input)) # J is around 1000 here also. 
 #================#
 #Test function 2 #
 #================#

@@ -79,7 +79,7 @@ def plot_graph_and_output(output,input,function,domain,d0,d):
         x = np.linspace(domain[0],domain[1])
         ax.plot(x,function(x), color="blue", label="Function")
         ax.legend()
-        plt.savefig("compTest1Pic2.pdf", bbox_inches='tight')
+        #plt.savefig("compTest1Pic2.pdf", bbox_inches='tight')
         plt.show()
 
     elif d0 == 2:
