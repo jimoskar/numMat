@@ -182,20 +182,13 @@ class Network:
         # Here I have assumed that Y_list is Z^(k) from the report. 
     
         one_vec = np.ones((self.I,1)) 
-        gradient = np.ones((self.d, self.I))
-        
-        # VIKTIG!!!!
-        self.theta.w = self.theta.w.reshape((4,1)) # Dette er viktig! Spørs om ikke dette burde være sånn flere steder også!?
-    
-        for i in range(self.K-1, -1, -1):
-            # Annenhver transponert og ikke! Dette blir rett for K like...
-            # Dette gir ikke mening med mindre alle disse matrisene er kvadratiske spør du meg...
-            if not i % 2: 
-                gradient = gradient@(np.ones((self.d, self.I)) + (self.h*self.theta.W_k[0,:,:]@ \
-                    self.sigma_der((self.theta.W_k[0,:,:]@self.Z_list[0,:,:]) + self.theta.b_k_I[0,:,:])))
-            else:
-                gradient = gradient@(np.ones((self.d, self.I)) + (self.h*self.theta.W_k[0,:,:]@ \
-                    self.sigma_der((self.theta.W_k[0,:,:]@self.Z_list[0,:,:]) + self.theta.b_k_I[0,:,:]))).T
+        self.theta.w = self.theta.w.reshape((4,1)) # Dette er viktig!
+        gradient = self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T)*self.theta.w
+                                                    # Tenker egt at det burde vært '@' foran siste faktor, men det gir dim-feil
+
+        for k in range(self.K-1, 0, -1):
+            gradient += self.theta.W_k[k-1,:,:].T@(self.h*self.sigma_der(\
+                    self.theta.W_k[k-1,:,:]@self.Z_list[k-1,:,:] + self.theta.b_k_I[k-1,:,:])*gradient)
 
 
         # Could either set the gradient as an attribute of the object
@@ -237,7 +230,7 @@ def algorithm(I,d,K,h,iterations,function,domain):
     plt.plot(it,J_list)
     plt.ylabel("J")
     plt.xlabel("iteration")
-    plt.text(0.5, 0.5, 'matplotlib', horizontalalignment='center', 
+    plt.text(0.5, 0.5, 'J last '+str(J_list[-1]), horizontalalignment='center', 
         verticalalignment='center', transform=plt.gca().transAxes)
     plt.show()
     
