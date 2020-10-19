@@ -104,7 +104,7 @@ class Network:
 
     def eta_der(self, x):
         """The derivative of the hypothesis function."""
-        val = 1
+        val = np.ones(x.shape)
         #val = 0.25*self.sigma_der(x/2) 
         return val
 
@@ -202,19 +202,23 @@ class Network:
         In general it is used for the entire Hamiltonian F, but since we are 
         working with separable Hamiltonians, it can be used on both T and V.
         """
-
-        # Here I have assumed that Y_list is Z^(k) from the report. 
         one_vec = np.ones((self.I,1)) 
-        gradient = self.theta.w*np.transpose((self.eta_der( \
-            np.transpose(self.Z_list[self.K,:,:])+self.theta.my*one_vec)))
-        for i in range(self.K-1, -1, -1):
-            gradient *= (np.identity(self.d) + self.theta.W_k[i,:,:]*self.h* \
-                np.transpose(self.sigma_der(self.theta.W_k[i,:,:]*self.Z_list[i,:,:] \
-                    + self.theta.b_k_I[i,:,:])))
+        self.theta.w.reshape((self.d,1))
+
+        self.theta.w = self.theta.w.reshape((self.d,1)) # Dette er viktig!
+        print((self.theta.w.T@self.Z_list[K,:,:]).shape)
+        print((self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T)).shape)
+        gradient = self.theta.w @ self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T) 
+                                                    # Tenker egt at det burde vært '@' foran siste faktor, men det gir dim-feil
+
+        print("\n")
+        print(gradient.shape)
+        print("\n")
+        for k in range(self.K - 1, -1, -1):
+            print(k)
+            gradient += self.theta.W_k[k,:,:].T @ (self.h*self.sigma_der(\
+                    self.theta.W_k[k,:,:]@self.Z_list[k,:,:] + self.theta.b_k_I[k,:,:])*gradient)
         
-        # Could either set the gradient as an attribute of the object
-        self.hamiltonian_gradient = gradient
-        # or just return the gradient. 
         return gradient
 
     
@@ -279,7 +283,7 @@ I = 1000 # Amount of points ran through the network at once.
 K = 20 # Amount of hidden layers in the network.
 d = 2 # Dimension of the hidden layers in the network. 
 h = 0.1 # Scaling of the activation function application in algorithm.  
-iterations = 1000 #Number of iterations in the Algorithm 
+iterations = 10000 #Number of iterations in the Algorithm 
 tau = 0.1 #For the Vanilla Gradient method
 
 #For scaling
@@ -326,7 +330,7 @@ plot_graph_and_output(output, test_input, test_function2, domain, d0,d, scaling,
 #================#
 #Test function 3 #
 #================#
-
+"""
 d0 = 2
 d = 4
 domain = [[-2,2],[-2,2]]
@@ -341,6 +345,7 @@ test_input = generate_input(test_function3,domain,d0,I,d)
 output, a1, b1, a2, b2 = testing(NN, test_input, test_function3, domain, d0, d, I, scaling, alpha, beta)
 plot_graph_and_output(output, test_input, test_function3, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
 
+"""
 #================#
 #Test function 4 #
 #================#
@@ -360,3 +365,31 @@ output, a1, b1, a2, b2 = testing(NN, test_input, test_function4, domain, d0, d, 
 plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
 """
 
+## Test the Hamiltonian function below!
+# Test with Kepler two-body problem.
+
+def T(p1,p2):
+    return 0.5*(p1**2 + p2**2)
+
+def exact_grad_T(p):
+
+    return np.array([p[0],p[1]])
+
+# Make neural network for T.
+d0 = 2
+d = 4
+domain = [[-2,2],[-2,2]]
+I = 2000
+K = 20
+iterations = 10000
+chunk = int(I/20)
+
+NNT = algorithm_sgd(I,d,K,h,iterations, tau, chunk,T,domain,scaling,alpha,beta)
+
+test_input = generate_input(exact_grad_T, domain, d0, I, d)
+output, a1, b1, a2, b2 = testing(NNT,test_input,T,domain,d0,d,I,scaling,alpha,beta)
+grad = NNT.Hamiltonian_gradient()
+grad_scaled = grad[:d0,:]
+#print(grad_scaled)
+#print(exact_grad_T(test_input))
+print(la.norm(grad[:d0,:] - exact_grad_T(test_input))) # Her har de forskjellig dimensjon...
