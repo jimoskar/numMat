@@ -29,6 +29,7 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
     Network.forward_function()
     output = Network.Y
     print("\nJ resulting from test: " + str(Network.J()))
+
     
     return output, a1, b1, a2, b2
 

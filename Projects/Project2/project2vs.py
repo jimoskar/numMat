@@ -206,16 +206,10 @@ class Network:
         self.theta.w.reshape((self.d,1))
 
         self.theta.w = self.theta.w.reshape((self.d,1)) # Dette er viktig!
-        print((self.theta.w.T@self.Z_list[K,:,:]).shape)
-        print((self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T)).shape)
         gradient = self.theta.w @ self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T) 
                                                     # Tenker egt at det burde vært '@' foran siste faktor, men det gir dim-feil
 
-        print("\n")
-        print(gradient.shape)
-        print("\n")
         for k in range(self.K - 1, -1, -1):
-            print(k)
             gradient += self.theta.W_k[k,:,:].T @ (self.h*self.sigma_der(\
                     self.theta.W_k[k,:,:]@self.Z_list[k,:,:] + self.theta.b_k_I[k,:,:])*gradient)
         
@@ -224,7 +218,7 @@ class Network:
     
 
 
-def algorithm_sgd(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
+def algorithm(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
     """Main training algorithm."""
       
     input = generate_input(function,domain,d0,I,d)
@@ -282,8 +276,8 @@ Below, we train and test the neural network with the provided test functions.
 I = 1000 # Amount of points ran through the network at once. 
 K = 20 # Amount of hidden layers in the network.
 d = 2 # Dimension of the hidden layers in the network. 
-h = 0.1 # Scaling of the activation function application in algorithm.  
-iterations = 10000 #Number of iterations in the Algorithm 
+h = 0.05 # Scaling of the activation function application in algorithm.  
+iterations = 2000 #Number of iterations in the Algorithm 
 tau = 0.1 #For the Vanilla Gradient method
 
 #For scaling
@@ -302,7 +296,7 @@ chunk = int(I/10)
 def test_function1(x):
     return 0.5*x**2
 
-NN = algorithm_sgd(I,d,K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta)
+NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta)
 test_input = generate_input(test_function1,domain,d0,I,d)
 
 #The a's and b's are for potential scaling fo the data
@@ -319,7 +313,7 @@ chunk = int(I/10)
 def test_function2(x):
     return 1 - np.cos(x)
 
-NN = algorithm_sgd(I,d,K,h,iterations,tau,chunk, test_function2,domain, scaling, alpha, beta)
+NN = algorithm(I,d,K,h,iterations,tau,chunk, test_function2,domain, scaling, alpha, beta)
 test_input = generate_input(test_function2,domain,d0,I,d)
 
 #The a's and b's are for potential scaling fo the data
@@ -338,7 +332,7 @@ chunk = int(I/10)
 def test_function3(x,y):
     return 0.5*(x**2 + y**2)
 
-NN = algorithm_sgd(I,d,K,h,iterations, tau, chunk, test_function3,domain,scaling,alpha,beta)
+NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function3,domain,scaling,alpha,beta)
 test_input = generate_input(test_function3,domain,d0,I,d)
 
 #The a's and b's are for potential scaling fo the data
@@ -349,20 +343,22 @@ plot_graph_and_output(output, test_input, test_function3, domain, d0,d, scaling,
 #================#
 #Test function 4 #
 #================#
-
 """
+
 d0 = 2
 d = 4
 domain = [[-2,2],[-2,2]]
+chunk = int(I/10)
 def test_function4(x,y):
     return -1/np.sqrt(x**2 + y**2)
 
-NN = algorithm(I,d,K,h,iterations, tau, test_function4,domain,scaling,alpha,beta)
+NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function4,domain,scaling,alpha,beta)
 test_input = generate_input(test_function4,domain,d0,I,d)
 
 #The a's and b's are for potential scaling fo the data
 output, a1, b1, a2, b2 = testing(NN, test_input, test_function4, domain, d0, d, I, scaling, alpha, beta)
 plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
+
 """
 
 ## Test the Hamiltonian function below!
@@ -379,12 +375,12 @@ def exact_grad_T(p):
 d0 = 2
 d = 4
 domain = [[-2,2],[-2,2]]
-I = 2000
-K = 20
-iterations = 10000
-chunk = int(I/20)
+I = 100
+K = 10
+iterations = 1000
+chunk = int(I/10)
 
-NNT = algorithm_sgd(I,d,K,h,iterations, tau, chunk,T,domain,scaling,alpha,beta)
+NNT = algorithm(I,d,K,h,iterations, tau, chunk,T,domain,scaling,alpha,beta)
 
 test_input = generate_input(exact_grad_T, domain, d0, I, d)
 output, a1, b1, a2, b2 = testing(NNT,test_input,T,domain,d0,d,I,scaling,alpha,beta)
@@ -392,4 +388,5 @@ grad = NNT.Hamiltonian_gradient()
 grad_scaled = grad[:d0,:]
 #print(grad_scaled)
 #print(exact_grad_T(test_input))
-print(la.norm(grad[:d0,:] - exact_grad_T(test_input))) # Her har de forskjellig dimensjon...
+print(la.norm(grad[:d0,:] - exact_grad_T(test_input[:d0,:]))) # Her har de forskjellig dimensjon...
+
