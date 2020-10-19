@@ -28,15 +28,14 @@ def generate_input(function,domain,d0,I,d):
     if d0 == 1:
         for i in range(I):
             num = np.random.uniform(domain[0],domain[1])
-            result[:,i] = np.repeat(num,d)
+            result[:d0,i] = num
     if d0 == 2:
         for i in range(I):
             num = np.random.uniform(domain[0][0],domain[0][1])
-            result[:int(d/2),i] = np.repeat(num,d/2)
+            result[0,i] = num
         for i in range(I):
             num = np.random.uniform(domain[1][0],domain[1][1])
-            result[int(d/2):,i] = np.repeat(num,d/2)
-
+            result[1,i] = num
     return result
 
 
@@ -50,7 +49,7 @@ def get_solution(function,input_values,d,I,d0):
         
     if d0 == 2:
         for i in range(I):
-            result[i] = function(input_values[0,i],input_values[int(d/2),i])
+            result[i] = function(input_values[0,i],input_values[1,i])
     return result
     
 
@@ -72,7 +71,7 @@ def plot_graph_and_output(output,input,function,domain,d0,d):
         ax = plt.axes(projection='3d')
         zdata = output
         xdata = input[0,:]
-        ydata = input[int(d/2),:]
+        ydata = input[1,:]
         ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Reds')
         
         # Plotting analytical graph

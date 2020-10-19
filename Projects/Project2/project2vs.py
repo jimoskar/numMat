@@ -107,14 +107,7 @@ class Network:
             
         ZT_K = np.transpose(self.Z_list[-1,:,:]) #Enklere notasjon
         one_vec = np.ones(self.I)
-        '''
-        print("comp1")
-        print(ZT_K @ self.theta.w)
-        print("comp2")
-        print(self.theta.my*one_vec)
-        print("input Z")
-        print(ZT_K @ self.theta.w + self.theta.my*one_vec)
-        '''
+    
         Y = self.eta(ZT_K @ self.theta.w + self.theta.my*one_vec)
         self.Y = Y
         return Y  #Y er en Ix1 vektor
@@ -182,13 +175,18 @@ class Network:
         # Here I have assumed that Y_list is Z^(k) from the report. 
     
         one_vec = np.ones((self.I,1)) 
-        self.theta.w = self.theta.w.reshape((4,1)) # Dette er viktig!
-        gradient = self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T)*self.theta.w
+        self.theta.w = self.theta.w.reshape((self.d,1)) # Dette er viktig!
+        print((self.theta.w.T@self.Z_list[K,:,:]).shape)
+        gradient = self.theta.w @self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T) 
                                                     # Tenker egt at det burde vært '@' foran siste faktor, men det gir dim-feil
 
-        for k in range(self.K-1, 0, -1):
-            gradient += self.theta.W_k[k-1,:,:].T@(self.h*self.sigma_der(\
-                    self.theta.W_k[k-1,:,:]@self.Z_list[k-1,:,:] + self.theta.b_k_I[k-1,:,:])*gradient)
+        print("\n")
+        print(gradient.shape)
+        print("\n")
+        for k in range(self.K - 1, -1, -1):
+            print(k)
+            gradient += self.theta.W_k[k,:,:].T @ (self.h*self.sigma_der(\
+                    self.theta.W_k[k,:,:]@self.Z_list[k,:,:] + self.theta.b_k_I[k,:,:])*gradient)
 
 
         # Could either set the gradient as an attribute of the object
@@ -242,10 +240,10 @@ Below, we train and test the neural network with the provided test functions.
 """
 
 I = 500 # Amount of points ran through the network at once. 
-K = 20 # Amount of hidden layers in the network.
+K = 10 # Amount of hidden layers in the network.
 d = 2 # Dimension of the hidden layers in the network. 
-h = 0.1 # Scaling of the activation function application in algorithm.  
-iterations = 1000
+h = 0.05 # Scaling of the activation function application in algorithm.  
+iterations = 2000
 
 #================#
 #Test function 1 #
@@ -314,18 +312,27 @@ plot_graph_and_output(output,test_input, test_function4, domain, d0,d)
 ## Test the Hamiltonian function below!
 # Test with Kepler two-body problem.
 
-def exact_grad_T(p1, p2):
+def T(p1,p2):
+    return 0.5*(p1**2 + p2**2)
+
+def exact_grad_T(p):
     
-    return p1+p2
+    return np.array([p[0],p[1]])
 
 # Make neural network for T.
 d0 = 2
 d = 4
 domain = [[-2,2],[-2,2]]
-I = 500
-K = 20
+I = 100
+K = 5
+iterations = 3000
 
-NNT = algorithm(I,d,K,h,iterations,exact_grad_T,domain)
-grad = NNT.Hamiltonian_gradient()
+NNT = algorithm(I,d,K,h,iterations,T,domain)
+
 test_input = generate_input(exact_grad_T, domain, d0, I, d)
-print(la.norm(grad - test_input)) # Her har de forskjellig dimensjon...
+output = testing(NNT,test_input,T,domain,d0,d,I)
+grad = NNT.Hamiltonian_gradient()
+grad_scaled = grad[:d0,:]
+#print(grad_scaled)
+#print(exact_grad_T(test_input))
+print(la.norm(grad[:d0,:] - exact_grad_T(test_input))) # Her har de forskjellig dimensjon...
