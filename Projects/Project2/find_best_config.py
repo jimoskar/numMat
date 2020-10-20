@@ -1,5 +1,5 @@
 import pickle
-filename = 'testing_testfunc1'
+filename = 'testing_testfunc3'
 infile = open(filename,'rb')
 config = pickle.load(infile)
 infile.close()
