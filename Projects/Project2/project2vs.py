@@ -218,7 +218,7 @@ class Network:
 
     
 
-def algorithm(I,d,d0, K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
+def algorithm(I,d,d0, K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta, save = False, plot = False):
     """Main training algorithm."""
       
     input = generate_input(function,domain,d0,I,d)
@@ -254,17 +254,18 @@ def algorithm(I,d,d0, K,h,iterations, tau, chunk, function,domain,scaling, alpha
         J_list[j-1] = NN.J()
         it[j-1] = j
     
-    
-    fig, ax = plt.subplots()
-    ax.plot(it,J_list)
-    fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
-    ax.set_ylabel("J")
-    ax.set_xlabel("Iteration")
-    plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
-            horizontalalignment="center", verticalalignment="center", 
-            transform=ax.transAxes, fontsize = 16)
-    #plt.savefig("objTest1Pic2.pdf", bbox_inches='tight')
-    plt.show()
+    if plot:
+        fig, ax = plt.subplots()
+        ax.plot(it,J_list)
+        fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
+        ax.set_ylabel("J")
+        ax.set_xlabel("Iteration")
+        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+                horizontalalignment="center", verticalalignment="center", 
+                transform=ax.transAxes, fontsize = 16)
+        if save: 
+            plt.savefig("objTest1Pic2.pdf", bbox_inches='tight')
+        plt.show()
     
     
     NN.J_last = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
