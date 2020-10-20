@@ -34,6 +34,7 @@ plt.show()
 """
 #####################################################################
 # Test on a function with 2 arguments as well!
+# I do not think that this makes too much sense, but the plane seems to resemble the scatter plot pretty well surprisingly.
 f = (lambda x, y: x**2 + y**2)
 der = (lambda x, y: 2*x + 2*y)
 d0 = 2
