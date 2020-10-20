@@ -269,17 +269,74 @@ def algorithm(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, be
     return NN, input
 
 
+def algorithm_sgd(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
+    """Main training algorithm."""
+      
+    input = generate_input(function,domain,d0,I,d)
+    output = get_solution(function,input,d,I,d0)
+
+    if scaling:
+        input, a1, b1 = scale_data(alpha,beta,input)
+        output, a2, b2 = scale_data(alpha,beta,output)
+
+    index_list = [i for i in range(I)]
+
+    Z_0, c_0, index_list = get_random_sample(input,output,index_list,chunk,d)
+    NN = Network(K,d,chunk,h,Z_0,c_0)
+    
+    # For plotting J. 
+    J_list = np.zeros(iterations)
+    it = np.zeros(iterations)
+
+    counter = 0
+    for j in range(1,iterations+1):
+        
+        
+        NN.forward_function()
+        gradient = NN.back_propagation()
+        NN.theta.update_parameters(gradient,"adams",tau,j)
+
+        #For plotting
+        J_list[j-1] = NN.J()
+        it[j-1] = j
+
+        if counter < I/chunk - 1:
+            Z, c, index_list = get_random_sample(input,output,index_list,chunk,d)
+            NN.Z_list[0,:,:] = Z
+            NN.c = c
+            counter += 1
+        else:
+            #All data has been sifted through
+            counter = 0
+            index_list = [i for i in range(I)]
+
+
+        
+    fig, ax = plt.subplots()
+    ax.plot(it,J_list)
+    fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
+    ax.set_ylabel("J")
+    ax.set_xlabel("Iteration")
+    plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+            horizontalalignment="center", verticalalignment="center", 
+            transform=ax.transAxes, fontsize = 16)
+    #plt.savefig("objTest1.pdf")
+    plt.show()
+    
+    return NN, input
+
 
 """ 
 Below, we train and test the neural network with the provided test functions.
 """
 
 I = 1000 # Amount of points ran through the network at once. 
-K = 20 # Amount of hidden layers in the network.
-d = 2 # Dimension of the hidden layers in the network. 
-h = 0.05 # Scaling of the activation function application in algorithm.  
-iterations = 2000 #Number of iterations in the Algorithm 
+K = 23 # Amount of hidden layers in the network.
+d = 3 # Dimension of the hidden layers in the network. 
+h = 0.1 # Scaling of the activation function application in algorithm.  
+iterations = 1000 #Number of iterations in the Algorithm 
 tau = 0.1 #For the Vanilla Gradient method
+
 
 #For scaling
 scaling = False
@@ -291,13 +348,14 @@ beta = 0.8
 #================#
 
 """
+
 d0 = 1 # Dimension of the input layer. 
 domain = [-2,2]
-chunk = int(I/10)
+chunk = int(I/5)
 def test_function1(x):
     return 0.5*x**2
 
-NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta)
+NN, input = algorithm_sgd(I,d,K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta)
 test_input = generate_input(test_function1,domain,d0,I,d)
 
 #The a's and b's are for potential scaling fo the data
@@ -325,7 +383,7 @@ plot_graph_and_output(output, test_input, test_function2, domain, d0,d, scaling,
 #================#
 #Test function 3 #
 #================#
-"""
+
 d0 = 2
 d = 4
 domain = [[-2,2],[-2,2]]
@@ -333,14 +391,14 @@ chunk = int(I/10)
 def test_function3(x,y):
     return 0.5*(x**2 + y**2)
 
-NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function3,domain,scaling,alpha,beta)
+NN, input = algorithm(I,d,K,h,iterations, tau, chunk, test_function3,domain,scaling,alpha,beta)
 test_input = generate_input(test_function3,domain,d0,I,d)
 
 #The a's and b's are for potential scaling fo the data
 output, a1, b1, a2, b2 = testing(NN, test_input, test_function3, domain, d0, d, I, scaling, alpha, beta)
 plot_graph_and_output(output, test_input, test_function3, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
 
-"""
+
 #================#
 #Test function 4 #
 #================#
@@ -364,7 +422,7 @@ plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling,
 
 ## Test the Hamiltonian function below!
 # Test with Kepler two-body problem.
-
+"""
 def T(p1,p2):
     return 0.5*(p1**2 + p2**2)
 
@@ -375,9 +433,10 @@ def exact_grad_T(p):
 # Make neural network for T.
 d0 = 2
 d = 4
+h = 0.2
 domain = [[-2,2],[-2,2]]
 I = 1000
-K = 15
+K = 23
 iterations = 2000
 chunk = int(I/10)
 
@@ -391,9 +450,8 @@ grad = NNT.Hamiltonian_gradient()
 grad_scaled = grad[:d0,:]
 ex_grad = exact_grad_T(test_input[:d0,:])
 #plt.plot(grad_scaled[0,:],grad_scaled[1,:], label = "numeric")
-plt.plot(ex_grad[0,:],ex_grad[1,:], label = "exact")
-plt.show()
+
 #print(grad_scaled)
 #print(exact_grad_T(test_input))
 print(la.norm(grad[:d0,:] - exact_grad_T(test_input[:d0,:]))) # Her har de forskjellig dimensjon...
-
+"""

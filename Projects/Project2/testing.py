@@ -4,6 +4,8 @@ import matplotlib as mpl
 import math
 import numpy.linalg as la
 from mpl_toolkits import mplot3d
+import random 
+
 
 plt.style.use('seaborn')
 
@@ -142,3 +144,21 @@ def scale_up(a, b, alpha, beta, data):
             data[i] = 1/(beta-alpha) * ((b-a)*np.ones(dim[0])*data[i] - np.ones(dim[0])*(b*alpha - a*beta))
     
     return data
+
+def get_random_sample(input, sol, index_list, chunk, d):
+    sample = np.zeros((d,chunk))
+    sample_sol = np.zeros(chunk)
+    random_indices = random.sample(index_list,chunk)
+
+    for i in range(chunk):
+        rand_index = random_indices[i]
+        index_list.remove(rand_index)
+        sample[:,i] = input[:,rand_index]
+        sample_sol[i] = sol[rand_index]
+    
+    return sample, sample_sol, index_list
+
+    
+
+    
+
