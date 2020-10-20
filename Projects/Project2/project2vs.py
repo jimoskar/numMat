@@ -249,6 +249,7 @@ def algorithm(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, be
             NN.Z_list[0,:,:] = input[:,chunk*(counter+1):chunk*(counter+2)]
             NN.c = output[chunk*(counter + 1):chunk*(counter + 2)]
         else:
+            #All data has been sifted through
             counter = 0
 
         J_list[j-1] = NN.J()
@@ -265,7 +266,7 @@ def algorithm(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, be
     #plt.savefig("objTest1.pdf")
     plt.show()
     
-    return NN
+    return NN, input
 
 
 
@@ -375,17 +376,23 @@ def exact_grad_T(p):
 d0 = 2
 d = 4
 domain = [[-2,2],[-2,2]]
-I = 100
-K = 10
-iterations = 1000
+I = 1000
+K = 15
+iterations = 2000
 chunk = int(I/10)
 
-NNT = algorithm(I,d,K,h,iterations, tau, chunk,T,domain,scaling,alpha,beta)
+NNT, input = algorithm(I,d,K,h,iterations, tau, chunk,T,domain,scaling,alpha,beta)
+
+#print(la.norm(NNT.Hamiltonian_gradient()[:d0,:]-exact_grad_T(input[:d0,:])))
 
 test_input = generate_input(exact_grad_T, domain, d0, I, d)
 output, a1, b1, a2, b2 = testing(NNT,test_input,T,domain,d0,d,I,scaling,alpha,beta)
 grad = NNT.Hamiltonian_gradient()
 grad_scaled = grad[:d0,:]
+ex_grad = exact_grad_T(test_input[:d0,:])
+#plt.plot(grad_scaled[0,:],grad_scaled[1,:], label = "numeric")
+plt.plot(ex_grad[0,:],ex_grad[1,:], label = "exact")
+plt.show()
 #print(grad_scaled)
 #print(exact_grad_T(test_input))
 print(la.norm(grad[:d0,:] - exact_grad_T(test_input[:d0,:]))) # Her har de forskjellig dimensjon...

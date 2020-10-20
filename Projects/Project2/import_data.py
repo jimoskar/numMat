@@ -1,6 +1,7 @@
 import csv
 from ast import literal_eval
 import re
+import numpy as np
 """
 Both of the following functions import data. The output of both functions are a dictionary containing 5 arrays
     t: the array of av time points
@@ -58,3 +59,9 @@ def concatenate(batchmin=0, batchmax=50):
         V0 = np.hstack((V0, dictlist[j+1]["V"]))
         tlist = np.hstack((tlist, dictlist[j+1]["t"]))
     return {"t": tlist, "Q": Q_data, "P": P_data, "T": T0, "V": V0}
+
+
+data = generate_data()
+print(data['t'])
+print(data['T'])
+print(data['P'].shape)
