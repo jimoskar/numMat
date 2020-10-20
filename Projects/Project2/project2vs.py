@@ -81,7 +81,7 @@ class Network:
         self.d = d
         self.Y = None
 
-        self.J_list = None # For use in the testing (instead of returning J from algorithm, save in NN)
+        self.J_last = None # For use in the testing (instead of returning J from algorithm, save in NN)
     
     def J(self): 
         """Objective function."""
@@ -146,7 +146,6 @@ class Network:
         P_K = np.outer(self.theta.w,(self.Y-self.c)*self.eta_der(ZT_K @ \
                                             self.theta.w + self.theta.my*one_vec)) #Blir en dxI matrise
         
-        
         P_list = np.zeros((self.K,self.d,self.I)) #K matriser, skal ikke ha med P_0
         P_list[-1,:,:] = P_K      #Legger P_K bakerst i P_list
         for i in range(self.K-1,0,-1):  #Starter på P_k(=indeks K-1) og helt til og med P_1(=indeks 0)
@@ -207,9 +206,9 @@ class Network:
         one_vec = np.ones((self.I,1)) 
         self.theta.w.reshape((self.d,1))
 
-        self.theta.w = self.theta.w.reshape((self.d,1)) # Dette er viktig!
+        self.theta.w = self.theta.w.reshape((self.d,1)) # For correct dimensions in gradient expressions. 
         gradient = self.theta.w @ self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T) 
-                                                    # Tenker egt at det burde vært '@' foran siste faktor, men det gir dim-feil
+                                                    
 
         for k in range(self.K - 1, -1, -1):
             gradient += self.theta.W_k[k,:,:].T @ (self.h*self.sigma_der(\
@@ -219,8 +218,7 @@ class Network:
 
     
 
-
-def algorithm(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
+def algorithm(I,d,d0, K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
     """Main training algorithm."""
       
     input = generate_input(function,domain,d0,I,d)
@@ -268,7 +266,8 @@ def algorithm(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, be
     #plt.savefig("objTest1Pic2.pdf", bbox_inches='tight')
     plt.show()
     
-    NN.J_list = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
+    
+    NN.J_last = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
     
     return NN
 
@@ -279,13 +278,9 @@ Below, we train and test the neural network with the provided test functions.
 """
 
 I = 1000 # Amount of points ran through the network at once. 
-K = 20 # Amount of hidden layers in the network.
-d = 2 # Dimension of the hidden layers in the network. 
-<<<<<<< HEAD
+K = 10 # Amount of hidden layers in the network.
+d = 4 # Dimension of the hidden layers in the network. 
 h = 0.4 # Scaling of the activation function application in algorithm.  
-iterations = 2000
-=======
-h = 0.05 # Scaling of the activation function application in algorithm.  
 iterations = 2000 #Number of iterations in the Algorithm 
 tau = 0.1 #For the Vanilla Gradient method
 
@@ -293,7 +288,6 @@ tau = 0.1 #For the Vanilla Gradient method
 scaling = False
 alpha = 0.2
 beta = 0.8 
->>>>>>> 400472deaefd742847e7244dbe788733631d5d72
 
 #================#
 #Test function 1 #
@@ -306,19 +300,13 @@ chunk = int(I/10)
 def test_function1(x):
     return 0.5*x**2
 
-NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta)
+NN = algorithm(I,d,d0,K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta)
 test_input = generate_input(test_function1,domain,d0,I,d)
-<<<<<<< HEAD
-output = testing(NN, test_input, test_function1, domain, d0, d, I)
-plot_graph_and_output(output, test_input, test_function1, domain, d0,d)
-print(NN.J(output, test_input)) # J is around 1000 here also. 
-=======
 
 #The a's and b's are for potential scaling fo the data
 output, a1, b1, a2, b2 = testing(NN, test_input, test_function1, domain, d0, d, I, scaling, alpha, beta)
 plot_graph_and_output(output, test_input, test_function1, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
 """
->>>>>>> 400472deaefd742847e7244dbe788733631d5d72
 #================#
 #Test function 2 #
 #================#
@@ -379,7 +367,7 @@ plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling,
 
 ## Test the Hamiltonian function below!
 # Test with Kepler two-body problem.
-
+"""
 def T(p1,p2):
     return 0.5*(p1**2 + p2**2)
 
@@ -405,4 +393,4 @@ grad_scaled = grad[:d0,:]
 #print(grad_scaled)
 #print(exact_grad_T(test_input))
 print(la.norm(grad[:d0,:] - exact_grad_T(test_input[:d0,:]))) # Her har de forskjellig dimensjon...
-
+"""
