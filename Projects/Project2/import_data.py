@@ -1,6 +1,7 @@
 import csv
 from ast import literal_eval
 import re
+import numpy as np
 """
 Both of the following functions import data. The output of both functions are a dictionary containing 5 arrays
     t: the array of av time points

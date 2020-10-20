@@ -215,28 +215,6 @@ class Network:
         
         return gradient
 
-    # Adding the numerical methods below. Not sure if they fit in here either. 
-    def symplectic_euler(y, h): # These should probably be attributes instead of being passed.
-        """Symplectic Euler; first order method for integrating functions numerically."""
-        # Assume that the input is passed as a vector y = [q, p]. 
-        # Not sure how it will be passed, but this may be changed easily later. 
-
-        q1 = y[0] + h*self.Hamiltonian_gradient(y[1]) # Need to be able to pass arg like this!
-        p1 = y[1] - h*self.Hamiltonian_gradient(q1) # Need to be able to pass arg like this!
-        # Therefore need to change the Hamiltonian_gradient as well. 
-
-        return np.array([q1, p1]) # Returns the solution as a np.array.
-
-
-    def stormer_verlet():
-        """Størmer-Verlet; second order method for integrating functions numerically."""
-        # Assume that the input is passed as a vector y = [q, p]. 
-        # Not sure how it will be passed, but this may be changed easily later. 
-        pass
-        # Not sure how to implement this one (with the p + 1/2 for example. )
-    
-
-
 def algorithm(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
     """Main training algorithm."""
       
