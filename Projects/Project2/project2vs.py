@@ -1,20 +1,28 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import math
 import numpy.linalg as la
 from mpl_toolkits import mplot3d
 from import_data import generate_data, concatenate
+from testing import *
+
+# Add parameters for plotting. 
+mpl.rcParams['figure.titleweight'] = "bold"
+mpl.rcParams['font.size'] = 14
+mpl.rcParams['axes.titlesize'] = 13
+mpl.rcParams['axes.titleweight'] = "bold"
 
 class Parameters:
     """Class for the parameters in the Neural Network."""
-    def __init__(self,K,d,I,iterations):
+    def __init__(self,K,d,I):
         self.W_k = np.random.randn(K,d,d)
         self.b_k = np.random.randn(K,d,1)
         self.b_k_I = np.zeros((K,d,I))
         for i in range(K):
             self.b_k_I[i,:,:] = self.b_k[i,:,:]
 
-        self.omega = np.random.randn(d)  
+        self.w = np.random.randn(d)  
         self.my = np.random.rand()
         self.K = K
         
@@ -32,7 +40,7 @@ class Parameters:
             self.b_k = self.b_k - tau*gradient[1]
             for i in range(self.K):
                 self.b_k_I[i,:,:] = self.b_k[i,:,:]
-            self.omega = self.omega - tau*gradient[2]
+            self.w = self.w - tau*gradient[2]
             self.my = self.my - tau*gradient[3]
             
         elif(method == "adams"):
@@ -47,7 +55,7 @@ class Parameters:
             self.b_k = self.b_k - subtract[1]
             for i in range(self.K):
                 self.b_k_I[i,:,:] = self.b_k[i,:,:]
-            self.omega = self.omega - subtract[2]
+            self.w = self.w - subtract[2]
             self.my = self.my - subtract[3]      
                       
         else:
@@ -62,19 +70,20 @@ class Parameters:
 
 class Network:
     """Class for the Neural Network (ResNet)."""
-    def __init__(self,K,d,I,h,Y_0,c,iterations):
-        self.U = Parameters(K,d,I,iterations)
-        self.Y_list = np.zeros((K+1,d,I))
-        self.Y_list[0,:,:] = Y_0
+    def __init__(self,K,d,I,h,Z_0,c):
+        self.theta = Parameters(K,d,I)
+        self.Z_list = np.zeros((K+1,d,I))
+        self.Z_list[0,:,:] = Z_0
+        self.c = c
         self.h = h
         self.K = K
         self.I = I
         self.d = d
-        self.Z = None
+        self.Y = None
     
-    def J(self,Z,c): 
+    def J(self): 
         """Objective function."""
-        return 0.5 * la.norm(Z - c)**2
+        return 0.5 * la.norm(self.Y - self.c)**2
     
     def sigma(self, x):
         """Sigmoid activation function."""
@@ -88,56 +97,60 @@ class Network:
 
     def eta(self, x):
         """Hypothesis function. Appears in the final layer of the neural network."""
-        return x
+        val = x
+        #val = 0.5*(1+ np.tanh(x/2))
+        return val
 
 
     def eta_der(self, x):
         """The derivative of the hypothesis function."""
-        return 1
+        val = np.ones(x.shape)
+        #val = 0.25*self.sigma_der(x/2) 
+        return val
 
     def forward_function(self): 
         """Calculate and return Z."""
         for i in range(self.K):
             #jmf. formel (1) i heftet
-            self.Y_list[i+1,:,:] = self.Y_list[i,:,:] + \
-                self.h*self.sigma(self.U.W_k[i,:,:] @ self.Y_list[i,:,:] + self.U.b_k_I[i,:,:])
+            self.Z_list[i+1,:,:] = self.Z_list[i,:,:] + \
+                self.h*self.sigma(self.theta.W_k[i,:,:] @ \
+                    self.Z_list[i,:,:] + self.theta.b_k_I[i,:,:])
             
-        YT_K = np.transpose(self.Y_list[-1,:,:]) #Enklere notasjon
+        ZT_K = np.transpose(self.Z_list[-1,:,:]) #Enklere notasjon
         one_vec = np.ones(self.I)
         '''
         print("comp1")
-        print(YT_K @ self.U.omega)
+        print(ZT_K @ self.theta.w)
         print("comp2")
-        print(self.U.my*one_vec)
+        print(self.theta.my*one_vec)
         print("input Z")
-        print(YT_K @ self.U.omega + self.U.my*one_vec)
+        print(ZT_K @ self.theta.w + self.theta.my*one_vec)
         '''
-        Z = self.eta(YT_K @ self.U.omega + self.U.my*one_vec)
-        self.Z = Z
-        return Z  #Z er en Ix1 vektor
-        # Why return Z here, when it is saved as an attribute of the class? 
-        # Could just take it from the object when needed instead. 
+        Y = self.eta(ZT_K @ self.theta.w + self.theta.my*one_vec)
+        self.Y = Y
+
+    
         
     
-    def back_propagation(self,Z,c):
+    def back_propagation(self):
         """Calculate and return the gradient of the objective function."""
-        YT_K = np.transpose(self.Y_list[-1,:,:])
+        ZT_K = np.transpose(self.Z_list[-1,:,:])
         one_vec = np.ones(self.I)
-        J_der_my =  np.transpose(one_vec) @ (Z-c)
-        #eta_der(YT_K @ self.U.omega + self.U.my*one_vec) @ (Z-c)#Blir en skalar  
-        J_der_omega = self.Y_list[-1,:,:] @ ((Z-c) * \
-                            self.eta_der(YT_K @ self.U.omega + self.U.my*one_vec))
+        J_der_my =  np.transpose(one_vec) @ (self.Y-self.c)
+        #eta_der(ZT_K @ self.theta.w + self.theta.my*one_vec) @ (Y-c)#Blir en skalar  
+        J_der_omega = self.Z_list[-1,:,:] @ ((self.Y-self.c) * \
+                            self.eta_der(ZT_K @ self.theta.w + self.theta.my*one_vec))
         
-        P_K = np.outer(self.U.omega,(Z-c)*self.eta_der(YT_K @ \
-                                            self.U.omega + self.U.my*one_vec)) #Blir en dxI matrise
+        P_K = np.outer(self.theta.w,(self.Y-self.c)*self.eta_der(ZT_K @ \
+                                            self.theta.w + self.theta.my*one_vec)) #Blir en dxI matrise
         
         
         P_list = np.zeros((self.K,self.d,self.I)) #K matriser, skal ikke ha med P_0
         P_list[-1,:,:] = P_K      #Legger P_K bakerst i P_list
         for i in range(self.K-1,0,-1):  #Starter på P_k(=indeks K-1) og helt til og med P_1(=indeks 0)
-            P_list[i-1,:,:] = P_list[i,:,:] + self.h*np.transpose(self.U.W_k[i-1,:,:]) @ \
-            (self.sigma_der(self.U.W_k[i-1,:,:] @ self.Y_list[i-1,:,:] + \
-                            self.U.b_k_I[i-1,:,:]) * P_list[i,:,:])
+            P_list[i-1,:,:] = P_list[i,:,:] + self.h*np.transpose(self.theta.W_k[i-1,:,:]) @ \
+            (self.sigma_der(self.theta.W_k[i-1,:,:] @ self.Z_list[i-1,:,:] + \
+                            self.theta.b_k_I[i-1,:,:]) * P_list[i,:,:])
 
         J_der_W = np.zeros((self.K,self.d,self.d))
         J_der_b = np.zeros((self.K,self.d,1))
@@ -145,9 +158,9 @@ class Network:
         #P_Kk går fra P_1(=indeks 0) til P_K(=indeks K-1)
         
         for i in range(self.K):
-            val = P_list[i,:,:] * self.sigma_der(self.U.W_k[i,:,:] @ \
-                                                 self.Y_list[i,:,:] + self.U.b_k_I[i,:,:])
-            J_der_W[i,:,:] = self.h*(val @ np.transpose(self.Y_list[i,:,:]))
+            val = P_list[i,:,:] * self.sigma_der(self.theta.W_k[i,:,:] @ \
+                                                 self.Z_list[i,:,:] + self.theta.b_k_I[i,:,:])
+            J_der_W[i,:,:] = self.h*(val @ np.transpose(self.Z_list[i,:,:]))
             J_der_b[i,:,:] = self.h*(val @ one_vec)
         
         gradient = np.array((J_der_W,J_der_b,J_der_omega,J_der_my))
@@ -157,12 +170,26 @@ class Network:
     # SGD should be used when calculating the gradient, to reduce the computations.
     # We should at least test and see how much it affects the convergence. 
     # This does not draw without replacement however, does it?
-    def stochastic_elements(self,Y_0, C, chunk): 
+    def stochastic_elements(self,Z_0, C, chunk): 
         """Pick out a fixed amount of elements from Z."""        
         start = np.random.randint(self.I-chunk)
-        Y0_chunk = Y_0[:,start:start+chunk] 
+        Z0_chunk = Z_0[:,start:start+chunk] 
         C_chunk = C[start:start+chunk]
-        return Y0_chunk, C_chunk 
+        return Z0_chunk, C_chunk 
+    
+    def embed_test_input(self, test_input, test_output):
+    
+        I_new = test_input.shape[1]
+        self.I = I_new
+
+        self.Z_list = np.zeros((self.K+1,self.d,self.I))
+        self.Z_list[0,:,:] = test_input
+        self.c = test_output
+
+        self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
+        for i in range(self.K):
+            self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
+
 
 
     # Perhaps there should be one class per part of the Hamiltonian and
@@ -175,19 +202,17 @@ class Network:
         In general it is used for the entire Hamiltonian F, but since we are 
         working with separable Hamiltonians, it can be used on both T and V.
         """
-
-        # Here I have assumed that Y_list is Z^(k) from the report. 
         one_vec = np.ones((self.I,1)) 
-        gradient = self.U.omega*np.transpose((self.eta_der(\
-            np.transpose(self.Y_list[self.K,:,:])@self.U.omega+self.U.my*one_vec))
-        for i in range(self.K-1, -1, 0):
-            gradient *= (np.identity(self.d) + self.U.W_k[i,:,:]*self.h* \
-                np.transpose(self.sigma_der(self.U.W_k[i,:,:]*self.Y_list[i,:,:] \
-                    + self.U.b_k_I[i,:,:])))
+        self.theta.w.reshape((self.d,1))
+
+        self.theta.w = self.theta.w.reshape((self.d,1)) # Dette er viktig!
+        gradient = self.theta.w @ self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T) 
+                                                    # Tenker egt at det burde vært '@' foran siste faktor, men det gir dim-feil
+
+        for k in range(self.K - 1, -1, -1):
+            gradient += self.theta.W_k[k,:,:].T @ (self.h*self.sigma_der(\
+                    self.theta.W_k[k,:,:]@self.Z_list[k,:,:] + self.theta.b_k_I[k,:,:])*gradient)
         
-        # Could either set the gradient as an attribute of the object
-        self.hamiltonian_gradient = gradient
-        # or just return the gradient. 
         return gradient
 
     # Adding the numerical methods below. Not sure if they fit in here either. 
@@ -210,192 +235,176 @@ class Network:
         pass
         # Not sure how to implement this one (with the p + 1/2 for example. )
     
-def algorithm(I,d,K,h,iterations,function):
-    """Main training algorithm."""
-    tau = 0.1
-      
-    Y_0 = function.input
-    c = function.solution
-    #print(c)
-        
 
-    NN = Network(K,d,I,h,Y_0,c,iterations)
+
+def algorithm(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
+    """Main training algorithm."""
+      
+    input = generate_input(function,domain,d0,I,d)
+    output = get_solution(function,input,d,I,d0)
+
+    if scaling:
+        input, a1, b1 = scale_data(alpha,beta,input)
+        output, a2, b2 = scale_data(alpha,beta,output)
+
+
+    Z_0 = input[:,0:chunk]
+    c_0 = output[0:chunk]
+    NN = Network(K,d,chunk,h,Z_0,c_0)
     
     # For plotting J. 
     J_list = np.zeros(iterations)
     it = np.zeros(iterations)
-    
+
+    counter = 0
     for j in range(1,iterations+1):
         
-        Z = NN.forward_function() # See comment in forward function about returning Z. 
-        #print("Z:")
-        #print(Z.shape)
         
-        # Tried to calculate the gradient using SGD instead, but the dimension of Z is wrong. 
-        # Should not this be of dimension d x ?
-        # Still think SGD could be used, but I am probably doing it wrongly.
-        #Z_chunk, c_chunk = NN.stochastic_elements(Z, c, I/10)
-        gradient = NN.back_propagation(Z,c)
-        NN.U.update_parameters(gradient,"adams",tau,j)
-        
-        #print("J:")
-        #print(NN.J(Z,c))
-        J_list[j-1] = NN.J(Z,c)
+        NN.forward_function()
+        gradient = NN.back_propagation()
+        NN.theta.update_parameters(gradient,"adams",tau,j)
+
+        if counter < I/chunk - 1:
+            NN.Z_list[0,:,:] = input[:,chunk*(counter+1):chunk*(counter+2)]
+            NN.c = output[chunk*(counter + 1):chunk*(counter + 2)]
+        else:
+            counter = 0
+
+        J_list[j-1] = NN.J()
         it[j-1] = j
         
-    plt.figure()
-    plt.plot(it,J_list)
-    plt.ylabel("J")
-    plt.xlabel("iteration")
+    fig, ax = plt.subplots()
+    ax.plot(it,J_list)
+    fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
+    ax.set_ylabel("J")
+    ax.set_xlabel("Iteration")
+    plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+            horizontalalignment="center", verticalalignment="center", 
+            transform=ax.transAxes, fontsize = 16)
+    #plt.savefig("objTest1.pdf")
     plt.show()
     
     return NN
-    
-class TestFunction1D: 
-    """Abstract class for testing the presented 1D test functions.
-    
-    This is inherited in other classes to make the concrete testing classes.
-    """
-    def __init__(self,domain,d0,d,I):
-        self.domain = domain
-        self.input = self.embed_input(d,I)
-        self.solution = self.generate_solution(I)
-        self.d0 = d0
-
-    
-    def embed_input(self,d,I):
-        """Embed input in d-dimensional space.
-        
-        Done by drawing from a uniform distribution on the domain.
-        """
-        result = np.zeros((d,I))
-        for i in range(I):
-            num = np.random.uniform(self.domain[0],self.domain[1])
-            result[:,i] = np.repeat(num,d)
-        return result
-    
-    def generate_solution(self,I):
-        """Generate points from the test function on the given domain."""
-        result = np.zeros(I)
-        for i in range(I):
-            result[i] = self.f(self.input[0,i])
-        return result
-    
-    def plot_graph(self):
-        """Plot the graph of the test function on the given domain."""
-        x = np.linspace(self.domain[0],self.domain[1])
-        plt.plot(x,self.f(x))
-
-class TestFunction1(TestFunction1D):
-    """First given test function (in 1 dimension)."""
-    def f(self, x):
-        return 0.5*x**2
-    
-class TestFunction2(TestFunction1D):
-    """Second given test function (in 1 dimension)."""
-    def f(self, x):
-        return 1 - np.cos(x)
- 
- 
-class TestFunction2D:
-    """Abstract class for testing the presented 2D test functions.
-    
-    This is inherited in other classes to make the concrete testing classes.
-    """
-    def __init__(self,domain,d0,d,I):
-        self.domain = domain
-        self.input = self.embed_input(d,I)
-        self.solution = self.generate_solution(I)
-        self.d0 = d0
-
-    
-    def embed_input(self,d,I):
-        """Embed input in d-dimensional space.
-        
-        Done by drawing from a uniform distribution on the domain.
-        """
-        result = np.zeros((d,I))
-        for i in range(I):
-            num = np.random.uniform(self.domain[0][0],self.domain[0][1])
-            result[:int(d/2),i] = np.repeat(num,d/2)
-        for i in range(I):
-            num = np.random.uniform(self.domain[1][0],self.domain[1][1])
-            result[int(d/2):,i] = np.repeat(num,d/2)
-            
-        return result
-    
-    def generate_solution(self,I):
-        """Generate points from the test function on the given domain."""
-        result = np.zeros(I)
-        for i in range(I):
-            result[i] = self.f(self.input[0,i],self.input[2,i])
-        return result
-    
-    def plot_graph(self):
-        """Plot the graph of the test function on the given domain."""
-        x = np.linspace(self.domain[0][0], self.domain[0][1], 30)
-        y = np.linspace(self.domain[1][0], self.domain[1][1], 30)
-        
-        ax = plt.axes(projection='3d')
-        X, Y = np.meshgrid(x, y)
-        Z = self.f(X, Y)
-        fig = plt.figure()
-        ax.contour3D(X, Y, Z, 50, cmap='binary')
-    
-class TestFunction3(TestFunction2D):
-    """Third given test function (in 2 dimensions)."""
-    def f(self, x,y):
-        return 0.5*(x**2 + y**2)
-
-class TestFunction4(TestFunction2D):
-    """Fourth given test function (in 2 dimensions)."""
-    def f(self, x,y):
-        return -1/np.sqrt(x**2+y**2)
-    
-    
-# Testing the trained Neural Network with new random data.
-def testing(Network,function,I,d0):
-    """Testing the Neural Network with new random data. 
-    
-    The parameters found from the training of the Neural Network are employed.
-    """
-    Y_0 = function.input
-    print(Y_0)
-    c = function.solution
-    
-    Y_list = np.zeros((Network.K+1,d,I))
-    Y_list[0,:,:] = Y_0
-    Network.Y_list = Y_list
-    Z = NN.forward_function()
-    
-    # Plotting.
-    function.plot_graph()
-    if d0 == 1:
-        x = Y_0[0,:]
-        plt.scatter(x,Z)
-    elif d0 == 2:
-        ax = plt.axes(projection='3d')
-        zdata = Z
-        xdata = Y_0[0,:]
-        ydata = Y_0[2,:]
-        ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Greens')
-    plt.show()
 
 
+
+""" 
+Below, we train and test the neural network with the provided test functions.
+"""
 
 I = 1000 # Amount of points ran through the network at once. 
 K = 20 # Amount of hidden layers in the network.
-d = 4 # Dimension of the hidden layers in the network. 
-h = 0.1 # Scaling of the activation function application in algorithm.  
-iterations = 1000
+d = 2 # Dimension of the hidden layers in the network. 
+h = 0.05 # Scaling of the activation function application in algorithm.  
+iterations = 2000 #Number of iterations in the Algorithm 
+tau = 0.1 #For the Vanilla Gradient method
+
+#For scaling
+scaling = False
+alpha = 0.2
+beta = 0.8 
+
+#================#
+#Test function 1 #
+#================#
+
+"""
+d0 = 1 # Dimension of the input layer. 
+domain = [-2,2]
+chunk = int(I/10)
+def test_function1(x):
+    return 0.5*x**2
+
+NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta)
+test_input = generate_input(test_function1,domain,d0,I,d)
+
+#The a's and b's are for potential scaling fo the data
+output, a1, b1, a2, b2 = testing(NN, test_input, test_function1, domain, d0, d, I, scaling, alpha, beta)
+plot_graph_and_output(output, test_input, test_function1, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
+"""
+#================#
+#Test function 2 #
+#================#
+"""
 d0 = 1 # Dimensin of the input layer. 
+domain = [-2,2]
+chunk = int(I/10)
+def test_function2(x):
+    return 1 - np.cos(x)
 
-function = TestFunction1([-2,2],d0,d,I)
-#function = TestFunction2([-np.pi/3,np.pi/3],d0,d,I)
-#function = TestFunction3([[-2,2],[-2,2]],d0,d,I)
-#function = TestFunction4([[-1,1],[-1,1]],d0,d,I)
-NN = algorithm(I,d,K,h,iterations,function)
+NN = algorithm(I,d,K,h,iterations,tau,chunk, test_function2,domain, scaling, alpha, beta)
+test_input = generate_input(test_function2,domain,d0,I,d)
 
-function.embed_input(d,I)
-function.generate_solution(I)
-testing(NN,function,I,d0)
+#The a's and b's are for potential scaling fo the data
+output, a1, b1, a2, b2 = testing(NN, test_input, test_function2, domain, d0, d, I, scaling, alpha, beta)
+plot_graph_and_output(output, test_input, test_function2, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
+"""
+
+#================#
+#Test function 3 #
+#================#
+"""
+d0 = 2
+d = 4
+domain = [[-2,2],[-2,2]]
+chunk = int(I/10)
+def test_function3(x,y):
+    return 0.5*(x**2 + y**2)
+
+NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function3,domain,scaling,alpha,beta)
+test_input = generate_input(test_function3,domain,d0,I,d)
+
+#The a's and b's are for potential scaling fo the data
+output, a1, b1, a2, b2 = testing(NN, test_input, test_function3, domain, d0, d, I, scaling, alpha, beta)
+plot_graph_and_output(output, test_input, test_function3, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
+
+"""
+#================#
+#Test function 4 #
+#================#
+"""
+
+d0 = 2
+d = 4
+domain = [[-2,2],[-2,2]]
+chunk = int(I/10)
+def test_function4(x,y):
+    return -1/np.sqrt(x**2 + y**2)
+
+NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function4,domain,scaling,alpha,beta)
+test_input = generate_input(test_function4,domain,d0,I,d)
+
+#The a's and b's are for potential scaling fo the data
+output, a1, b1, a2, b2 = testing(NN, test_input, test_function4, domain, d0, d, I, scaling, alpha, beta)
+plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
+
+"""
+
+## Test the Hamiltonian function below!
+# Test with Kepler two-body problem.
+
+def T(p1,p2):
+    return 0.5*(p1**2 + p2**2)
+
+def exact_grad_T(p):
+
+    return np.array([p[0],p[1]])
+
+# Make neural network for T.
+d0 = 2
+d = 4
+domain = [[-2,2],[-2,2]]
+I = 100
+K = 10
+iterations = 1000
+chunk = int(I/10)
+
+NNT = algorithm(I,d,K,h,iterations, tau, chunk,T,domain,scaling,alpha,beta)
+
+test_input = generate_input(exact_grad_T, domain, d0, I, d)
+output, a1, b1, a2, b2 = testing(NNT,test_input,T,domain,d0,d,I,scaling,alpha,beta)
+grad = NNT.Hamiltonian_gradient()
+grad_scaled = grad[:d0,:]
+#print(grad_scaled)
+#print(exact_grad_T(test_input))
+print(la.norm(grad[:d0,:] - exact_grad_T(test_input[:d0,:]))) # Her har de forskjellig dimensjon...
