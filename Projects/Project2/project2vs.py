@@ -314,8 +314,10 @@ plot_graph_and_output(output,test_input, test_function4, domain, d0,d)
 ## Test the Hamiltonian function below!
 # Test with Kepler two-body problem.
 
+def T(p1, p2):
+    return 0.5*(p1**2+p2**2)
+
 def exact_grad_T(p1, p2):
-    
     return p1+p2
 
 # Make neural network for T.
