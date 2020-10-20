@@ -19,17 +19,17 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
     
     The parameters found from the training of the Neural Network are employed.
     """
-    c = get_solution(function, test_input, d, I, d0)
+    test_output = get_solution(function, test_input, d, I, d0)
     a1, b1, a2, b2 = None, None, None, None
     if scaling:
         test_input, a1, b1 = scale_data(alpha,beta,test_input)
         c, a2, b2 = scale_data(alpha,beta,c)
 
+    Network.embed_test_input(test_input, test_output)
+    Network.forward_function()
+    output = Network.Y
+    print("\nJ resulting from test: " + str(Network.J()))
 
-    Z_list = np.zeros((Network.K+1,d,I))
-    Z_list[0,:,:] = test_input
-    Network.Z_list = Z_list
-    output = Network.forward_function()
     
     return output, a1, b1, a2, b2
 
@@ -42,17 +42,15 @@ def generate_input(function,domain,d0,I,d):
     if d0 == 1:
         for i in range(I):
             num = np.random.uniform(domain[0],domain[1])
-            result[:,i] = np.repeat(num,d)
+            result[:d0,i] = num
     if d0 == 2:
         for i in range(I):
             num = np.random.uniform(domain[0][0],domain[0][1])
-            result[:int(d/2),i] = np.repeat(num,d/2)
+            result[0,i] = num
         for i in range(I):
             num = np.random.uniform(domain[1][0],domain[1][1])
-            result[int(d/2):,i] = np.repeat(num,d/2)
-
+            result[1,i] = num
     return result
-
 
 def get_solution(function,input_values,d,I,d0):
     """Generate points from the test function on the given domain.
@@ -64,7 +62,7 @@ def get_solution(function,input_values,d,I,d0):
         
     if d0 == 2:
         for i in range(I):
-            result[i] = function(input_values[0,i],input_values[int(d/2),i])
+            result[i] = function(input_values[0,i],input_values[1,i])
     return result
     
 
@@ -97,7 +95,7 @@ def plot_graph_and_output(output,input,function,domain,d0,d, scaling, alpha, bet
         ax = plt.axes(projection='3d')
         zdata = output
         xdata = input[0,:]
-        ydata = input[int(d/2),:]
+        ydata = input[1,:]
         if scaling:
             xdata = scale_up(a1,b1,alpha,beta,xdata)
             ydata = scale_up(a1,b1,alpha,beta,ydata)
