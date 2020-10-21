@@ -37,7 +37,8 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
 
 def generate_input(function,domain,d0,I,d):
     """Generate and embed input in d-dimensional space.
-        Done by drawing from a uniform distribution on the domain.
+    
+    Done by drawing from a uniform distribution on the domain.
     """
     result = np.zeros((d,I))
     if d0 == 1:
@@ -54,8 +55,7 @@ def generate_input(function,domain,d0,I,d):
     return result
 
 def get_solution(function,input_values,d,I,d0):
-    """Generate points from the test function on the given domain.
-    """
+    """Generate points from the test function on the given domain."""
     result = np.zeros(I)
     if d0 == 1:
         for i in range(I):

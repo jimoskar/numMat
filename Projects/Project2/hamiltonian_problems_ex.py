@@ -10,3 +10,23 @@ def H(p,q):
     return 0.5*p**2+m*g*(1-np.cos(theta))
 
 # Kepler two-body problem.
+class Kepler:
+    """Kepler two-body problem."""
+    def __init__(self, domain_T, domain_V):
+        self.domain_T = domain_T
+        self.domain_V = domain_V
+        
+    def T(self, p1, p2):
+        return 0.5*(p1**2 + p2**2)
+
+    def V(self, q1, q2):
+        return -1/np.sqrt(q1**2 + q2**2)
+
+# Henon-Heiles problem.
+class Henon_Heiles:
+    """Henon-Heiles problem."""
+    def T(self, p1, p2):
+        return 0.5*(p1**2 + p2**2)
+    
+    def V(self, q1, q2):
+        return 0.5*(q1**2 + q**2) + q1**2*q2 - (1/3)*q2**3
