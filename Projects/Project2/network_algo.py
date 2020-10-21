@@ -24,7 +24,7 @@ class Parameters:
         # For Adam descent.
         self.beta_1 = 0.9; self.beta_2 = 0.999; self.alpha = 0.01; self.epsilon = 10E-8
         self.v = [0]; self.m = [0]
-     
+         
     def update_parameters(self,gradient,method,tau,j):
         """Update the parameters via Vanilla Gradient Method or Adam Descent."""
         if(method == "vanilla"):
@@ -107,7 +107,6 @@ class Network:
             
         ZT_K = np.transpose(self.Z_list[-1,:,:]) #Enklere notasjon
         one_vec = np.ones(self.I)
-        
         Y = self.eta(ZT_K @ self.theta.w + self.theta.my*one_vec)
         self.Y = Y
 
@@ -143,13 +142,6 @@ class Network:
         gradient = np.array((J_der_W,J_der_b,J_der_omega,J_der_my))
         
         return gradient
-    
-    def stochastic_elements(self,Z_0, C, chunk): 
-        """Pick out a fixed amount of elements from Z."""        
-        start = np.random.randint(self.I-chunk)
-        Z0_chunk = Z_0[:,start:start+chunk] 
-        C_chunk = C[start:start+chunk]
-        return Z0_chunk, C_chunk 
     
     def embed_test_input(self, test_input, test_output):
         """Embed the input into d-dimensional space."""
