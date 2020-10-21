@@ -17,20 +17,20 @@ beta = 0.8
 #Test function 1 #
 #================#
 
-"""
+
 d0 = 1 # Dimension of the input layer. 
 domain = [-2,2]
 chunk = int(I/10)
 def test_function1(x):
     return 0.5*x**2
 
-NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta)
+NN = algorithm(I,d,d0, K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta)
 test_input = generate_input(test_function1,domain,d0,I,d)
 
 #The a's and b's are for potential scaling fo the data
 output, a1, b1, a2, b2 = testing(NN, test_input, test_function1, domain, d0, d, I, scaling, alpha, beta)
 plot_graph_and_output(output, test_input, test_function1, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
-"""
+
 #================#
 #Test function 2 #
 #================#

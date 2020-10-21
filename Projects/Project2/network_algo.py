@@ -194,7 +194,7 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
         output, a2, b2 = scale_data(alpha,beta,output)
 
 
-    Z_0 = input[:,0:chunk]
+    Z_0 = inp[:,0:chunk]
     c_0 = output[0:chunk]
     NN = Network(K,d,chunk,h,Z_0,c_0)
     
