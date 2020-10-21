@@ -383,7 +383,7 @@ plot_graph_and_output(output, test_input, test_function2, domain, d0,d, scaling,
 #================#
 #Test function 3 #
 #================#
-
+"""
 d0 = 2
 d = 4
 domain = [[-2,2],[-2,2]]
@@ -397,7 +397,7 @@ test_input = generate_input(test_function3,domain,d0,I,d)
 #The a's and b's are for potential scaling fo the data
 output, a1, b1, a2, b2 = testing(NN, test_input, test_function3, domain, d0, d, I, scaling, alpha, beta)
 plot_graph_and_output(output, test_input, test_function3, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
-
+"""
 
 #================#
 #Test function 4 #
@@ -422,7 +422,7 @@ plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling,
 
 ## Test the Hamiltonian function below!
 # Test with Kepler two-body problem.
-"""
+
 def T(p1,p2):
     return 0.5*(p1**2 + p2**2)
 
@@ -433,14 +433,14 @@ def exact_grad_T(p):
 # Make neural network for T.
 d0 = 2
 d = 4
-h = 0.2
+h = 0.1
 domain = [[-2,2],[-2,2]]
 I = 1000
 K = 23
-iterations = 2000
-chunk = int(I/10)
+iterations = 10000
+chunk = int(I/100)
 
-NNT, input = algorithm(I,d,K,h,iterations, tau, chunk,T,domain,scaling,alpha,beta)
+NNT, input = algorithm_sgd(I,d,K,h,iterations, tau, chunk,T,domain,scaling,alpha,beta)
 
 #print(la.norm(NNT.Hamiltonian_gradient()[:d0,:]-exact_grad_T(input[:d0,:])))
 
@@ -453,5 +453,5 @@ ex_grad = exact_grad_T(test_input[:d0,:])
 
 #print(grad_scaled)
 #print(exact_grad_T(test_input))
+print("\n Gradient diff:")
 print(la.norm(grad[:d0,:] - exact_grad_T(test_input[:d0,:]))) # Her har de forskjellig dimensjon...
-"""
