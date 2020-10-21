@@ -29,10 +29,7 @@ class Parameters:
         # For Adam descent.
         self.beta_1 = 0.9; self.beta_2 = 0.999; self.alpha = 0.01; self.epsilon = 10E-8
         self.v = [0]; self.m = [0]
-        
-    # Perhaps this class should only contain the parameters 
-    # and the update + root functions should be part of the Network?
-    # Perhaps this makes some sense when seeing the algorithm-function after all. 
+         
     def update_parameters(self,gradient,method,tau,j):
         """Update the parameters via Vanilla Gradient Method or Adam Descent."""
         if(method == "vanilla"):
@@ -67,7 +64,6 @@ class Parameters:
             v_j[i] = np.sqrt(v_j[i])
         return v_j
 
-
 class Network:
     """Class for the Neural Network (ResNet)."""
     def __init__(self,K,d,I,h,Z_0,c):
@@ -94,13 +90,11 @@ class Network:
         val = 1-np.tanh(x)**2
         return val
 
-
     def eta(self, x):
         """Hypothesis function. Appears in the final layer of the neural network."""
         val = x
         #val = 0.5*(1+ np.tanh(x/2))
         return val
-
 
     def eta_der(self, x):
         """The derivative of the hypothesis function."""
@@ -118,20 +112,9 @@ class Network:
             
         ZT_K = np.transpose(self.Z_list[-1,:,:]) #Enklere notasjon
         one_vec = np.ones(self.I)
-        '''
-        print("comp1")
-        print(ZT_K @ self.theta.w)
-        print("comp2")
-        print(self.theta.my*one_vec)
-        print("input Z")
-        print(ZT_K @ self.theta.w + self.theta.my*one_vec)
-        '''
         Y = self.eta(ZT_K @ self.theta.w + self.theta.my*one_vec)
         self.Y = Y
 
-    
-        
-    
     def back_propagation(self):
         """Calculate and return the gradient of the objective function."""
         ZT_K = np.transpose(self.Z_list[-1,:,:])
@@ -167,16 +150,6 @@ class Network:
         
         return gradient
     
-    # SGD should be used when calculating the gradient, to reduce the computations.
-    # We should at least test and see how much it affects the convergence. 
-    # This does not draw without replacement however, does it?
-    def stochastic_elements(self,Z_0, C, chunk): 
-        """Pick out a fixed amount of elements from Z."""        
-        start = np.random.randint(self.I-chunk)
-        Z0_chunk = Z_0[:,start:start+chunk] 
-        C_chunk = C[start:start+chunk]
-        return Z0_chunk, C_chunk 
-    
     def embed_test_input(self, test_input, test_output):
     
         I_new = test_input.shape[1]
@@ -190,12 +163,6 @@ class Network:
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
 
-
-
-    # Perhaps there should be one class per part of the Hamiltonian and
-    # this hould be a method of those classes? (or an abstract class 
-    # for the complete Hamiltonian?)
-    # Also fine to leave it here, since it uses all the attributes from the object.  
     def Hamiltonian_gradient(self):
         """Calculate the gradient of F, according to the theoretical derivation.
         
@@ -214,9 +181,6 @@ class Network:
                     self.theta.W_k[k,:,:]@self.Z_list[k,:,:] + self.theta.b_k_I[k,:,:])*gradient)
         
         return gradient
-
-    
-
 
 def algorithm(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
     """Main training algorithm."""
@@ -266,7 +230,6 @@ def algorithm(I,d,K,h,iterations, tau, chunk, function,domain,scaling, alpha, be
     plt.show()
     
     return NN
-
 
 
 """ 
