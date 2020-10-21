@@ -1,3 +1,4 @@
+"""Utilities used to run training and tests on the networks."""
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
