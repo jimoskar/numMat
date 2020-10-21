@@ -14,11 +14,31 @@ def symplectic_euler_step(y, h, grad_T, grad_V):
     return np.array([q1, p1]) # Returns the solution as a np.array. 
 
 def run_symplectic_euler(values, NNT, NNV, steps, stepsize):
-    """Symplectic Euler; first order method for integrating functions numerically."""
+    """Symplectic Euler; first order method for integrating functions numerically.
+    
+    Two trained Neural Networks are input. values is a dictionary. 
+    """
     solution = np.zeros((steps, 2))
-    # Calculate the gradients for NNT and NNV.
+    P = values["P"]
+    T = values["T"]
+    Q = values["Q"]
+    V = values["V"]
+
     for t in range(steps):
-        # Or perhaps the gradients should be calculated here in each new step, based on the two NNs. 
+        # In each iteration: (maybe make a function out of this since it would be used in the Stormer-Verlet also).
+        
+        # Embed new data. 
+        NNT.embed_test_input(P[t], T[t])
+        NNV.embed_test_input(Q[t], V[t])
+
+        # Run forward function.
+        NNT.forward_function()
+        NNV.forward_function()
+
+        # Calculate the gradients
+        grad_T = NNT.Hamiltonian_gradient()
+        grad_V = NNV.Hamiltonian_gradient()
+
         solution[t, :] = symplectic_euler_step(values, stepsize, grad_T, grad_V)
     return solution 
 
