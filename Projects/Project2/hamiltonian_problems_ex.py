@@ -9,6 +9,27 @@ def H(p,q):
     theta = np.pi/6
     return 0.5*p**2+m*g*(1-np.cos(theta))
 
+class Pendelum:
+    def __init__(self, domain_T, domain_V):
+        self.domain_T = domain_T
+        self.domain_V = domain_V
+
+    def T(self, p):
+        return 0.5*p**2
+
+    def grad_T(self, p):
+        return p
+
+    def V(self, q):
+        k = 10 #value for m*g*l
+        return k*(1-np.cos(q))
+
+    def grad_V(self, q):
+        k = 10
+        return k*np.sin(q)
+
+        
+
 # Kepler two-body problem.
 class Kepler:
     """Kepler two-body problem."""

@@ -1,23 +1,53 @@
 """Implement the numerical methods here, since one needs one neural network per gradient in the formulas."""
 from network_algo import *
 
-def symplectic_euler(NNT, NNV, q0, p0, times):
+def symplectic_euler_NN(NNT, NNV, q0, p0, times,d0):
     """Symplectic Euler; first order method for integrating functions numerically.
     
     Two trained Neural Networks are input. values is a dictionary. 
     """
-    solution = np.zeros((2, len(times)))
-    solution[:, 0] = np.array([q0, p0])
+
+    solution = np.zeros((2*d0, len(times)))
+    solution[:, 0] = np.concatenate((q0[0:d0], p0[0:d0]))
+
+    grad_V_list = np.zeros(len(times))
+
     for n in range(len(times)-1):
         t1 = times[n+1]
         t0 = times[n]
-        stepsize = t1-t0 # In case the stepsize is not constant. 
-        grad_T = calculate_gradient(NNT, solution[1, t0], solution[1, t0])
-        q_new = solution[0, t0] + stepsize*grad_T
+        stepsize = t1-t0 # In case the stepsize is not constant.
+
+        grad_T = calculate_gradient(NNT, solution[d0:, n], solution[:d0, n])
+        q_new = solution[:d0, n] + stepsize*grad_T[:d0,:]
+
         grad_V = calculate_gradient(NNV, q_new, q_new)
-        p_new = solution[1, t0] - stepsize*grad_V
-        solution[:, n+1] = np.array([q_new, p_new])
-    return solution # Using the indices from 0 in the solution, not times as indices. 
+        grad_V_list[n+1] = grad_V[:d0]
+        p_new = solution[d0:, n] - stepsize*grad_V[:d0,:]
+
+
+        print(q_new)
+
+        solution[:d0, n+1] = q_new
+        solution[d0:, n+1] = p_new
+    return solution, times, grad_V_list# Using the indices from 0 in the solution, not times as indices. 
+
+def symplectic_euler_exact(q0, p0, times, grad_T, grad_V,d0):
+    solution = np.zeros((2*d0,len(times)))
+    solution[:, 0] = np.concatenate((q0[0:d0], p0[0:d0]))
+    for n in range(len(times)-1):
+        t1 = times[n+1]
+        t0 = times[n]
+        stepsize = t1 -t0
+        q_new = solution[:d0,n] + stepsize*grad_T(solution[d0:,n])
+        p_new = solution[d0:,n] - stepsize*grad_V(q_new)
+        print(q_new)
+        print(p_new)
+        solution[:d0, n+1] = q_new
+        solution[d0:, n+1] = p_new
+
+    return solution, times
+
+
 
 def stormer_verlet_step(y, delta_t, grad_T, grad_V):
     """Step in Størmer-Verlet. Used in run_stormer_verlet to take each step."""

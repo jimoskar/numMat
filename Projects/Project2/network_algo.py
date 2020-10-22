@@ -145,7 +145,10 @@ class Network:
     
     def embed_test_input(self, test_input, test_output):
         """Embed the input into d-dimensional space."""
-        I_new = test_input.shape[1]
+        if len(test_input.shape) == 1:
+            I_new = 1
+        else:
+            I_new = test_input.shape[1]
         self.I = I_new
 
         self.Z_list = np.zeros((self.K+1,self.d,self.I))
@@ -166,7 +169,7 @@ class Network:
         self.theta.w.reshape((self.d,1))
 
         self.theta.w = self.theta.w.reshape((self.d,1)) # Dette er viktig!
-        gradient = self.theta.w @ self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T) 
+        gradient = self.theta.w @ self.eta_der(self.theta.w.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
                                                     # Tenker egt at det burde vært '@' foran siste faktor, men det gir dim-feil
 
         for k in range(self.K - 1, -1, -1):
@@ -209,7 +212,7 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
 
         J_list[j-1] = NN.J()
         it[j-1] = j
-        
+    """    
     fig, ax = plt.subplots()
     ax.plot(it,J_list)
     fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
@@ -220,5 +223,5 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
             transform=ax.transAxes, fontsize = 16)
     #plt.savefig("objTest1.pdf")
     plt.show()
-    
+    """
     return NN
