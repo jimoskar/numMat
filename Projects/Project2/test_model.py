@@ -24,7 +24,7 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
     a1, b1, a2, b2 = None, None, None, None
     if scaling:
         test_input, a1, b1 = scale_data(alpha,beta,test_input)
-        c, a2, b2 = scale_data(alpha,beta,c)
+        test_output, a2, b2 = scale_data(alpha,beta,test_output)
 
     Network.embed_test_input(test_input, test_output)
     Network.forward_function()

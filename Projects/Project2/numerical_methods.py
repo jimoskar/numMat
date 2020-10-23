@@ -24,9 +24,6 @@ def symplectic_euler_NN(NNT, NNV, q0, p0, times,d0):
         grad_V_list[n+1] = grad_V[:d0]
         p_new = solution[d0:, n] - stepsize*grad_V[:d0,:]
 
-
-        print(q_new)
-
         solution[:d0, n+1] = q_new
         solution[d0:, n+1] = p_new
     return solution, times, grad_V_list# Using the indices from 0 in the solution, not times as indices. 
@@ -38,10 +35,10 @@ def symplectic_euler_exact(q0, p0, times, grad_T, grad_V,d0):
         t1 = times[n+1]
         t0 = times[n]
         stepsize = t1 -t0
+        
         q_new = solution[:d0,n] + stepsize*grad_T(solution[d0:,n])
         p_new = solution[d0:,n] - stepsize*grad_V(q_new)
-        print(q_new)
-        print(p_new)
+    
         solution[:d0, n+1] = q_new
         solution[d0:, n+1] = p_new
 
