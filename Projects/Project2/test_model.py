@@ -29,7 +29,7 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
     Network.embed_input_and_sol(test_input, test_sol)
     Network.forward_function()
     output = Network.Y
-    print("\nJ resulting from test: " + str(Network.J()))
+    #print("\nJ resulting from test: " + str(Network.J()))
 
     
     return output, a1, b1, a2, b2
@@ -114,7 +114,7 @@ def plot_graph_and_output(output,input,function,domain,d0,d, scaling, alpha, bet
         x = np.linspace(domain[0],domain[1])
         ax.plot(x,function(x), color="blue", label="Function")
         ax.legend()
-        #plt.savefig("compTest1.pdf")
+        #plt.savefig("compTest1Pic2.pdf", bbox_inches='tight')
         plt.show()
 
     elif d0 == 2:
