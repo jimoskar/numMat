@@ -35,7 +35,7 @@ def symplectic_euler_exact(q0, p0, times, grad_T, grad_V,d0):
         t1 = times[n+1]
         t0 = times[n]
         stepsize = t1 -t0
-        
+
         q_new = solution[:d0,n] + stepsize*grad_T(solution[d0:,n])
         p_new = solution[d0:,n] - stepsize*grad_V(q_new)
     
@@ -92,3 +92,8 @@ def calculate_gradient(NN, abscissae, ordinates):
     grad = NN.Hamiltonian_gradient()
 
     return grad
+
+def embed_data(input, d):
+    result = np.zeros((d,len(input)))
+    result[0,:] = input
+    return result

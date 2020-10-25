@@ -10,7 +10,7 @@ iterations = 10000 #Number of iterations in the Algorithm
 tau = 0.1 #For the Vanilla Gradient method
 
 #For scaling
-scaling = True
+scaling = False
 alpha = 0.2
 beta = 0.8 
 

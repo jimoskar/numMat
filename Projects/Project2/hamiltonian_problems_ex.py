@@ -9,7 +9,7 @@ def H(p,q):
     theta = np.pi/6
     return 0.5*p**2+m*g*(1-np.cos(theta))
 
-class Pendelum:
+class Pendulum:
     def __init__(self, domain_T, domain_V):
         self.domain_T = domain_T
         self.domain_V = domain_V

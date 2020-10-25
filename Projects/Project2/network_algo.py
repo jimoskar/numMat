@@ -101,7 +101,6 @@ class Network:
     def forward_function(self): 
         """Calculate  Y."""
         for i in range(self.K):
-            #jmf. formel (1) i heftet
             self.Z_list[i+1,:,:] = self.Z_list[i,:,:] + \
                 self.h*self.sigma(self.theta.W_k[i,:,:] @ \
                     self.Z_list[i,:,:] + self.theta.b_k_I[i,:,:])
@@ -159,6 +158,16 @@ class Network:
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
+    
+    def calculate_output(self, input):
+        """Calculates and returns the networks output from a given input"""
+        self.embed_test_input(input,input)
+        self.forward_function()
+        print("Ys shape: \n")
+        print(self.Y.shape)
+        return self.Y
+
+
 
     def Hamiltonian_gradient(self):
         """Calculate the gradient of F, according to the theoretical derivation.
@@ -168,8 +177,9 @@ class Network:
         """
         one_vec = np.ones((self.I,1)) 
 
-        self.theta.w = self.theta.w.reshape((self.d,1)) # Dette er viktig!
-        gradient = self.theta.w @ self.eta_der(self.theta.w.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
+    
+        w_grad = self.theta.w.reshape((self.d,1)) #need different dimensions for w 
+        gradient = w_grad @ self.eta_der(w_grad.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
                                                     
 
         for k in range(self.K - 1, -1, -1):
