@@ -44,8 +44,6 @@ def symplectic_euler_exact(q0, p0, times, grad_T, grad_V,d0):
 
     return solution, times
 
-
-
 def stormer_verlet_step(y, delta_t, grad_T, grad_V):
     """Step in Størmer-Verlet. Used in run_stormer_verlet to take each step."""
     # Assume that the input is passed as a vector y = [q, p]. 
@@ -93,7 +91,7 @@ def calculate_gradient(NN, abscissae, ordinates):
 
     return grad
 
-def embed_data(input, d):
-    result = np.zeros((d,len(input)))
-    result[0,:] = input
+def embed_data(inp, d):
+    result = np.zeros((d,len(inp)))
+    result[0,:] = inp
     return result
