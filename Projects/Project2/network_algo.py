@@ -177,7 +177,7 @@ class Network:
         
         return gradient
 
-def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta):
+def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta, plot = False, savename = ""):
     """Main training algorithm."""
       
     inp = generate_input(function,domain,d0,I,d)
@@ -221,8 +221,8 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
         plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
                 horizontalalignment="center", verticalalignment="center", 
                 transform=ax.transAxes, fontsize = 16)
-        if save: 
-            plt.savefig("objTest1Pic2.pdf", bbox_inches='tight')
+        if savename != "": 
+            plt.savefig(savename, bbox_inches='tight')
         plt.show()
     
     

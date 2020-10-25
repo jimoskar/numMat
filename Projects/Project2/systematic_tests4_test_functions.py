@@ -11,7 +11,7 @@ Parameters tested systematically:
 
 Used a fixed amount of iterations and images in each test (see report for further justification)
 """
-from project2vs import *
+from network_algo import *
 import pickle
 
 def training_test_function1(filename):
@@ -27,6 +27,7 @@ def training_test_function1(filename):
     scaling = False
     alpha = 0.2
     beta = 0.8 
+    tau = 1
     def test_function1(x):
         return 0.5*x**2
 
@@ -64,6 +65,7 @@ def testing_test_function1(filename, tol = 0.05):
     scaling = False
     alpha = 0.2
     beta = 0.8 
+    tau = 1
     def test_function1(x):
         return 0.5*x**2
 
@@ -79,13 +81,12 @@ def testing_test_function1(filename, tol = 0.05):
                 testing(NN, test_input, test_function1, domain, d0, d, I, scaling, alpha, beta)
 
                 # Find amount of correctly classified points (within some tolerance).
-                correct = 0
-                for j in range(len(NN.c)):
-                    if abs(NN.Y[j]-NN.c[j]) <= tol:
-                        correct += 1
+                placeholder = np.array([NN.Y, NN.c])
+                diff = np.diff(placeholder, axis = 0)
+                ratio = len(diff[abs(diff)<tol])/len(diff[0])
 
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
-                config[K][d][h] = [NN.J(), correct/len(NN.c)]
+                config[K][d][h] = [NN.J(), ratio]
                                
                 print(i)
                 del NN # Safety measure to avoid leak. 
@@ -163,10 +164,9 @@ def testing_test_function3(filename, tol):
                 testing(NN, test_input, test_function3, domain, d0, d, I, scaling, alpha, beta)
 
                 # Find amount of correctly classified points (within some tolerance).
-                correct = 0
-                for j in range(len(NN.c)):
-                    if abs(NN.Y[j]-NN.c[j]) <= tol:
-                        correct += 1
+                placeholder = np.array([NN.Y, NN.c])
+                diff = np.diff(placeholder, axis = 0)
+                ratio = len(diff[abs(diff)<tol])/len(diff[0])
             
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
                 config[K][d][h] = [NN.J(), correct/len(NN.c)]
