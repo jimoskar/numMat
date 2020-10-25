@@ -243,7 +243,7 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
     
     return NN
 
-def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
+def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta, plot = False, savename = ""):
     """Main training algorithm."""
 
     input = generate_input(function,domain,d0,I,d)
@@ -285,18 +285,18 @@ def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, 
             index_list = [i for i in range(I)]
 
 
-    """
-    fig, ax = plt.subplots()
-    ax.plot(it,J_list)
-    fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
-    ax.set_ylabel("J")
-    ax.set_xlabel("Iteration")
-    plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
-            horizontalalignment="center", verticalalignment="center", 
-            transform=ax.transAxes, fontsize = 16)
-    #plt.savefig("objTest1.pdf")
-    plt.show()
-    """
+    if plot:
+        fig, ax = plt.subplots()
+        ax.plot(it,J_list)
+        fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
+        ax.set_ylabel("J")
+        ax.set_xlabel("Iteration")
+        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+                horizontalalignment="center", verticalalignment="center", 
+                transform=ax.transAxes, fontsize = 16)
+        if savename != "": 
+            plt.savefig(savename, bbox_inches='tight')
+        plt.show()
     return NN 
 
 def get_random_sample(input, sol, index_list, chunk, d):
