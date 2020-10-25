@@ -41,12 +41,21 @@ def training_test_function1(filename):
                 NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta)
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
                                
+<<<<<<< HEAD
                 #print(i)
                 del NN # Safety measure to avoid leak. 
                 #i += 1
 
     # Save data to file.
     filenm = 'data/markov/'+filename
+=======
+                print(i)
+                del NN # Safety measure to avoid leak. 
+                i += 1
+
+    # Save data to file.
+    filenm = 'data/'+filename
+>>>>>>> num_methods
     outfile = open(filenm,'wb')
     pickle.dump(config, outfile)
     outfile.close()
@@ -88,12 +97,21 @@ def testing_test_function1(filename, tol = 0.05):
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
                 config[K][d][h] = [NN.J(), ratio]
                                
+<<<<<<< HEAD
                 #print(i)
                 del NN # Safety measure to avoid leak. 
                 #i += 1
 
     # Save data to file. 
     filenm = 'data/markov/'+filename
+=======
+                print(i)
+                del NN # Safety measure to avoid leak. 
+                i += 1
+
+    # Save data to file. 
+    filenm = 'data/'+filename
+>>>>>>> num_methods
     outfile = open(filenm,'wb')
     pickle.dump(config, outfile)
     outfile.close()
@@ -103,10 +121,16 @@ def training_test_function3(filename):
     K_values = [10, 15, 20, 23, 30]
     d_values = [2, 3, 4, 5, 6]
     h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
+<<<<<<< HEAD
     d0 = 2
     iterations = 2000
     d = 4
     tau = 1
+=======
+    iterations = 2000
+    d0 = 2
+    d = 4
+>>>>>>> num_methods
     domain = [[-2,2],[-2,2]]
     chunk = int(I/10)
     scaling = False
@@ -128,12 +152,21 @@ def training_test_function3(filename):
                 # The below adds the J_list from training. 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
                                 
+<<<<<<< HEAD
                 #print(i)
                 del NN # Safety measure to avoid leak. 
                 #i += 1
 
     # Save data to file. 
     filenm = 'data/markov/'+filename
+=======
+                print(i)
+                del NN # Safety measure to avoid leak. 
+                i += 1
+
+    # Save data to file. 
+    filenm = 'data/'+filename
+>>>>>>> num_methods
     outfile = open(filenm,'wb')
     pickle.dump(config, outfile)
     outfile.close()
@@ -142,10 +175,16 @@ def testing_test_function3(filename, tol):
     K_values = [10, 15, 20, 23, 30]
     d_values = [2, 3, 4, 5, 6]
     h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
+<<<<<<< HEAD
     d0 = 2
     tau = 1
     d = 4
     iterations = 2000
+=======
+    iterations = 2000
+    d0 = 2
+    d = 4
+>>>>>>> num_methods
     domain = [[-2,2],[-2,2]]
     chunk = int(I/10)
     scaling = False
@@ -175,12 +214,21 @@ def testing_test_function3(filename, tol):
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
                 config[K][d][h] = [NN.J(), ratio]
                                 
+<<<<<<< HEAD
                 #print(i)
                 del NN # Safety measure to avoid leak. 
                 #i += 1
 
     # Save data to file. 
     filenm = 'data/markov'+filename
+=======
+                print(i)
+                del NN # Safety measure to avoid leak. 
+                i += 1
+
+    # Save data to file. 
+    filenm = 'data/'+filename
+>>>>>>> num_methods
     outfile = open(filenm,'wb')
     pickle.dump(config, outfile)
     outfile.close()
