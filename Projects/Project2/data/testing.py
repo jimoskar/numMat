@@ -28,7 +28,7 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
     Network.embed_test_input(test_input, test_output)
     Network.forward_function()
     output = Network.Y
-    print("\nJ resulting from test: " + str(Network.J()))
+    #print("\nJ resulting from test: " + str(Network.J()))
 
     
     return output, a1, b1, a2, b2
