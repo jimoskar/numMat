@@ -143,7 +143,3 @@ def scale_up(a, b, alpha, beta, data):
             data[i] = 1/(beta-alpha) * ((b-a)*np.ones(dim[0])*data[i] - np.ones(dim[0])*(b*alpha - a*beta))
     
     return data
-<<<<<<< HEAD:Projects/Project2/data/testing.py
-    
-=======
->>>>>>> origin:Projects/Project2/test_model.py
