@@ -1,5 +1,6 @@
 """Network class and main algorithm for training the network."""
 from test_model import *
+import random
 
 # Add parameters for plotting. 
 mpl.rcParams['figure.titleweight'] = "bold"
@@ -100,9 +101,8 @@ class Network:
         return val
 
     def forward_function(self): 
-        """Calculate and return Z."""
+        """Calculate  Y."""
         for i in range(self.K):
-            #jmf. formel (1) i heftet
             self.Z_list[i+1,:,:] = self.Z_list[i,:,:] + \
                 self.h*self.sigma(self.theta.W_k[i,:,:] @ \
                     self.Z_list[i,:,:] + self.theta.b_k_I[i,:,:])
@@ -116,8 +116,8 @@ class Network:
         """Calculate and return the gradient of the objective function."""
         ZT_K = np.transpose(self.Z_list[-1,:,:])
         one_vec = np.ones(self.I)
-        J_der_my =  np.transpose(one_vec) @ (self.Y-self.c)
-        J_der_omega = self.Z_list[-1,:,:] @ ((self.Y-self.c) * \
+        J_der_my =  self.eta_der(ZT_K @ self.theta.w + self.theta.my*one_vec).T @ (self.Y-self.c)
+        J_der_w = self.Z_list[-1,:,:] @ ((self.Y-self.c) * \
                             self.eta_der(ZT_K @ self.theta.w + self.theta.my*one_vec))
         
         P_K = np.outer(self.theta.w,(self.Y-self.c)*self.eta_der(ZT_K @ \
@@ -131,23 +131,26 @@ class Network:
             (self.sigma_der(self.theta.W_k[i-1,:,:] @ self.Z_list[i-1,:,:] + \
                             self.theta.b_k_I[i-1,:,:]) * P_list[i,:,:])
 
-        J_der_W = np.zeros((self.K,self.d,self.d))
+        J_der_Wk = np.zeros((self.K,self.d,self.d))
         J_der_b = np.zeros((self.K,self.d,1))
         one_vec = np.ones((self.I,1)) 
         
         for i in range(self.K):
             val = P_list[i,:,:] * self.sigma_der(self.theta.W_k[i,:,:] @ \
                                                  self.Z_list[i,:,:] + self.theta.b_k_I[i,:,:])
-            J_der_W[i,:,:] = self.h*(val @ np.transpose(self.Z_list[i,:,:]))
+            J_der_Wk[i,:,:] = self.h*(val @ np.transpose(self.Z_list[i,:,:]))
             J_der_b[i,:,:] = self.h*(val @ one_vec)
         
-        gradient = np.array((J_der_W,J_der_b,J_der_omega,J_der_my))
+        gradient = np.array((J_der_Wk,J_der_b,J_der_w,J_der_my))
         
         return gradient
     
     def embed_test_input(self, test_input, test_output):
         """Embed the input into d-dimensional space."""
-        I_new = test_input.shape[1]
+        if len(test_input.shape) == 1:
+            I_new = 1
+        else:
+            I_new = test_input.shape[1]
         self.I = I_new
 
         self.Z_list = np.zeros((self.K+1,self.d,self.I))
@@ -157,6 +160,16 @@ class Network:
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
+    
+    def calculate_output(self, input):
+        """Calculates and returns the networks output from a given input"""
+        self.embed_test_input(input,input)
+        self.forward_function()
+        print("Ys shape: \n")
+        print(self.Y.shape)
+        return self.Y
+
+
 
     def Hamiltonian_gradient(self):
         """Calculate the gradient of F, according to the theoretical derivation.
@@ -165,10 +178,10 @@ class Network:
         working with separable Hamiltonians, it can be used on both T and V.
         """
         one_vec = np.ones((self.I,1)) 
-        self.theta.w.reshape((self.d,1))
 
-        self.theta.w = self.theta.w.reshape((self.d,1)) # For correct dimensions in gradient expressions. 
-        gradient = self.theta.w @ self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T) 
+    
+        w_grad = self.theta.w.reshape((self.d,1)) #need different dimensions for w 
+        gradient = w_grad @ self.eta_der(w_grad.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
                                                     
 
         for k in range(self.K - 1, -1, -1):
@@ -229,3 +242,72 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
     NN.J_last = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
     
     return NN
+
+def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
+    """Main training algorithm."""
+
+    input = generate_input(function,domain,d0,I,d)
+    output = get_solution(function,input,d,I,d0)
+
+    if scaling:
+        input, a1, b1 = scale_data(alpha,beta,input)
+        output, a2, b2 = scale_data(alpha,beta,output)
+
+    index_list = [i for i in range(I)]
+
+    Z_0, c_0, index_list = get_random_sample(input,output,index_list,chunk,d)
+    NN = Network(K,d,chunk,h,Z_0,c_0)
+
+    # For plotting J. 
+    J_list = np.zeros(iterations)
+    it = np.zeros(iterations)
+
+    counter = 0
+    for j in range(1,iterations+1):
+
+
+        NN.forward_function()
+        gradient = NN.back_propagation()
+        NN.theta.update_parameters(gradient,"adams",tau,j)
+
+        #For plotting
+        J_list[j-1] = NN.J()
+        it[j-1] = j
+
+        if counter < I/chunk - 1:
+            Z, c, index_list = get_random_sample(input,output,index_list,chunk,d)
+            NN.Z_list[0,:,:] = Z
+            NN.c = c
+            counter += 1
+        else:
+            #All data has been sifted through
+            counter = 0
+            index_list = [i for i in range(I)]
+
+
+    """
+    fig, ax = plt.subplots()
+    ax.plot(it,J_list)
+    fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
+    ax.set_ylabel("J")
+    ax.set_xlabel("Iteration")
+    plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+            horizontalalignment="center", verticalalignment="center", 
+            transform=ax.transAxes, fontsize = 16)
+    #plt.savefig("objTest1.pdf")
+    plt.show()
+    """
+    return NN 
+
+def get_random_sample(input, sol, index_list, chunk, d):
+    sample = np.zeros((d,chunk))
+    sample_sol = np.zeros(chunk)
+    random_indices = random.sample(index_list,chunk)
+
+    for i in range(chunk):
+        rand_index = random_indices[i]
+        index_list.remove(rand_index)
+        sample[:,i] = input[:,rand_index]
+        sample_sol[i] = sol[rand_index]
+
+    return sample, sample_sol, index_list

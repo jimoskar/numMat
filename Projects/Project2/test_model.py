@@ -24,7 +24,7 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
     a1, b1, a2, b2 = None, None, None, None
     if scaling:
         test_input, a1, b1 = scale_data(alpha,beta,test_input)
-        c, a2, b2 = scale_data(alpha,beta,c)
+        test_output, a2, b2 = scale_data(alpha,beta,test_output)
 
     Network.embed_test_input(test_input, test_output)
     Network.forward_function()
@@ -37,7 +37,8 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
 
 def generate_input(function,domain,d0,I,d):
     """Generate and embed input in d-dimensional space.
-        Done by drawing from a uniform distribution on the domain.
+    
+    Done by drawing from a uniform distribution on the domain.
     """
     result = np.zeros((d,I))
     if d0 == 1:
@@ -54,8 +55,7 @@ def generate_input(function,domain,d0,I,d):
     return result
 
 def get_solution(function,input_values,d,I,d0):
-    """Generate points from the test function on the given domain.
-    """
+    """Generate points from the test function on the given domain."""
     result = np.zeros(I)
     if d0 == 1:
         for i in range(I):
@@ -143,3 +143,4 @@ def scale_up(a, b, alpha, beta, data):
             data[i] = 1/(beta-alpha) * ((b-a)*np.ones(dim[0])*data[i] - np.ones(dim[0])*(b*alpha - a*beta))
     
     return data
+    

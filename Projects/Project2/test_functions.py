@@ -1,11 +1,12 @@
 """Train networks and run tests on the four provided test functions."""
 from network_algo import *
+from test_model import *
 
 I = 1000 # Amount of points ran through the network at once. 
 K = 20 # Amount of hidden layers in the network.
 d = 2 # Dimension of the hidden layers in the network. 
 h = 0.05 # Scaling of the activation function application in algorithm.  
-iterations = 2000 #Number of iterations in the Algorithm 
+iterations = 10000 #Number of iterations in the Algorithm 
 tau = 0.1 #For the Vanilla Gradient method
 
 #For scaling
