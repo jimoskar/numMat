@@ -23,7 +23,6 @@ def training_test_function1(filename, sgd = False):
     d0 = 1 # Dimension of the input layer. 
     domain = [-2,2]
     I = 1000
-    chunk = int(I/1)
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -38,7 +37,12 @@ def training_test_function1(filename, sgd = False):
         for d in d_values:
             config[K][d] = {}
             for h in h_values:
-                NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta)
+                if sgd:
+                    chunk = int(I/10)
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta) 
+                else:
+                    chunk = I
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta) 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
                                
                 #print(i)
@@ -61,7 +65,6 @@ def testing_test_function1(filename, tol = 0.05, sgd = False):
     d0 = 1 # Dimension of the input layer. 
     domain = [-2,2]
     I = 1000
-    chunk = int(I/1)
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -76,7 +79,12 @@ def testing_test_function1(filename, tol = 0.05, sgd = False):
         for d in d_values:
             config[K][d] = {}
             for h in h_values:
-                NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta) 
+                if sgd:
+                    chunk = int(I/10)
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta) 
+                else:
+                    chunk = I
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta) 
                 test_input = generate_input(test_function1,domain,d0,I,d)
                 testing(NN, test_input, test_function1, domain, d0, d, I, scaling, alpha, beta)
 
@@ -122,7 +130,12 @@ def training_test_function2(filename, sgd = False):
         for d in d_values:
             config[K][d] = {}
             for h in h_values:
-                NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta)
+                if sgd:
+                    chunk = int(I/10)
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
+                else:
+                    chunk = I
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
                                
                 print(i)
@@ -130,7 +143,7 @@ def training_test_function2(filename, sgd = False):
                 i += 1
 
     # Save data to file.
-    filenm = 'data/'+filename
+    filenm = 'data/markov/'+filename
     outfile = open(filenm,'wb')
     pickle.dump(config, outfile)
     outfile.close()
@@ -144,7 +157,6 @@ def testing_test_function2(filename, tol = 0.05, sgd = False):
     d0 = 1 # Dimension of the input layer. 
     domain = [-2,2]
     I = 1000
-    chunk = int(I/1)
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -159,7 +171,12 @@ def testing_test_function2(filename, tol = 0.05, sgd = False):
         for d in d_values:
             config[K][d] = {}
             for h in h_values:
-                NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
+                if sgd:
+                    chunk = int(I/10)
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
+                else:
+                    chunk = I
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
                 test_input = generate_input(test_function2,domain,d0,I,d)
                 testing(NN, test_input, test_function2, domain, d0, d, I, scaling, alpha, beta)
 
@@ -176,7 +193,7 @@ def testing_test_function2(filename, tol = 0.05, sgd = False):
                 i += 1
 
     # Save data to file. 
-    filenm = 'data/'+filename
+    filenm = 'data/markov/'+filename
     outfile = open(filenm,'wb')
     pickle.dump(config, outfile)
     outfile.close()
@@ -191,7 +208,6 @@ def training_test_function3(filename, sgd = False):
     d = 4
     tau = 1
     domain = [[-2,2],[-2,2]]
-    chunk = int(I/10)
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -211,7 +227,12 @@ def training_test_function3(filename, sgd = False):
         for d in d_values:
             config[K][d] = {}
             for h in h_values:
-                NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) # This only tests convergence when training. 
+                if sgd:
+                    chunk = int(I/10)
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) 
+                else:
+                    chunk = I
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) 
                 # The below adds the J_list from training. 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
                                 
@@ -235,7 +256,6 @@ def testing_test_function3(filename, tol = 0.05, sgd = False):
     d = 4
     iterations = 2000
     domain = [[-2,2],[-2,2]]
-    chunk = int(I/10)
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -252,7 +272,12 @@ def testing_test_function3(filename, tol = 0.05, sgd = False):
         for d in d_values:
             config[K][d] = {}
             for h in h_values:
-                NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) 
+                if sgd:
+                    chunk = int(I/10)
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) 
+                else:
+                    chunk = I
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) 
                 test_input = generate_input(test_function3,domain,d0,I,d)
                 testing(NN, test_input, test_function3, domain, d0, d, I, scaling, alpha, beta)
 
@@ -283,7 +308,6 @@ def training_test_function4(filename, sgd = False):
     d0 = 2
     d = 4
     domain = [[-2,2],[-2,2]]
-    chunk = int(I/10)
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -303,7 +327,12 @@ def training_test_function4(filename, sgd = False):
         for d in d_values:
             config[K][d] = {}
             for h in h_values:
-                NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) # This only tests convergence when training. 
+                if sgd:
+                    chunk = int(I/10)
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) 
+                else:
+                    chunk = I
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) 
                 # The below adds the J_list from training. 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
                                 
@@ -312,12 +341,12 @@ def training_test_function4(filename, sgd = False):
                 i += 1
 
     # Save data to file. 
-    filenm = 'data/'+filename
+    filenm = 'data/markov/'+filename
     outfile = open(filenm,'wb')
     pickle.dump(config, outfile)
     outfile.close()
 
-def testing_test_function4(filename, tol):
+def testing_test_function4(filename, tol, sgd = False):
     """Training and testing random data with test function 4."""
     K_values = [10, 15, 20, 23, 30]
     d_values = [2, 3, 4]
@@ -326,7 +355,6 @@ def testing_test_function4(filename, tol):
     d0 = 2
     d = 4
     domain = [[-2,2],[-2,2]]
-    chunk = int(I/10)
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -343,7 +371,12 @@ def testing_test_function4(filename, tol):
         for d in d_values:
             config[K][d] = {}
             for h in h_values:
-                NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) 
+                if sgd:
+                    chunk = int(I/10)
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) 
+                else:
+                    chunk = I
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) 
                 test_input = generate_input(test_function4,domain,d0,I,d)
                 testing(NN, test_input, test_function4, domain, d0, d, I, scaling, alpha, beta)
 
@@ -360,7 +393,7 @@ def testing_test_function4(filename, tol):
                 i += 1
 
     # Save data to file. 
-    filenm = 'data/'+filename
+    filenm = 'data/markov/'+filename
     outfile = open(filenm,'wb')
     pickle.dump(config, outfile)
     outfile.close()

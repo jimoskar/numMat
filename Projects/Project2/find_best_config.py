@@ -6,6 +6,7 @@ import json
 # Get filename and function name from command line.
 filename = sys.argv[2]
 function_name = sys.argv[1]
+sgd_or_not = sys.argv[3]
 
 function_dict = {
     "training_test_function1": training_test_function1,
@@ -16,10 +17,14 @@ function_dict = {
     "testing_test_function3": testing_test_function3, 
     "training_test_function4": training_test_function4,
     "testing_test_function4": testing_test_function4,
-
 }
 
-function_dict[function_name](filename)
+if sgd_or_not == "t":
+    sgd = True
+else:
+    sgd = False
+
+function_dict[function_name](filename, sgd = sgd)
 
 """
 # Find best config from the generated data. 
