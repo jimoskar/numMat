@@ -141,7 +141,7 @@ def testing_test_function3(filename, tol):
     K_values = [10, 15, 20, 23, 30]
     d_values = [2, 3, 4, 5, 6]
     h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
-    iteations = 2000
+    iterations = 2000
     d0 = 2
     d = 4
     domain = [[-2,2],[-2,2]]
@@ -171,7 +171,7 @@ def testing_test_function3(filename, tol):
                 ratio = len(diff[abs(diff)<tol])/len(diff[0])
             
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
-                config[K][d][h] = [NN.J(), correct/len(NN.c)]
+                config[K][d][h] = [NN.J(), ratio]
                                 
                 print(i)
                 del NN # Safety measure to avoid leak. 
