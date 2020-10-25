@@ -71,6 +71,8 @@ class Network:
         self.I = I
         self.d = d
         self.Y = None
+
+        self.J_last = None # For use in the testing (instead of returning J from algorithm, save in NN)
     
     def J(self): 
         """Objective function."""
@@ -165,9 +167,9 @@ class Network:
         one_vec = np.ones((self.I,1)) 
         self.theta.w.reshape((self.d,1))
 
-        self.theta.w = self.theta.w.reshape((self.d,1)) # Dette er viktig!
+        self.theta.w = self.theta.w.reshape((self.d,1)) # For correct dimensions in gradient expressions. 
         gradient = self.theta.w @ self.eta_der(self.theta.w.T@self.Z_list[K,:,:] + self.theta.my*one_vec.T) 
-                                                    # Tenker egt at det burde vært '@' foran siste faktor, men det gir dim-feil
+                                                    
 
         for k in range(self.K - 1, -1, -1):
             gradient += self.theta.W_k[k,:,:].T @ (self.h*self.sigma_der(\
@@ -175,7 +177,7 @@ class Network:
         
         return gradient
 
-def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta):
+def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta, plot = False, savename = ""):
     """Main training algorithm."""
       
     inp = generate_input(function,domain,d0,I,d)
@@ -209,16 +211,21 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
 
         J_list[j-1] = NN.J()
         it[j-1] = j
-        
-    fig, ax = plt.subplots()
-    ax.plot(it,J_list)
-    fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
-    ax.set_ylabel("J")
-    ax.set_xlabel("Iteration")
-    plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
-            horizontalalignment="center", verticalalignment="center", 
-            transform=ax.transAxes, fontsize = 16)
-    #plt.savefig("objTest1.pdf")
-    plt.show()
+    
+    if plot:
+        fig, ax = plt.subplots()
+        ax.plot(it,J_list)
+        fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
+        ax.set_ylabel("J")
+        ax.set_xlabel("Iteration")
+        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+                horizontalalignment="center", verticalalignment="center", 
+                transform=ax.transAxes, fontsize = 16)
+        if savename != "": 
+            plt.savefig(savename, bbox_inches='tight')
+        plt.show()
+    
+    
+    NN.J_last = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
     
     return NN
