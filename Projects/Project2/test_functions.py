@@ -41,7 +41,7 @@ chunk = int(I/10)
 def test_function2(x):
     return 1 - np.cos(x)
 
-NN = algorithm(I,d,d0,K,h,iterations,tau,chunk, test_function2,domain, scaling, alpha, beta)
+NN = algorithm(I,d,K,h,iterations,tau,chunk, test_function2,domain, scaling, alpha, beta)
 test_input = generate_input(test_function2,domain,d0,I,d)
 
 #The a's and b's are for potential scaling fo the data
@@ -60,7 +60,7 @@ chunk = int(I/10)
 def test_function3(x,y):
     return 0.5*(x**2 + y**2)
 
-NN = algorithm(I,d,d0, K,h,iterations, tau, chunk, test_function3,domain,scaling,alpha,beta)
+NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function3,domain,scaling,alpha,beta)
 test_input = generate_input(test_function3,domain,d0,I,d)
 
 #The a's and b's are for potential scaling fo the data
@@ -80,7 +80,7 @@ chunk = int(I/10)
 def test_function4(x,y):
     return -1/np.sqrt(x**2 + y**2)
 
-NN = algorithm(I,d,d0, K,h,iterations, tau, chunk, test_function4,domain,scaling,alpha,beta)
+NN = algorithm(I,d,K,h,iterations, tau, chunk, test_function4,domain,scaling,alpha,beta)
 test_input = generate_input(test_function4,domain,d0,I,d)
 
 #The a's and b's are for potential scaling fo the data
