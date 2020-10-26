@@ -67,15 +67,15 @@ def sort_files(*, case, filenames):
     """Output sorted csv files to new files with 'S' leading char in filename."""
     for filename in filenames:
         if case == "train":
-            cmd = "head -n1 "+sys.path[0]+"/"+csvpath+filename+".csv && sort -t\",\" -k4,4 <(tail -n+2 "+sys.path[0]+"/"+csvpath+filename+".csv) > "+sys.path[0]+"/"+csvpath+"S"+filename+".csv"
+            cmd = "(head -n1 "+sys.path[0]+"/"+csvpath+filename+".csv && sort -t\",\" -k4,4 <(tail -n+2 "+sys.path[0]+"/"+csvpath+filename+".csv) ) > "+sys.path[0]+"/"+csvpath+"S"+filename+".csv"
         elif case == "test":
-            cmd = "head -n1 "+sys.path[0]+"/"+csvpath+filename+".csv && sort -t\",\" -k4,4 -k5,5n <\(tail -n+2 "+sys.path[0]+"/"+csvpath+filename+".csv\) > "+sys.path[0]+"/"+csvpath+"S"+filename+".csv"
+            cmd = "(head -n1 "+sys.path[0]+"/"+csvpath+filename+".csv && sort -t\",\" -k4,4 -k5,5n <(tail -n+2 "+sys.path[0]+"/"+csvpath+filename+".csv) ) > "+sys.path[0]+"/"+csvpath+"S"+filename+".csv"
         print(cmd)
         #os.system(cmd)
         #process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell = True)
         process = subprocess.Popen(cmd, shell = True, stdout=subprocess.PIPE, executable="/bin/bash")
         output, error =  process.communicate()
-        
+        print(output)
         returncode = process.wait()
         print("Returncode",returncode)
         if returncode == 2:
@@ -89,4 +89,4 @@ def sort_files(*, case, filenames):
     
 
 sort_files(case = "train", filenames = train_filenames)
-sort_files(case = "train", filenames = test_filenames)
+sort_files(case = "test", filenames = test_filenames)
