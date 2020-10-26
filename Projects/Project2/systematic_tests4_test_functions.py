@@ -14,15 +14,18 @@ Used a fixed amount of iterations and images in each test (see report for furthe
 from network_algo import *
 import pickle
 
+# Defined globally to make it easier in vim.
+K_values = [10, 15, 20, 23, 30]
+d_values = [2, 3, 4]
+h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
+tol = 0.0005
+iterations = 2000
+I = 1000
+
 def training_test_function1(filename, sgd = False):
     """Only training the test function 1."""
-    K_values = [10, 15, 20, 23, 30]
-    d_values = [2, 3, 4]
-    h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
-    iterations = 2000
     d0 = 1 # Dimension of the input layer. 
     domain = [-2,2]
-    I = 1000
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -56,15 +59,10 @@ def training_test_function1(filename, sgd = False):
     outfile.close()
 
 
-def testing_test_function1(filename, tol = 0.05, sgd = False):
+def testing_test_function1(filename, tol = tol, sgd = False):
     """Training and testing random data with test function 1."""
-    K_values = [10, 15, 20, 23, 30]
-    d_values = [2, 3, 4]
-    h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
-    iterations = 2000
     d0 = 1 # Dimension of the input layer. 
     domain = [-2,2]
-    I = 1000
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -108,13 +106,8 @@ def testing_test_function1(filename, tol = 0.05, sgd = False):
 
 def training_test_function2(filename, sgd = False):
     """Only training the test function 2."""
-    K_values = [10, 15, 20, 23, 30]
-    d_values = [2, 3, 4]
-    h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
-    iterations = 2000
     d0 = 1 # Dimension of the input layer. 
     domain = [-2,2]
-    I = 1000
     chunk = int(I/1)
     scaling = False
     alpha = 0.2
@@ -138,9 +131,9 @@ def training_test_function2(filename, sgd = False):
                     NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
                                
-                print(i)
+                #print(i)
                 del NN # Safety measure to avoid leak. 
-                i += 1
+                #i += 1
 
     # Save data to file.
     filenm = 'data/markov/'+filename
@@ -148,15 +141,10 @@ def training_test_function2(filename, sgd = False):
     pickle.dump(config, outfile)
     outfile.close()
 
-def testing_test_function2(filename, tol = 0.05, sgd = False):
+def testing_test_function2(filename, tol = tol, sgd = False):
     """Training and testing random data with test function 2."""
-    K_values = [10, 15, 20, 23, 30]
-    d_values = [2, 3, 4]
-    h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
-    iterations = 2000
     d0 = 1 # Dimension of the input layer. 
     domain = [-2,2]
-    I = 1000
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -188,9 +176,9 @@ def testing_test_function2(filename, tol = 0.05, sgd = False):
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
                 config[K][d][h] = [NN.J(), ratio]
                                
-                print(i)
+                #print(i)
                 del NN # Safety measure to avoid leak. 
-                i += 1
+                #i += 1
 
     # Save data to file. 
     filenm = 'data/markov/'+filename
@@ -200,18 +188,13 @@ def testing_test_function2(filename, tol = 0.05, sgd = False):
 
 def training_test_function3(filename, sgd = False):
     """Only training the test function 3."""
-    K_values = [10, 15, 20, 23, 30]
-    d_values = [2, 3, 4]
-    h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
     d0 = 2
-    iterations = 2000
     d = 4
     tau = 1
     domain = [[-2,2],[-2,2]]
     scaling = False
     alpha = 0.2
     beta = 0.8 
-    I = 1000
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -246,20 +229,15 @@ def training_test_function3(filename, sgd = False):
     pickle.dump(config, outfile)
     outfile.close()
 
-def testing_test_function3(filename, tol = 0.05, sgd = False):
+def testing_test_function3(filename, tol = tol, sgd = False):
     """Training and testing random data with test function 3."""
-    K_values = [10, 15, 20, 23, 30]
-    d_values = [2, 3, 4]
-    h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
     d0 = 2
     tau = 1
     d = 4
-    iterations = 2000
     domain = [[-2,2],[-2,2]]
     scaling = False
     alpha = 0.2
     beta = 0.8 
-    I = 1000
     tau = 1
 
     def test_function3(x,y):
@@ -294,24 +272,19 @@ def testing_test_function3(filename, tol = 0.05, sgd = False):
                 #i += 1
 
     # Save data to file. 
-    filenm = 'data/markov'+filename
+    filenm = 'data/markov/'+filename
     outfile = open(filenm,'wb')
     pickle.dump(config, outfile)
     outfile.close()
 
 def training_test_function4(filename, sgd = False):
     """Only training the test function 4."""
-    K_values = [10, 15, 20, 23, 30]
-    d_values = [2, 3, 4]
-    h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
-    iterations = 2000
     d0 = 2
     d = 4
     domain = [[-2,2],[-2,2]]
     scaling = False
     alpha = 0.2
     beta = 0.8 
-    I = 1000
     scaling = False
     alpha = 0.2
     beta = 0.8 
@@ -336,9 +309,9 @@ def training_test_function4(filename, sgd = False):
                 # The below adds the J_list from training. 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
                                 
-                print(i)
+                #print(i)
                 del NN # Safety measure to avoid leak. 
-                i += 1
+                #i += 1
 
     # Save data to file. 
     filenm = 'data/markov/'+filename
@@ -346,19 +319,14 @@ def training_test_function4(filename, sgd = False):
     pickle.dump(config, outfile)
     outfile.close()
 
-def testing_test_function4(filename, tol, sgd = False):
+def testing_test_function4(filename, tol = tol, sgd = False):
     """Training and testing random data with test function 4."""
-    K_values = [10, 15, 20, 23, 30]
-    d_values = [2, 3, 4]
-    h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
-    iterations = 2000
     d0 = 2
     d = 4
     domain = [[-2,2],[-2,2]]
     scaling = False
     alpha = 0.2
     beta = 0.8 
-    I = 1000
     tau = 1
 
     def test_function4(x,y):
@@ -388,9 +356,9 @@ def testing_test_function4(filename, tol, sgd = False):
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
                 config[K][d][h] = [NN.J(), ratio]
                                 
-                print(i)
+                #print(i)
                 del NN # Safety measure to avoid leak. 
-                i += 1
+                #i += 1
 
     # Save data to file. 
     filenm = 'data/markov/'+filename
