@@ -74,6 +74,8 @@ class Network:
         self.I = I
         self.d = d
         self.Y = None
+
+        self.J_last = None # For use in the testing (instead of returning J from algorithm, save in NN)
     
     def J(self): 
         """Objective function."""
@@ -145,12 +147,13 @@ class Network:
         
         return gradient
     
-    def embed_test_input(self, test_input, test_output):
+    def embed_input_and_sol(self, test_input, test_sol):
         """Embed the input into d-dimensional space."""
 
         self.Z_list = np.zeros((self.K+1,self.d,self.I))
-        self.Z_list[0,:d0,:] = test_input
-        self.c = test_output
+        self.Z_list[0,:,:] = test_input
+        self.c = test_sol
+
 
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
         for i in range(self.K):
@@ -199,7 +202,7 @@ class Network:
         
         return A
 
-def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta):
+def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta, plot = False, savename = ""):
     """Main training algorithm."""
       
     inp = generate_input(function,domain,d0,I,d)
@@ -233,21 +236,26 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
 
         J_list[j-1] = NN.J()
         it[j-1] = j
-    """    
-    fig, ax = plt.subplots()
-    ax.plot(it,J_list)
-    fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
-    ax.set_ylabel("J")
-    ax.set_xlabel("Iteration")
-    plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
-            horizontalalignment="center", verticalalignment="center", 
-            transform=ax.transAxes, fontsize = 16)
-    #plt.savefig("objTest1.pdf")
-    plt.show()
-    """
+    
+    if plot:
+        fig, ax = plt.subplots()
+        ax.plot(it,J_list)
+        fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
+        ax.set_ylabel("J")
+        ax.set_xlabel("Iteration")
+        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+                horizontalalignment="center", verticalalignment="center", 
+                transform=ax.transAxes, fontsize = 16)
+        if savename != "": 
+            plt.savefig(savename, bbox_inches='tight')
+        plt.show()
+    
+    
+    NN.J_last = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
+    
     return NN
 
-def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta):
+def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta, plot = False, savename = ""):
     """Main training algorithm."""
 
     input = generate_input(function,domain,d0,I,d)
@@ -289,18 +297,18 @@ def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, 
             index_list = [i for i in range(I)]
 
 
-    """
-    fig, ax = plt.subplots()
-    ax.plot(it,J_list)
-    fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
-    ax.set_ylabel("J")
-    ax.set_xlabel("Iteration")
-    plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
-            horizontalalignment="center", verticalalignment="center", 
-            transform=ax.transAxes, fontsize = 16)
-    #plt.savefig("objTest1.pdf")
-    plt.show()
-    """
+    if plot:
+        fig, ax = plt.subplots()
+        ax.plot(it,J_list)
+        fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
+        ax.set_ylabel("J")
+        ax.set_xlabel("Iteration")
+        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+                horizontalalignment="center", verticalalignment="center", 
+                transform=ax.transAxes, fontsize = 16)
+        if savename != "": 
+            plt.savefig(savename, bbox_inches='tight')
+        plt.show()
     return NN 
 
 def get_random_sample(input, sol, index_list, chunk, d):

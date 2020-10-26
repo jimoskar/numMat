@@ -19,16 +19,16 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
     
     The parameters found from the training of the Neural Network are employed.
     """
-    test_output = get_solution(function, test_input, d, I, d0)
+    test_sol = get_solution(function, test_input, d, I, d0)
     a1, b1, a2, b2 = None, None, None, None
     if scaling:
         test_input, a1, b1 = scale_data(alpha,beta,test_input)
-        test_output, a2, b2 = scale_data(alpha,beta,test_output)
+        test_sol, a2, b2 = scale_data(alpha,beta,test_sol)
 
-    Network.embed_test_input(test_input, test_output)
+    Network.embed_input_and_sol(test_input, test_sol)
     Network.forward_function()
     output = Network.Y
-    print("\nJ resulting from test: " + str(Network.J()))
+    #print("\nJ resulting from test: " + str(Network.J()))
 
     
     return output, a1, b1, a2, b2
@@ -39,7 +39,16 @@ def generate_input(function,domain,d0,I,d):
     
     Done by drawing from a uniform distribution on the domain.
     """
+    """
+    #Might generelize this later
     result = np.zeros((d,I))
+    for i in range(d0):
+        for j in range(I):
+            num = np.random.uniform(domain[0,i],domain[1])
+            result[:d0,i] = num
+    """
+    result = np.zeros((d,I))
+    
     if d0 == 1:
         for i in range(I):
             num = np.random.uniform(domain[0],domain[1])
@@ -51,12 +60,25 @@ def generate_input(function,domain,d0,I,d):
         for i in range(I):
             num = np.random.uniform(domain[1][0],domain[1][1])
             result[1,i] = num
+    if d0 == 3:
+        for i in range(I):
+            num = np.random.uniform(domain[0][0],domain[0][1])
+            result[0,i] = num
+        for i in range(I):
+            num = np.random.uniform(domain[1][0],domain[1][1])
+            result[1,i] = num
+        for i in range(I):
+            num = np.random.uniform(domain[2][0],domain[2][1])
+            result[2,i] = num
+
+
     return result
+
 
 def get_solution(function,input_values,d,I,d0):
     """Generate points from the test function on the given domain."""
     result = np.zeros(I)
-    """
+    
     if d0 == 1:
         for i in range(I):
             result[i] = function(input_values[0,i])
@@ -64,9 +86,11 @@ def get_solution(function,input_values,d,I,d0):
     if d0 == 2:
         for i in range(I):
             result[i] = function(input_values[0,i],input_values[1,i])
-    """
-    for i in range(I):
-        result[i] = function(input_values[:d0,i])
+
+    if d0 == 3:
+        for i in range(I):
+            result[i] = function(input_values[0,i],input_values[1,i],input_values[2,i])
+
     return result
     
 
@@ -91,7 +115,7 @@ def plot_graph_and_output(output,input,function,domain,d0,d, scaling, alpha, bet
         x = np.linspace(domain[0],domain[1])
         ax.plot(x,function(x), color="blue", label="Function")
         ax.legend()
-        #plt.savefig("compTest1.pdf")
+        #plt.savefig("compTest1Pic2.pdf", bbox_inches='tight')
         plt.show()
 
     elif d0 == 2:
