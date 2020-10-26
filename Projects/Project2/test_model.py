@@ -78,7 +78,7 @@ def generate_input(function,domain,d0,I,d):
 def get_solution(function,input_values,d,I,d0):
     """Generate points from the test function on the given domain."""
     result = np.zeros(I)
-    
+    """
     if d0 == 1:
         for i in range(I):
             result[i] = function(input_values[0,i])
@@ -90,6 +90,10 @@ def get_solution(function,input_values,d,I,d0):
     if d0 == 3:
         for i in range(I):
             result[i] = function(input_values[0,i],input_values[1,i],input_values[2,i])
+
+    """
+    for i in range(I):
+        result[i] = function(input_values[:d0,i])
 
     return result
     

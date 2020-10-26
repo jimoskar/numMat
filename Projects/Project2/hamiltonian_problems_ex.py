@@ -55,7 +55,7 @@ class Kepler:
 # Henon-Heiles problem.
 class Henon_Heiles:
     """Henon-Heiles problem."""
-     def __init__(self, domain_T, domain_V):
+    def __init__(self, domain_T, domain_V):
         self.domain_T = domain_T
         self.domain_V = domain_V
         
