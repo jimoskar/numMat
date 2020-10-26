@@ -8,6 +8,8 @@ mpl.rcParams['font.size'] = 14
 mpl.rcParams['axes.titlesize'] = 13
 mpl.rcParams['axes.titleweight'] = "bold"
 
+plt.style.use('seaborn')
+
 class Parameters:
     """Class for the parameters in the Neural Network."""
     def __init__(self,K,d,I):
@@ -145,23 +147,32 @@ class Network:
     
     def embed_test_input(self, test_input, test_output):
         """Embed the input into d-dimensional space."""
-        if len(test_input.shape) == 1:
-            I_new = 1
-        else:
-            I_new = test_input.shape[1]
-        self.I = I_new
 
         self.Z_list = np.zeros((self.K+1,self.d,self.I))
-        self.Z_list[0,:,:] = test_input
+        self.Z_list[0,:d0,:] = test_input
         self.c = test_output
 
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
+
+    def embed_point(self, point): 
+        self.I = 1
+        d0 = point.shape[0]
+
+        point = point.reshape(d0, 1)
+
+        self.Z_list = np.zeros((self.K+1,self.d,self.I))
+        self.Z_list[0,:d0,:] = point
+        self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
+        for i in range(self.K):
+            self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
+
+
     
     def calculate_output(self, input):
         """Calculates and returns the networks output from a given input"""
-        self.embed_test_input(input,input)
+        self.embed_point(input)
         self.forward_function()
         print("Ys shape: \n")
         print(self.Y.shape)
@@ -178,15 +189,15 @@ class Network:
         one_vec = np.ones((self.I,1)) 
 
     
-        w_grad = self.theta.w.reshape((self.d,1)) #need different dimensions for w 
-        gradient = w_grad @ self.eta_der(w_grad.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
+        w = self.theta.w.reshape((self.d,1)) #need different dimensions for w 
+        A = w @ self.eta_der(w.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
                                                     
 
-        for k in range(self.K - 1, -1, -1):
-            gradient += self.theta.W_k[k,:,:].T @ (self.h*self.sigma_der(\
-                    self.theta.W_k[k,:,:]@self.Z_list[k,:,:] + self.theta.b_k_I[k,:,:])*gradient)
+        for k in range(self.K, 0, -1):
+            A += self.theta.W_k[k-1,:,:].T @ (self.h*self.sigma_der(\
+                    self.theta.W_k[k-1,:,:]@self.Z_list[k-1,:,:] + self.theta.b_k_I[k-1,:,:])*A)
         
-        return gradient
+        return A
 
 def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta):
     """Main training algorithm."""

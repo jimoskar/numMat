@@ -1,14 +1,14 @@
 """Implement the numerical methods here, since one needs one neural network per gradient in the formulas."""
 from network_algo import *
 
-def symplectic_euler_NN(NNT, NNV, q0, p0, times,d0):
+def symplectic_euler_network(NNT, NNV, q0, p0, times,d0):
     """Symplectic Euler; first order method for integrating functions numerically.
     
     Two trained Neural Networks are input. values is a dictionary. 
     """
 
     solution = np.zeros((2*d0, len(times)))
-    solution[:, 0] = np.concatenate((q0[0:d0], p0[0:d0]))
+    solution[:, 0] = np.concatenate((q0, p0))
 
     grad_V_list = np.zeros(len(times))
 
@@ -17,20 +17,19 @@ def symplectic_euler_NN(NNT, NNV, q0, p0, times,d0):
         t0 = times[n]
         stepsize = t1-t0 # In case the stepsize is not constant.
 
-        grad_T = calculate_gradient(NNT, solution[d0:, n], solution[:d0, n])
-        q_new = solution[:d0, n] + stepsize*grad_T[:d0,:]
+        grad_T = calculate_gradient(NNT, solution[d0:, n])
+        q_new = solution[:d0, n] + stepsize*grad_T[:d0,:].reshape(d0) #Reshape is necessary for dimension.
 
-        grad_V = calculate_gradient(NNV, q_new, q_new)
-        grad_V_list[n+1] = grad_V[:d0]
-        p_new = solution[d0:, n] - stepsize*grad_V[:d0,:]
+        grad_V = calculate_gradient(NNV, q_new)
+        p_new = solution[d0:, n] - stepsize*grad_V[:d0,:].reshape(d0)
 
         solution[:d0, n+1] = q_new
         solution[d0:, n+1] = p_new
-    return solution, times, grad_V_list# Using the indices from 0 in the solution, not times as indices. 
+    return solution, times # Using the indices from 0 in the solution, not times as indices. 
 
-def symplectic_euler_exact(q0, p0, times, grad_T, grad_V,d0):
+def symplectic_euler_exact(q0, p0, times, grad_T, grad_V, d0):
     solution = np.zeros((2*d0,len(times)))
-    solution[:, 0] = np.concatenate((q0[0:d0], p0[0:d0]))
+    solution[:, 0] = np.concatenate((q0, p0))
     for n in range(len(times)-1):
         t1 = times[n+1]
         t0 = times[n]
@@ -80,10 +79,10 @@ def stormer_verlet(values, NNT, NNV, steps, stepsize):
         solution[n+1, :, :] = np.array([q1, p1])
     return solution # Using the indices from 0 in the solution, not times as indices. 
     
-def calculate_gradient(NN, abscissae, ordinates):
+def calculate_gradient(NN, point):
     """Calculate gradient in specific point from network."""
     # Embed new data. 
-    NN.embed_test_input(abscissae, ordinates)
+    NN.embed_point(point)
 
     # Run forward function.
     NN.forward_function()
