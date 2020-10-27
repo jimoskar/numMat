@@ -1,5 +1,6 @@
 """Train and test networks on the given data (from unknown Hamiltonian function)."""
 from network_algo import *
+from numerical_methods import *
 from import_data import generate_data, concatenate
 
 # Run training and tests on the given data here! (from import_data)
@@ -64,15 +65,17 @@ def algorithm_input_and_sol(inp, sol, method, I, d, d0, K, h, iterations, tau, c
 
 
 d = 4
-data = concatenate(batchmax=3)
-inp = embed_input(data['Q'],d)
-sol = data['V']
+training_data = concatenate(batchmax=20)
+inp_Q = embed_input(training_data['Q'],d)
+inp_P = embed_input(training_data['P'],d)
+sol_Q = training_data['V']
+sol_P = training_data['T']
 
-I = inp.shape[1] # Amount of points ran through the network at once. 
+I = inp_Q.shape[1] # Amount of points ran through the network at once. 
 K = 20 # Amount of hidden layers in the network.
 d0 = 3
-h = 0.05 # Scaling of the activation function application in algorithm.  
-iterations = 2000 #Number of iterations in the Algorithm 
+h = 0.1 # Scaling of the activation function application in algorithm.  
+iterations = 5000 #Number of iterations in the Algorithm 
 method = "adams"
 tau = 0.1 #For the Vanilla Gradient method
 chunk = int(I/256)
@@ -82,8 +85,24 @@ scaling = False
 alpha = 0.2
 beta = 0.8 
 
+#Training
+NNV = algorithm_input_and_sol(inp_Q, sol_Q, method, I, d, d0, K, h, iterations, tau, chunk, scaling, alpha, beta)
+NNT = algorithm_input_and_sol(inp_P, sol_P, method, I, d, d0, K, h, iterations, tau, chunk, scaling, alpha, beta)
 
-NNV = algorithm_input_and_sol(inp, sol, method, I, d, d0, K, h, iterations, tau, chunk, scaling, alpha, beta, plot = True)
+
+#Testing
+test_batch = generate_data(batch = 49)
+Q_data = test_batch['Q']
+P_data = test_batch['P']
+times = test_batch['t']
+
+network_sol, times = stormer_verlet_network(NNT, NNV, Q_data[:,0],P_data[:,0], times, d0)
+
+
+plt.plot(times, Q_data[0,:], label = "data")
+plt.plot(times, network_sol[0,:], label = "network")
+plt.legend()
+plt.show()
 
 
 
