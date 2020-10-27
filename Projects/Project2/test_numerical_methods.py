@@ -70,8 +70,8 @@ plt.show()
 #=========================#
 # Kepler Two-body Problem #
 #=========================#
-"""
 
+"""
 domain_T = domain_V = [[-2, 2], [-2, 2]]
 kepler = Kepler(domain_T, domain_V)
 d0 = 2
@@ -105,7 +105,7 @@ times = np.linspace(0, 10, 1000)
 
 network_sol, times = symplectic_euler_network(NNT, NNV, q0, p0, times, d0)
 
-exact_sol, times = symplectic_euler_exact(q0, p0, times, kepler.grad_T, kepler.grad_V, d0)
+exact_sol, times = stormer_verlet_exact(q0, p0, times, kepler.grad_T, kepler.grad_V, d0)
 
 
 #plt.plot(times, exact_sol[0,:])
@@ -121,21 +121,20 @@ ax.plot3D(xline, yline, zline, "gray")# Data for three-dimensional
 plt.show()
 
 
-
 """
+
 #======================#
 # Henon-Heiles Problem #
 #======================#
 
-
 domain_T = domain_V = [[-2, 2], [-2, 2]]
 HH = Henon_Heiles(domain_T, domain_V)
 d0 = 2
-I = 1000
+I = 500
 d = 3
 K = 23
 h = 0.1
-iterations = 5000
+iterations = 1000
 tau = alpha = beta = None
 scaling = False
 chunk = int(I/10)
@@ -147,8 +146,8 @@ NNV = algorithm(I, d, d0, K, h, iterations, tau, chunk, HH.V, HH.domain_V, scali
 q0  = p0 = np.array([0.2,0.2])
 times = np.linspace(0, 10, 1000)
 
-network_sol, times = symplectic_euler_network(NNT, NNV, q0, p0, times, d0)
-exact_sol, times = symplectic_euler_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
+network_sol, times = stormer_verlet_network(NNT, NNV, q0, p0, times, d0)
+exact_sol, times = stormer_verlet_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
 
 plt.plot(times, exact_sol[0,:])
 plt.plot(times, network_sol[0,:])
