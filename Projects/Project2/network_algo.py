@@ -147,13 +147,20 @@ class Network:
         
         return gradient
     
-    def embed_input_and_sol(self, test_input, test_sol):
+    def embed_input_and_sol(self, inp, sol):
         """Embed the input into d-dimensional space. This function is used for testing."""
-        self.I = test_input.shape[1]
+        self.I = inp.shape[1]
+        inp.shape[0] = d0
+        if d0 < self.d:
+            while d0 < d:
+                zero_row = np.zeros(self.I)
+                inp = input.vstack((inp,zero_row))
+                d0 += 1
+       
 
         self.Z_list = np.zeros((self.K+1,self.d,self.I))
-        self.Z_list[0,:,:] = test_input
-        self.c = test_sol
+        self.Z_list[0,:,:] = inp
+        self.c = sol
 
 
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
