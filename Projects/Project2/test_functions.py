@@ -17,7 +17,7 @@ beta = 0.8
 #================#
 #Test function 1 #
 #================#
-
+"""
 
 d0 = 1 # Dimension of the input layer. 
 domain = [-2,2]
@@ -31,7 +31,7 @@ test_input = generate_input(test_function1,domain,d0,I,d)
 #The a's and b's are for potential scaling fo the data
 output, a1, b1, a2, b2 = testing(NN, test_input, test_function1, domain, d0, d, I, scaling, alpha, beta)
 plot_graph_and_output(output, test_input, test_function1, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
-
+"""
 #================#
 #Test function 2 #
 #================#
@@ -53,13 +53,15 @@ plot_graph_and_output(output, test_input, test_function2, domain, d0,d, scaling,
 #================#
 #Test function 3 #
 #================#
+
 """
+
 d0 = 2
 d = 4
 domain = [[-2,2],[-2,2]]
 chunk = int(I/10)
-def test_function3(x,y):
-    return 0.5*(x**2 + y**2)
+def test_function3(x):
+    return 0.5*(x[0]**2 + x[1]**2)
 
 NN = algorithm(I,d,d0, K,h,iterations, tau, chunk, test_function3,domain,scaling,alpha,beta)
 test_input = generate_input(test_function3,domain,d0,I,d)
@@ -72,14 +74,14 @@ plot_graph_and_output(output, test_input, test_function3, domain, d0,d, scaling,
 #================#
 #Test function 4 #
 #================#
-"""
+
 
 d0 = 2
 d = 4
 domain = [[-2,2],[-2,2]]
 chunk = int(I/10)
-def test_function4(x,y):
-    return -1/np.sqrt(x**2 + y**2)
+def test_function4(x):
+    return -1/np.sqrt(x[0]**2 + x[1]**2)
 
 NN = algorithm(I,d,d0, K,h,iterations, tau, chunk, test_function4,domain,scaling,alpha,beta)
 test_input = generate_input(test_function4,domain,d0,I,d)
@@ -88,4 +90,4 @@ test_input = generate_input(test_function4,domain,d0,I,d)
 output, a1, b1, a2, b2 = testing(NN, test_input, test_function4, domain, d0, d, I, scaling, alpha, beta)
 plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
 
-"""
+

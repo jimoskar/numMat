@@ -139,7 +139,7 @@ def plot_graph_and_output(output,input,function,domain,d0,d, scaling, alpha, bet
         y = np.linspace(domain[1][0], domain[1][1], 30)
         
         X, Y = np.meshgrid(x, y)
-        Z = function(X, Y)
+        Z = function([X, Y])
 
         ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
                 cmap='Greys', edgecolor='none', alpha = 0.5)
