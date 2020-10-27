@@ -2,7 +2,6 @@
 import sys
 from systematic_tests4_test_functions import *
 
-
 # Get filename and function name from command line.
 filename = sys.argv[2]
 function_name = sys.argv[1]

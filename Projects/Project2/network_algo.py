@@ -297,6 +297,8 @@ def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, 
         if savename != "": 
             plt.savefig(savename, bbox_inches='tight')
         plt.show()
+
+    NN.J_last = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
     return NN 
 
 def get_random_sample(input, sol, index_list, chunk, d):

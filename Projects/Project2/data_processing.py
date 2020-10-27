@@ -65,28 +65,30 @@ test_filenames, train_filenames = find_filenames(binpath, csvpath)
 
 def sort_files(*, case, filenames):
     """Output sorted csv files to new files with 'S' leading char in filename."""
+    path = sys.path[0]+"/"+csvpath
     for filename in filenames:
         if case == "train":
-            cmd = "(head -n1 "+sys.path[0]+"/"+csvpath+filename+".csv && sort -t\",\" -k4,4 <(tail -n+2 "+sys.path[0]+"/"+csvpath+filename+".csv) ) > "+sys.path[0]+"/"+csvpath+"S"+filename+".csv"
+            cmd = "(head -n1 "+path+filename+".csv && sort -t\",\" -k4,4 <(tail -n+2 "+path+filename+".csv) ) > "+path+"S"+filename+".csv"
         elif case == "test":
-            cmd = "(head -n1 "+sys.path[0]+"/"+csvpath+filename+".csv && sort -t\",\" -k4,4 -k5,5n <(tail -n+2 "+sys.path[0]+"/"+csvpath+filename+".csv) ) > "+sys.path[0]+"/"+csvpath+"S"+filename+".csv"
+            cmd = "(head -n1 "+path+filename+".csv && sort -t\",\" -k4,4 -k5,5n <(tail -n+2 "+path+filename+".csv) ) > "+path+"S"+filename+".csv"
         print(cmd)
         #os.system(cmd)
         #process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell = True)
         process = subprocess.Popen(cmd, shell = True, stdout=subprocess.PIPE, executable="/bin/bash")
         output, error =  process.communicate()
-        print(output)
         returncode = process.wait()
-        print("Returncode",returncode)
-        if returncode == 2:
-            break
-            
-        """
-        # Deleted unsorted files.
-        cmd = "rm -f " + self.filename +".mkv"
-        subprocess.Popen(cmd.split(" "))
-        """
-    
 
-sort_files(case = "train", filenames = train_filenames)
-sort_files(case = "test", filenames = test_filenames)
+#sort_files(case = "train", filenames = train_filenames)
+#sort_files(case = "test", filenames = test_filenames)
+
+def delete_unsorted_files(*, case, filenames):
+    """Delete the old files, after sorting. Files deleted according to old names (without 'S' in front)."""
+    path = sys.path[0]+"/"+csvpath
+    for filename in filenames:
+        cmd = "rm -f " + path+filename +".csv"
+        process = subprocess.Popen(cmd.split(" "), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+        returncode = process.wait()
+
+delete_unsorted_files(case = "train", filenames = train_filenames)
+delete_unsorted_files(case = "test", filenames = test_filenames)

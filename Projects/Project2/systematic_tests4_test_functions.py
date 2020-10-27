@@ -18,7 +18,7 @@ import pickle
 K_values = [10, 15, 20, 23, 30]
 d_values = [2, 3, 4]
 h_values = [0.05, 0.1, 0.2, 0.3, 0.4]
-tol = 0.0005
+tol = 0.005
 iterations = 2000
 I = 1000
 
@@ -58,7 +58,6 @@ def training_test_function1(filename, sgd = False):
     pickle.dump(config, outfile)
     outfile.close()
 
-
 def testing_test_function1(filename, tol = tol, sgd = False):
     """Training and testing random data with test function 1."""
     d0 = 1 # Dimension of the input layer. 
@@ -92,7 +91,7 @@ def testing_test_function1(filename, tol = tol, sgd = False):
                 ratio = len(diff[abs(diff)<tol])/len(diff[0])
 
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
-                config[K][d][h] = [NN.J(), ratio]
+                config[K][d][h] = [NN.J_last, ratio]
                                
                 #print(i)
                 del NN # Safety measure to avoid leak. 
@@ -129,8 +128,7 @@ def training_test_function2(filename, sgd = False):
                 else:
                     chunk = I
                     NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
-                config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
-                               
+                config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.            
                 #print(i)
                 del NN # Safety measure to avoid leak. 
                 #i += 1
@@ -174,7 +172,7 @@ def testing_test_function2(filename, tol = tol, sgd = False):
                 ratio = len(diff[abs(diff)<tol])/len(diff[0])
 
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
-                config[K][d][h] = [NN.J(), ratio]
+                config[K][d][h] = [NN.J_last, ratio]
                                
                 #print(i)
                 del NN # Safety measure to avoid leak. 
@@ -217,8 +215,7 @@ def training_test_function3(filename, sgd = False):
                     chunk = I
                     NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) 
                 # The below adds the J_list from training. 
-                config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
-                                
+                config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.               
                 #print(i)
                 del NN # Safety measure to avoid leak. 
                 #i += 1
@@ -265,7 +262,7 @@ def testing_test_function3(filename, tol = tol, sgd = False):
                 ratio = len(diff[abs(diff)<tol])/len(diff[0])
             
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
-                config[K][d][h] = [NN.J(), ratio]
+                config[K][d][h] = [NN.J_last, ratio]
                                 
                 #print(i)
                 del NN # Safety measure to avoid leak. 
@@ -307,8 +304,7 @@ def training_test_function4(filename, sgd = False):
                     chunk = I
                     NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) 
                 # The below adds the J_list from training. 
-                config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
-                                
+                config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.               
                 #print(i)
                 del NN # Safety measure to avoid leak. 
                 #i += 1
@@ -354,7 +350,7 @@ def testing_test_function4(filename, tol = tol, sgd = False):
                 ratio = len(diff[abs(diff)<tol])/len(diff[0])
             
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
-                config[K][d][h] = [NN.J(), ratio]
+                config[K][d][h] = [NN.J_last, ratio]
                                 
                 #print(i)
                 del NN # Safety measure to avoid leak. 
