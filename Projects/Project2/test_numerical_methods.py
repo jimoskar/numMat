@@ -9,16 +9,16 @@ from mpl_toolkits import mplot3d
 #====================#
 # Nonlinear Pendulum #
 #====================#
-"""
+
 
 domain_T = domain_V = [-1, 1]
 pendulum = Pendulum(domain_T, domain_V)
 d0 = 1
-I = 1000
+I = 500
 d = 3
 K = 23
 h = 0.2
-iterations = 3000
+iterations = 1000
 tau = alpha = beta = None
 scaling = False
 #alpha = 0.2
@@ -50,13 +50,14 @@ plt.show()
 
 
 #Plotting the hamiltonian. It should be constant along the exact solution.
-q_data = embed_data(network_sol[0,:],d)
-p_data = embed_data(network_sol[1,:],d)
-network_ham = NNT.calculate_output(p_data) + NNV.calculate_output(q_data)
-print(p_data.shape)
-print(NNT.calculate_output(p_data).shape)
-print(network_ham.shape)
-plt.plot(times, network_ham, label = "network")
+#q_data = embed_data(network_sol[0,:],d)
+#p_data = embed_data(network_sol[1,:],d)
+network_ham = NNT.calculate_output(network_sol[0,:].reshape(1,1000)) + NNV.calculate_output(network_sol[1,:].reshape(1,1000))
+#print(p_data.shape)
+#print(NNT.calculate_output(p_data).shape)
+#print(network_ham.shape)
+plt.plot(times, network_ham, label = "network", color = "red", linestyle = "dashed")
+
 
 exact_ham = pendulum.T(exact_sol[1,:])+pendulum.V(exact_sol[0,:])
 #plt.plot(times,pendulum.T(network_sol[1,:])+pendulum.V(network_sol[0,:]), label = "exact")
@@ -66,7 +67,7 @@ plt.axhline(y = pendulum.T(p0)+pendulum.V(q0))
 plt.title("Hamiltonian function")
 plt.legend()
 plt.show()
-"""
+
 #=========================#
 # Kepler Two-body Problem #
 #=========================#
@@ -126,7 +127,7 @@ plt.show()
 #======================#
 # Henon-Heiles Problem #
 #======================#
-
+"""
 domain_T = domain_V = [[-2, 2], [-2, 2]]
 HH = Henon_Heiles(domain_T, domain_V)
 d0 = 2
@@ -153,3 +154,4 @@ plt.plot(times, exact_sol[0,:])
 plt.plot(times, network_sol[0,:])
 plt.show()
 
+"""

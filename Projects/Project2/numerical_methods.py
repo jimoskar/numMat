@@ -94,7 +94,7 @@ def stormer_verlet_exact(q0, p0, times, grad_T, grad_V, d0):
 def calculate_gradient(NN, point):
     """Calculate gradient in specific point from network."""
     # Embed new data. 
-    NN.embed_point(point)
+    NN.embed_input(point)
 
     # Run forward function.
     NN.forward_function()

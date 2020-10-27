@@ -148,7 +148,8 @@ class Network:
         return gradient
     
     def embed_input_and_sol(self, test_input, test_sol):
-        """Embed the input into d-dimensional space."""
+        """Embed the input into d-dimensional space. This function is used for testing."""
+        self.I = test_input.shape[1]
 
         self.Z_list = np.zeros((self.K+1,self.d,self.I))
         self.Z_list[0,:,:] = test_input
@@ -159,14 +160,17 @@ class Network:
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
 
-    def embed_point(self, point): 
-        self.I = 1
-        d0 = point.shape[0]
-
-        point = point.reshape(d0, 1)
+    def embed_input(self, inp):
+        if inp.ndim == 1: #the input is a point
+            self.I = 1
+            d0 = inp.shape[0]
+            inp = inp.reshape(d0, 1)
+        else:
+            d0 = inp.shape[0]
+            self.I = inp.shape[1]
 
         self.Z_list = np.zeros((self.K+1,self.d,self.I))
-        self.Z_list[0,:d0,:] = point
+        self.Z_list[0,:d0,:] = inp
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
@@ -175,7 +179,7 @@ class Network:
     
     def calculate_output(self, input):
         """Calculates and returns the networks output from a given input"""
-        self.embed_point(input)
+        self.embed_input(input)
         self.forward_function()
         print("Ys shape: \n")
         print(self.Y.shape)
