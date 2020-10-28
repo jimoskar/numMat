@@ -58,8 +58,8 @@ def convert_to_csv(*, case, filenames):
 test_filenames, train_filenames = find_filenames(binpath, csvpath)
 
 # Converts the binary files to csv. 
-#convert_to_csv(case = "train", filenames = train_filenames)
-#convert_to_csv(case = "test", filenames = test_filenames)
+convert_to_csv(case = "train", filenames = train_filenames)
+convert_to_csv(case = "test", filenames = test_filenames)
 
 # Sort all the csv files in ascending order according to column 4 via Linux command.
 
@@ -68,18 +68,16 @@ def sort_files(*, case, filenames):
     path = sys.path[0]+"/"+csvpath
     for filename in filenames:
         if case == "train":
-            cmd = "(head -n1 "+path+filename+".csv && sort -t\",\" -k4,4 <(tail -n+2 "+path+filename+".csv) ) > "+path+"S"+filename+".csv"
+            cmd = "(head -n1 "+path+filename+".csv && LC_NUMERIC=en_US.UTF-8 sort -t\",\" -k4 -g <(tail -n+2 "+path+filename+".csv) ) > "+path+"S"+filename+".csv"
         elif case == "test":
-            cmd = "(head -n1 "+path+filename+".csv && sort -t\",\" -k4,4 -k5,5n <(tail -n+2 "+path+filename+".csv) ) > "+path+"S"+filename+".csv"
+            cmd = "(head -n1 "+path+filename+".csv && LC_NUMERIC=en_US.UTF-8 sort -t\",\" -k4,4 -k5,5 -g <(tail -n+2 "+path+filename+".csv) ) > "+path+"S"+filename+".csv"
         print(cmd)
-        #os.system(cmd)
-        #process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell = True)
         process = subprocess.Popen(cmd, shell = True, stdout=subprocess.PIPE, executable="/bin/bash")
         output, error =  process.communicate()
         returncode = process.wait()
 
-#sort_files(case = "train", filenames = train_filenames)
-#sort_files(case = "test", filenames = test_filenames)
+sort_files(case = "train", filenames = train_filenames)
+sort_files(case = "test", filenames = test_filenames)
 
 def delete_unsorted_files(*, case, filenames):
     """Delete the old files, after sorting. Files deleted according to old names (without 'S' in front)."""
@@ -90,5 +88,5 @@ def delete_unsorted_files(*, case, filenames):
         output, error = process.communicate()
         returncode = process.wait()
 
-delete_unsorted_files(case = "train", filenames = train_filenames)
-delete_unsorted_files(case = "test", filenames = test_filenames)
+#delete_unsorted_files(case = "train", filenames = train_filenames)
+#delete_unsorted_files(case = "test", filenames = test_filenames)
