@@ -68,11 +68,12 @@ plt.title("Hamiltonian function")
 plt.legend()
 plt.show()
 
+
 #=========================#
 # Kepler Two-body Problem #
 #=========================#
-
 """
+
 domain_T = domain_V = [[-2, 2], [-2, 2]]
 kepler = Kepler(domain_T, domain_V)
 d0 = 2
@@ -92,17 +93,11 @@ NNV = algorithm(I, d, d0, K, h, iterations, tau, chunk, kepler.V, kepler.domain_
 input_T = generate_input(kepler.T, kepler.domain_T, d0, I, d)
 input_V = generate_input(kepler.V, kepler.domain_V, d0, I, d)
 
-# Not needed right now. 
-values = {
-    "Q": input_V, 
-    "P": input_T, 
-    "V": get_solution(kepler.V, input_V, d, I, d0), 
-    "T": get_solution(kepler.T, input_T, d, I, d0), 
-    "t": np.linspace(0, 10, 100)
-}
 
-q0  = p0 = np.array([0.2,0.2])
-times = np.linspace(0, 10, 1000)
+
+q0  = np.array([100,100])
+p0 = np.array([0.2,0.3])
+times = np.linspace(0, 40, 1000)
 
 network_sol, times = symplectic_euler_network(NNT, NNV, q0, p0, times, d0)
 
@@ -122,8 +117,8 @@ ax.plot3D(xline, yline, zline, "gray")# Data for three-dimensional
 plt.show()
 
 
-"""
 
+"""
 #======================#
 # Henon-Heiles Problem #
 #======================#

@@ -65,17 +65,17 @@ def algorithm_input_and_sol(inp, sol, method, I, d, d0, K, h, iterations, tau, c
 
 
 d = 4
-training_data = concatenate(batchmax=20)
+training_data = concatenate(batchmax=30)
 inp_Q = embed_input(training_data['Q'],d)
 inp_P = embed_input(training_data['P'],d)
 sol_Q = training_data['V']
 sol_P = training_data['T']
 
 I = inp_Q.shape[1] # Amount of points ran through the network at once. 
-K = 20 # Amount of hidden layers in the network.
-d0 = 3
+K = 30 # Amount of hidden layers in the network.
+d0 = 4
 h = 0.1 # Scaling of the activation function application in algorithm.  
-iterations = 5000 #Number of iterations in the Algorithm 
+iterations = 7000 #Number of iterations in the Algorithm 
 method = "adams"
 tau = 0.1 #For the Vanilla Gradient method
 chunk = int(I/256)
