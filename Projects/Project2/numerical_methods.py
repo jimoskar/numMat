@@ -1,7 +1,7 @@
 """Implement the numerical methods here, since one needs one neural network per gradient in the formulas."""
 from network_algo import *
 
-def symplectic_euler_network(NNT, NNV, q0, p0, times,d0):
+def symplectic_euler_network(NNT, NNV, q0, p0, times, d0):
     """Symplectic Euler; first order method for integrating functions numerically.
     
     Two trained Neural Networks are input. values is a dictionary. 
@@ -19,7 +19,9 @@ def symplectic_euler_network(NNT, NNV, q0, p0, times,d0):
         print(grad_T.shape)
         q_new = solution[:d0, n] + stepsize*grad_T #Reshape is necessary for dimension.
 
-        grad_V = calculate_gradient(NNV, q_new)[d0:,:].reshape(d0)
+        print(q_new.shape)
+
+        grad_V = calculate_gradient(NNV, q_new)[:d0,:].reshape(d0)
         p_new = solution[d0:, n] - stepsize*grad_V
 
         solution[:d0, n+1] = q_new
@@ -41,7 +43,6 @@ def symplectic_euler_exact(q0, p0, times, grad_T, grad_V, d0):
         solution[d0:, n+1] = p_new
 
     return solution, times
-
 
 def stormer_verlet_network(NNT, NNV, q0, p0, times, d0):
     """Størmer-Verlet; second order method for integrating functions numerically.
@@ -70,7 +71,6 @@ def stormer_verlet_network(NNT, NNV, q0, p0, times, d0):
 
     return solution, times
 
-
 def stormer_verlet_exact(q0, p0, times, grad_T, grad_V, d0):
     solution = np.zeros((2*d0,len(times)))
     solution[:, 0] = np.concatenate((q0, p0))
@@ -88,10 +88,6 @@ def stormer_verlet_exact(q0, p0, times, grad_T, grad_V, d0):
 
     return solution, times
 
-
-
-
-    
 def calculate_gradient(NN, point):
     """Calculate gradient in specific point from network."""
     # Embed new data. 
