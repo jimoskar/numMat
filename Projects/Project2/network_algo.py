@@ -8,6 +8,8 @@ mpl.rcParams['font.size'] = 14
 mpl.rcParams['axes.titlesize'] = 13
 mpl.rcParams['axes.titleweight'] = "bold"
 
+plt.style.use('seaborn')
+
 class Parameters:
     """Class for the parameters in the Neural Network."""
     def __init__(self,K,d,I):
@@ -145,25 +147,46 @@ class Network:
         
         return gradient
     
-    def embed_input_and_sol(self, test_input, test_sol):
-        """Embed the input into d-dimensional space."""
-        if len(test_input.shape) == 1:
-            I_new = 1
-        else:
-            I_new = test_input.shape[1]
-        self.I = I_new
+    def embed_input_and_sol(self, inp, sol):
+        """Embed the input into d-dimensional space. This function is used for testing."""
+        self.I = inp.shape[1]
+        inp.shape[0] = d0
+        if d0 < self.d:
+            while d0 < d:
+                zero_row = np.zeros(self.I)
+                inp = input.vstack((inp,zero_row))
+                d0 += 1
+       
 
         self.Z_list = np.zeros((self.K+1,self.d,self.I))
-        self.Z_list[0,:,:] = test_input
-        self.c = test_sol
+        self.Z_list[0,:,:] = inp
+        self.c = sol
+
 
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
+
+    def embed_input(self, inp):
+        if inp.ndim == 1: #the input is a point
+            self.I = 1
+            d0 = inp.shape[0]
+            inp = inp.reshape(d0, 1)
+        else:
+            d0 = inp.shape[0]
+            self.I = inp.shape[1]
+
+        self.Z_list = np.zeros((self.K+1,self.d,self.I))
+        self.Z_list[0,:d0,:] = inp
+        self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
+        for i in range(self.K):
+            self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
+
+
     
     def calculate_output(self, input):
         """Calculates and returns the networks output from a given input"""
-        self.embed_test_input(input,input)
+        self.embed_input(input)
         self.forward_function()
         print("Ys shape: \n")
         print(self.Y.shape)
@@ -180,15 +203,15 @@ class Network:
         one_vec = np.ones((self.I,1)) 
 
     
-        w_grad = self.theta.w.reshape((self.d,1)) #need different dimensions for w 
-        gradient = w_grad @ self.eta_der(w_grad.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
+        w = self.theta.w.reshape((self.d,1)) #need different dimensions for w 
+        A = w @ self.eta_der(w.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
                                                     
 
-        for k in range(self.K - 1, -1, -1):
-            gradient += self.theta.W_k[k,:,:].T @ (self.h*self.sigma_der(\
-                    self.theta.W_k[k,:,:]@self.Z_list[k,:,:] + self.theta.b_k_I[k,:,:])*gradient)
+        for k in range(self.K, 0, -1):
+            A += self.theta.W_k[k-1,:,:].T @ (self.h*self.sigma_der(\
+                    self.theta.W_k[k-1,:,:]@self.Z_list[k-1,:,:] + self.theta.b_k_I[k-1,:,:])*A)
         
-        return gradient
+        return A
 
 def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta, plot = False, savename = ""):
     """Main training algorithm."""

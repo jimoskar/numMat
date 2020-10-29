@@ -6,7 +6,6 @@ import math
 import numpy.linalg as la
 from mpl_toolkits import mplot3d
 
-plt.style.use('seaborn')
 
 
 # Add parameters for plotting. 
@@ -79,6 +78,7 @@ def generate_input(function,domain,d0,I,d):
 def get_solution(function,input_values,d,I,d0):
     """Generate points from the test function on the given domain."""
     result = np.zeros(I)
+    """
     if d0 == 1:
         for i in range(I):
             result[i] = function(input_values[0,i])
@@ -86,9 +86,14 @@ def get_solution(function,input_values,d,I,d0):
     if d0 == 2:
         for i in range(I):
             result[i] = function(input_values[0,i],input_values[1,i])
+
     if d0 == 3:
         for i in range(I):
             result[i] = function(input_values[0,i],input_values[1,i],input_values[2,i])
+
+    """
+    for i in range(I):
+        result[i] = function(input_values[:d0,i])
 
     return result
     
@@ -134,7 +139,7 @@ def plot_graph_and_output(output,input,function,domain,d0,d, scaling, alpha, bet
         y = np.linspace(domain[1][0], domain[1][1], 30)
         
         X, Y = np.meshgrid(x, y)
-        Z = function(X, Y)
+        Z = function([X, Y])
 
         ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
                 cmap='Greys', edgecolor='none', alpha = 0.5)

@@ -34,16 +34,39 @@ class Kepler:
         self.domain_T = domain_T
         self.domain_V = domain_V
         
-    def T(self, p1, p2):
-        return 0.5*(p1**2 + p2**2)
+    def T(self, p):
+        return 0.5*(p[0]**2 + p[1]**2)
 
-    def V(self, q1, q2):
-        return -1/np.sqrt(q1**2 + q2**2)
+    def grad_T(self, p):
+        return np.array([p[0],p[1]])
+
+    def V(self, q):
+        return -1/np.sqrt(q[0]**2 + q[1]**2)
+    
+    def grad_V(self, q):
+        comp1 = q[0]/np.power(q[0]**2 + q[1]**2, 3/2)
+        comp2 = q[1]/np.power(q[0]**2 + q[1]**2, 3/2)
+        return np.array([comp1, comp2])
+
 
 class Henon_Heiles:
     """Henon-Heiles problem."""
-    def T(self, p1, p2):
-        return 0.5*(p1**2 + p2**2)
+    def __init__(self, domain_T, domain_V):
+        self.domain_T = domain_T
+        self.domain_V = domain_V
+        
+    def T(self, p):
+        return 0.5*(p[0]**2 + p[1]**2)
     
-    def V(self, q1, q2):
-        return 0.5*(q1**2 + q**2) + q1**2*q2 - (1/3)*q2**3
+    def grad_T(self, p):
+        return np.array([p[0], p[1]])
+
+    def V(self, q):
+        return 0.5*(q[0]**2 + q[1]**2) + q[0]**2*q[1] - (1/3)*q[1]**3
+    
+    def grad_V(self, q):
+        comp1 = q[0] + 2*q[0]*q[1]
+        comp2 = q[1] + q[0]**2 - q[1]
+
+        return np.array([comp1,comp2])
+
