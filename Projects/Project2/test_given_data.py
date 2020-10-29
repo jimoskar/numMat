@@ -73,7 +73,7 @@ sol_P = training_data['T']
 
 I = inp_Q.shape[1] # Amount of points ran through the network at once. 
 K = 30 # Amount of hidden layers in the network.
-d0 = 4
+d0 = 3
 h = 0.1 # Scaling of the activation function application in algorithm.  
 iterations = 7000 #Number of iterations in the Algorithm 
 method = "adams"

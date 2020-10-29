@@ -9,7 +9,7 @@ from mpl_toolkits import mplot3d
 #====================#
 # Nonlinear Pendulum #
 #====================#
-
+"""
 
 domain_T = domain_V = [-1, 1]
 pendulum = Pendulum(domain_T, domain_V)
@@ -68,11 +68,10 @@ plt.title("Hamiltonian function")
 plt.legend()
 plt.show()
 
-
+"""
 #=========================#
 # Kepler Two-body Problem #
 #=========================#
-"""
 
 domain_T = domain_V = [[-2, 2], [-2, 2]]
 kepler = Kepler(domain_T, domain_V)
@@ -85,6 +84,7 @@ iterations = 2000
 tau = alpha = beta = None
 scaling = False
 chunk = int(I/10)
+
 
 # Train the neural networks. 
 NNT = algorithm(I, d, d0, K, h, iterations, tau, chunk, kepler.T, kepler.domain_T, scaling, alpha, beta)
@@ -100,7 +100,6 @@ p0 = np.array([0.2,0.3])
 times = np.linspace(0, 40, 1000)
 
 network_sol, times = symplectic_euler_network(NNT, NNV, q0, p0, times, d0)
-
 exact_sol, times = stormer_verlet_exact(q0, p0, times, kepler.grad_T, kepler.grad_V, d0)
 
 
@@ -118,7 +117,6 @@ plt.show()
 
 
 
-"""
 #======================#
 # Henon-Heiles Problem #
 #======================#

@@ -38,7 +38,7 @@ class Kepler:
         return 0.5*(p[0]**2 + p[1]**2)
 
     def grad_T(self, p):
-        return np.array([p[0],p[1]])
+        return p
 
     def V(self, q):
         return -1/np.sqrt(q[0]**2 + q[1]**2)
@@ -46,7 +46,7 @@ class Kepler:
     def grad_V(self, q):
         comp1 = q[0]/np.power(q[0]**2 + q[1]**2, 3/2)
         comp2 = q[1]/np.power(q[0]**2 + q[1]**2, 3/2)
-        return np.array([comp1, comp2])
+        return np.array([comp1, comp2]).T
 
 
 class Henon_Heiles:

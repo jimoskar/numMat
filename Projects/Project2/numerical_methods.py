@@ -15,11 +15,12 @@ def symplectic_euler_network(NNT, NNV, q0, p0, times,d0):
         t0 = times[n]
         stepsize = t1-t0 # In case the stepsize is not constant.
 
-        grad_T = calculate_gradient(NNT, solution[d0:, n])
-        q_new = solution[:d0, n] + stepsize*grad_T[:d0,:].reshape(d0) #Reshape is necessary for dimension.
+        grad_T = calculate_gradient(NNT, solution[d0:, n])[:d0,:].reshape(d0)
+        print(grad_T.shape)
+        q_new = solution[:d0, n] + stepsize*grad_T #Reshape is necessary for dimension.
 
-        grad_V = calculate_gradient(NNV, q_new)
-        p_new = solution[d0:, n] - stepsize*grad_V[:d0,:].reshape(d0)
+        grad_V = calculate_gradient(NNV, q_new)[d0:,:].reshape(d0)
+        p_new = solution[d0:, n] - stepsize*grad_V
 
         solution[:d0, n+1] = q_new
         solution[d0:, n+1] = p_new
