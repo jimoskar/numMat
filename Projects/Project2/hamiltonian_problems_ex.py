@@ -10,9 +10,11 @@ def H(p,q):
     return 0.5*p**2+m*g*(1-np.cos(theta))
 
 class Pendulum:
+    """Nonlinear pendulum."""
     def __init__(self, domain_T, domain_V):
         self.domain_T = domain_T
         self.domain_V = domain_V
+        self.k = 10 # Constant for m*g*l (e.g).
 
     def T(self, p):
         return 0.5*p**2
@@ -21,16 +23,11 @@ class Pendulum:
         return p
 
     def V(self, q):
-        k = 10 #value for m*g*l
-        return k*(1-np.cos(q))
+        return self.k*(1-np.cos(q))
 
     def grad_V(self, q):
-        k = 10
-        return k*np.sin(q)
+        return self.k*np.sin(q)
 
-        
-
-# Kepler two-body problem.
 class Kepler:
     """Kepler two-body problem."""
     def __init__(self, domain_T, domain_V):
@@ -52,7 +49,6 @@ class Kepler:
         return np.array([comp1, comp2])
 
 
-# Henon-Heiles problem.
 class Henon_Heiles:
     """Henon-Heiles problem."""
     def __init__(self, domain_T, domain_V):
