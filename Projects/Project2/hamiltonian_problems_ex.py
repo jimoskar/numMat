@@ -45,7 +45,7 @@ class Kepler:
     def grad_V(self, q):
         comp1 = q[0]/np.power(q[0]**2 + q[1]**2, 3/2)
         comp2 = q[1]/np.power(q[0]**2 + q[1]**2, 3/2)
-        return np.array([comp1, comp2])
+        return np.array([comp1, comp2]).T
 
 class Henon_Heiles:
     """Henon-Heiles problem."""
