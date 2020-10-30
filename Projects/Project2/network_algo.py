@@ -8,6 +8,8 @@ mpl.rcParams['font.size'] = 14
 mpl.rcParams['axes.titlesize'] = 13
 mpl.rcParams['axes.titleweight'] = "bold"
 
+plt.style.use('seaborn')
+
 class Parameters:
     """Class for the parameters in the Neural Network."""
     def __init__(self,K,d,I):
@@ -145,17 +147,21 @@ class Network:
         
         return gradient
     
-    def embed_test_input(self, test_input, test_output):
-        """Embed the input into d-dimensional space."""
-        if len(test_input.shape) == 1:
-            I_new = 1
-        else:
-            I_new = test_input.shape[1]
-        self.I = I_new
+    def embed_input_and_sol(self, inp, sol):
+        """Embed the input into d-dimensional space. This function is used for testing."""
+        self.I = inp.shape[1]
+        d0 = inp.shape[0]
+        if d0 < self.d:
+            while d0 < d:
+                zero_row = np.zeros(self.I)
+                inp = input.vstack((inp,zero_row))
+                d0 += 1
+       
 
         self.Z_list = np.zeros((self.K+1,self.d,self.I))
-        self.Z_list[0,:,:] = test_input
-        self.c = test_output
+        self.Z_list[0,:,:] = inp
+        self.c = sol
+
 
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
         for i in range(self.K):
@@ -164,6 +170,33 @@ class Network:
     def calculate_output(self, input):
         """Calculates and returns the networks output from a given input"""
         self.embed_test_input(input,input)
+        self.forward_function()
+        print("Ys shape: \n")
+        print(self.Y.shape)
+        return self.Y
+
+
+
+    def embed_input(self, inp):
+        if inp.ndim == 1: #the input is a point
+            self.I = 1
+            d0 = inp.shape[0]
+            inp = inp.reshape(d0, 1)
+        else:
+            d0 = inp.shape[0]
+            self.I = inp.shape[1]
+
+        self.Z_list = np.zeros((self.K+1,self.d,self.I))
+        self.Z_list[0,:d0,:] = inp
+        self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
+        for i in range(self.K):
+            self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
+
+
+    
+    def calculate_output(self, input):
+        """Calculates and returns the networks output from a given input"""
+        self.embed_input(input)
         self.forward_function()
         print("Ys shape: \n")
         print(self.Y.shape)
@@ -180,15 +213,15 @@ class Network:
         one_vec = np.ones((self.I,1)) 
 
     
-        w_grad = self.theta.w.reshape((self.d,1)) #need different dimensions for w 
-        gradient = w_grad @ self.eta_der(w_grad.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
+        w = self.theta.w.reshape((self.d,1)) #need different dimensions for w 
+        A = w @ self.eta_der(w.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
                                                     
 
-        for k in range(self.K - 1, -1, -1):
-            gradient += self.theta.W_k[k,:,:].T @ (self.h*self.sigma_der(\
-                    self.theta.W_k[k,:,:]@self.Z_list[k,:,:] + self.theta.b_k_I[k,:,:])*gradient)
+        for k in range(self.K, 0, -1):
+            A += self.theta.W_k[k-1,:,:].T @ (self.h*self.sigma_der(\
+                    self.theta.W_k[k-1,:,:]@self.Z_list[k-1,:,:] + self.theta.b_k_I[k-1,:,:])*A)
         
-        return gradient
+        return A
 
 def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta, plot = False, savename = ""):
     """Main training algorithm."""
@@ -228,10 +261,11 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
     if plot:
         fig, ax = plt.subplots()
         ax.plot(it,J_list)
+        plt.yscale("log")
         fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
         ax.set_ylabel("J")
         ax.set_xlabel("Iteration")
-        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 6)), 
                 horizontalalignment="center", verticalalignment="center", 
                 transform=ax.transAxes, fontsize = 16)
         if savename != "": 
@@ -265,10 +299,68 @@ def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, 
     counter = 0
     for j in range(1,iterations+1):
 
-
         NN.forward_function()
         gradient = NN.back_propagation()
         NN.theta.update_parameters(gradient,"adams",tau,j)
+
+        #For plotting
+        J_list[j-1] = NN.J()
+        it[j-1] = j
+
+        if counter < I/chunk - 1:
+            Z, c, index_list = get_random_sample(inp,output,index_list,chunk,d)
+            NN.Z_list[0,:,:] = Z
+            NN.c = c
+            counter += 1
+        else:
+            #All data has been sifted through
+            counter = 0
+            index_list = [i for i in range(I)]
+
+
+    if plot:
+        fig, ax = plt.subplots()
+        ax.plot(it,J_list)
+        plt.yscale("log")
+        fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
+        ax.set_ylabel("J")
+        ax.set_xlabel("Iteration")
+        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 6)), 
+                horizontalalignment="center", verticalalignment="center", 
+                transform=ax.transAxes, fontsize = 16)
+        if savename != "": 
+            plt.savefig(savename, bbox_inches='tight')
+        plt.yscale("log")
+        plt.show()
+    return NN 
+
+def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,domain,scaling, alpha, beta, plot = False, savename = ""):
+    """Main training algorithm with sgd and option to scale."""
+
+    inp = generate_input(function,domain,d0,I,d)
+    output = get_solution(function,inp,d,I,d0)
+
+    a1 = b1 = a2 = b2 = None
+    if scaling:
+        inp, a1, b1 = scale_data(alpha,beta,inp)
+        output, a2, b2 = scale_data(alpha,beta,output)
+
+    index_list = [i for i in range(I)]
+
+    Z_0, c_0, index_list = get_random_sample(inp,output,index_list,chunk,d)
+    NN = Network(K,d,chunk,h,Z_0,c_0)
+
+    # For plotting J. 
+    J_list = np.zeros(iterations)
+    it = np.zeros(iterations)
+
+    counter = 0
+    for j in range(1,iterations+1):
+
+
+        NN.forward_function()
+        gradient = NN.back_propagation()
+        NN.theta.update_parameters(gradient,method,tau,j)
 
         #For plotting
         J_list[j-1] = NN.J()
@@ -300,16 +392,4 @@ def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, 
 
     NN.J_last = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
     return NN 
-
-def get_random_sample(input, sol, index_list, chunk, d):
-    sample = np.zeros((d,chunk))
-    sample_sol = np.zeros(chunk)
-    random_indices = random.sample(index_list,chunk)
-
-    for i in range(chunk):
-        rand_index = random_indices[i]
-        index_list.remove(rand_index)
-        sample[:,i] = input[:,rand_index]
-        sample_sol[i] = sol[rand_index]
-
-    return sample, sample_sol, index_list
+    
