@@ -177,6 +177,7 @@ class Network:
 
 
 
+    # Brukes denne fortsatt eller hvordan er det?
     def embed_input(self, inp):
         if inp.ndim == 1: #the input is a point
             self.I = 1
@@ -195,14 +196,10 @@ class Network:
 
     
     def calculate_output(self, inp):
-        """Calculates and returns the networks output from a given input"""
+        """Calculate and return the network's output from a given input."""
         self.embed_input(inp)
         self.forward_function()
-        print("Ys shape: \n")
-        print(self.Y.shape)
         return self.Y
-
-
 
     def Hamiltonian_gradient(self):
         """Calculate the gradient of F, according to the theoretical derivation.
@@ -213,7 +210,7 @@ class Network:
         one_vec = np.ones((self.I,1)) 
 
     
-        w = self.theta.w.reshape((self.d,1)) #need different dimensions for w 
+        w = self.theta.w.reshape((self.d,1)) # Need different dimensions for w. 
         A = w @ self.eta_der(w.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
                                                     
 
@@ -277,8 +274,8 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
     
     return NN
 
-def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta, plot = False, savename = ""):
-    """Main training algorithm."""
+def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta, plot = False, savename = ""):
+    """Main training algorithm with Stochastic Gradient Descent."""
 
     inp = generate_input(function,domain,d0,I,d)
     output = get_solution(function,inp,d,I,d0)
@@ -303,7 +300,7 @@ def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, 
         gradient = NN.back_propagation()
         NN.theta.update_parameters(gradient,"adams",tau,j)
 
-        #For plotting
+        # For plotting.
         J_list[j-1] = NN.J()
         it[j-1] = j
 
@@ -313,7 +310,7 @@ def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, 
             NN.c = c
             counter += 1
         else:
-            #All data has been sifted through
+            # All data has been sifted through.
             counter = 0
             index_list = [i for i in range(I)]
 
@@ -335,7 +332,7 @@ def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, 
     return NN 
 
 def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,domain,scaling, alpha, beta, plot = False, savename = ""):
-    """Main training algorithm with sgd and option to scale."""
+    """Main training algorithm with SGD and option to scale."""
 
     inp = generate_input(function,domain,d0,I,d)
     output = get_solution(function,inp,d,I,d0)
@@ -362,7 +359,7 @@ def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,doma
         gradient = NN.back_propagation()
         NN.theta.update_parameters(gradient,method,tau,j)
 
-        #For plotting
+        # For plotting.
         J_list[j-1] = NN.J()
         it[j-1] = j
 
@@ -372,7 +369,7 @@ def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,doma
             NN.c = c
             counter += 1
         else:
-            #All data has been sifted through
+            # All data has been sifted through.
             counter = 0
             index_list = [i for i in range(I)]
 
@@ -389,7 +386,6 @@ def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,doma
         if savename != "": 
             plt.savefig(savename + ".pdf", bbox_inches='tight')
         plt.show()
-
+        
     NN.J_last = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
-    return NN 
-    
+    return NN, a1, b1, a2, b2, J_list, it
