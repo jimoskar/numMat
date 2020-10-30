@@ -1,8 +1,9 @@
 """Processing of the binary data generated on Markov.
 
 Import binary files via pickle. 
-Change format of all the binary files to csv (make new files)
-Sort the csv files ascending in order of J (col 4: value of objective function in last iteration)
+Change format of all the binary files to csv (make new files).
+Sort the csv files ascending in order of J (col 4: value of objective function in last iteration).
+Possible to delete old, unsorted csv files in the end also. 
 """
 import csv
 import pickle

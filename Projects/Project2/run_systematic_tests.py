@@ -1,4 +1,4 @@
-"""Run wanted tests. Modified to run easily from bash script on Markov."""
+"""Run wanted tests on Markov. Modified to run easily from bash script on Markov."""
 import sys
 from systematic_tests4_test_functions import *
 
@@ -24,4 +24,3 @@ else:
     sgd = False
 
 function_dict[function_name](filename, sgd = sgd)
-

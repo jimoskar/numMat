@@ -7,8 +7,6 @@ import numpy.linalg as la
 from mpl_toolkits import mplot3d
 import random
 
-
-
 # Add parameters for plotting. 
 mpl.rcParams['figure.titleweight'] = "bold"
 mpl.rcParams['font.size'] = 14

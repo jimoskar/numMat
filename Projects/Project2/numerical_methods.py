@@ -17,7 +17,7 @@ def symplectic_euler_network(NNT, NNV, q0, p0, times, d0):
 
         grad_T = calculate_gradient(NNT, solution[d0:, n])[:d0,:].reshape(d0)
         print(grad_T.shape)
-        q_new = solution[:d0, n] + stepsize*grad_T #Reshape is necessary for dimension.
+        q_new = solution[:d0, n] + stepsize*grad_T # Reshape is necessary for dimension.
 
         print(q_new.shape)
 

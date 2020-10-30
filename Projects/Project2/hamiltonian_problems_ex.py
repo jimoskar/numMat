@@ -1,16 +1,5 @@
-"""The supplied examples of separable Hamiltonian problems tested."""
+"""The supplied examples of separable Hamiltonian problems."""
 import numpy as np
-
-<<<<<<< HEAD
-# Nonlinear pendulum.
-=======
->>>>>>> df07e0d96db6dae8159cd44eb60cc908f3c92da6
-def H(p,q):
-    """Maybe split into T and V for all these problems."""
-    g = 9.81
-    m = 1
-    theta = np.pi/6
-    return 0.5*p**2+m*g*(1-np.cos(theta))
 
 class Pendulum:
     """Nonlinear pendulum."""

@@ -1,5 +1,7 @@
 """Testing framework for running systematic tests of the neural network.
 
+Ran on the four suggested test functions.
+
 This is in order to find the optimal values of the parameters in the network, 
 by method of experimentation (systematic tests).
 
@@ -9,7 +11,12 @@ Parameters tested systematically:
 - d 
 - h
 
-Used a fixed amount of iterations and images in each test (see report for further justification)
+Used a fixed amount of iterations and images in each test (see report for further justification).
+
+The code is terribly written, with a lot of copy-paste. This was done for ease of running code 
+on Markov for the time being, and is not written for anyones viewing pleasure. 
+Could have been vastly improved and cleaned up, but it worked, which was the main focus of the
+testing framework in general. 
 """
 from network_algo import *
 import pickle
@@ -34,7 +41,6 @@ def training_test_function1(filename, sgd = False):
         return 0.5*x**2
 
     config = {}
-    i = 1
     for K in K_values:
         config[K] = {}
         for d in d_values:
@@ -47,10 +53,8 @@ def training_test_function1(filename, sgd = False):
                     chunk = I
                     NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta) 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
-                               
-                #print(i)
+                        
                 del NN # Safety measure to avoid leak. 
-                #i += 1
 
     # Save data to file.
     filenm = 'data/markov/'+filename
@@ -70,7 +74,6 @@ def testing_test_function1(filename, tol = tol, sgd = False):
         return 0.5*x**2
 
     config = {}
-    i = 1
     for K in K_values:
         config[K] = {}
         for d in d_values:
@@ -93,9 +96,7 @@ def testing_test_function1(filename, tol = tol, sgd = False):
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
                 config[K][d][h] = [NN.J_last, ratio]
                                
-                #print(i)
                 del NN # Safety measure to avoid leak. 
-                #i += 1
 
     # Save data to file. 
     filenm = 'data/markov/'+filename
@@ -116,7 +117,6 @@ def training_test_function2(filename, sgd = False):
         return 1 - np.cos(x)
 
     config = {}
-    i = 1
     for K in K_values:
         config[K] = {}
         for d in d_values:
@@ -129,9 +129,7 @@ def training_test_function2(filename, sgd = False):
                     chunk = I
                     NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.            
-                #print(i)
                 del NN # Safety measure to avoid leak. 
-                #i += 1
 
     # Save data to file.
     filenm = 'data/markov/'+filename
@@ -173,10 +171,7 @@ def testing_test_function2(filename, tol = tol, sgd = False):
 
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
                 config[K][d][h] = [NN.J_last, ratio]
-                               
-                #print(i)
                 del NN # Safety measure to avoid leak. 
-                #i += 1
 
     # Save data to file. 
     filenm = 'data/markov/'+filename
@@ -202,7 +197,6 @@ def training_test_function3(filename, sgd = False):
         return 0.5*(x**2 + y**2)
 
     config = {}
-    i = 1
     for K in K_values:
         config[K] = {}
         for d in d_values:
@@ -216,9 +210,7 @@ def training_test_function3(filename, sgd = False):
                     NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) 
                 # The below adds the J_list from training. 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.               
-                #print(i)
-                del NN # Safety measure to avoid leak. 
-                #i += 1
+                del NN # Safety measure to avoid leak.
 
     # Save data to file. 
     filenm = 'data/markov/'+filename
@@ -241,7 +233,6 @@ def testing_test_function3(filename, tol = tol, sgd = False):
         return 0.5*(x**2 + y**2)
 
     config = {}
-    i = 1
     for K in K_values:
         config[K] = {}
         for d in d_values:
@@ -263,10 +254,7 @@ def testing_test_function3(filename, tol = tol, sgd = False):
             
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
                 config[K][d][h] = [NN.J_last, ratio]
-                                
-                #print(i)
                 del NN # Safety measure to avoid leak. 
-                #i += 1
 
     # Save data to file. 
     filenm = 'data/markov/'+filename
@@ -291,7 +279,6 @@ def training_test_function4(filename, sgd = False):
         return -1/np.sqrt(x**2 + y**2)
 
     config = {}
-    i = 1
     for K in K_values:
         config[K] = {}
         for d in d_values:
@@ -305,9 +292,7 @@ def training_test_function4(filename, sgd = False):
                     NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) 
                 # The below adds the J_list from training. 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.               
-                #print(i)
                 del NN # Safety measure to avoid leak. 
-                #i += 1
 
     # Save data to file. 
     filenm = 'data/markov/'+filename
@@ -329,7 +314,6 @@ def testing_test_function4(filename, tol = tol, sgd = False):
         return -1/np.sqrt(x**2 + y**2)
 
     config = {}
-    i = 1
     for K in K_values:
         config[K] = {}
         for d in d_values:
@@ -351,10 +335,7 @@ def testing_test_function4(filename, tol = tol, sgd = False):
             
                 # Add the convergence (last value) of the objective function and the ratio of correctly classified points to testing output.
                 config[K][d][h] = [NN.J_last, ratio]
-                                
-                #print(i)
                 del NN # Safety measure to avoid leak. 
-                #i += 1
 
     # Save data to file. 
     filenm = 'data/markov/'+filename
