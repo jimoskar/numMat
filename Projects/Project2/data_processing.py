@@ -4,6 +4,10 @@ Import binary files via pickle.
 Change format of all the binary files to csv (make new files).
 Sort the csv files ascending in order of J (col 4: value of objective function in last iteration).
 Possible to delete old, unsorted csv files in the end also. 
+
+NB: The commands used via subprocess are only tested on some Linux distributions. 
+Hence, we do not know if these commands work on Windows or Mac. They probably work
+on Mac, but probably not on Windows. 
 """
 import csv
 import pickle
