@@ -166,6 +166,16 @@ class Network:
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
+    
+    def calculate_output(self, inp):
+        """Calculates and returns the networks output from a given input"""
+        self.embed_input_and_sol(inp,inp)
+        self.forward_function()
+        print("Ys shape: \n")
+        print(self.Y.shape)
+        return self.Y
+
+
 
     # Brukes denne fortsatt eller hvordan er det?
     def embed_input(self, inp):
@@ -256,7 +266,7 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
                 horizontalalignment="center", verticalalignment="center", 
                 transform=ax.transAxes, fontsize = 16)
         if savename != "": 
-            plt.savefig(savename, bbox_inches='tight')
+            plt.savefig(savename+".pdf", bbox_inches='tight')
         plt.show()
     
     
@@ -316,7 +326,7 @@ def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scali
                 horizontalalignment="center", verticalalignment="center", 
                 transform=ax.transAxes, fontsize = 16)
         if savename != "": 
-            plt.savefig(savename, bbox_inches='tight')
+            plt.savefig(savename + ".pdf", bbox_inches='tight')
         plt.yscale("log")
         plt.show()
     return NN 
@@ -374,6 +384,8 @@ def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,doma
                 horizontalalignment="center", verticalalignment="center", 
                 transform=ax.transAxes, fontsize = 16)
         if savename != "": 
-            plt.savefig(savename, bbox_inches='tight')
+            plt.savefig(savename + ".pdf", bbox_inches='tight')
         plt.show()
+        
+    NN.J_last = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
     return NN, a1, b1, a2, b2, J_list, it

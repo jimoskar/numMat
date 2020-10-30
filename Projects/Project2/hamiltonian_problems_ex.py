@@ -1,4 +1,4 @@
-"""The supplied examples of separable Hamiltonian problems tested."""
+"""The supplied examples of separable Hamiltonian problems."""
 import numpy as np
 
 class Pendulum:

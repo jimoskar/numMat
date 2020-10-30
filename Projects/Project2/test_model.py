@@ -18,13 +18,13 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
     
     The parameters found from the training of the Neural Network are employed.
     """
-    test_sol = get_solution(function, test_input, d, I, d0)
+    test_output = get_solution(function, test_input, d, I, d0)
     a1, b1, a2, b2 = None, None, None, None
     if scaling:
         test_input, a1, b1 = scale_data(alpha,beta,test_input)
-        test_sol, a2, b2 = scale_data(alpha,beta,test_sol)
+        test_output, a2, b2 = scale_data(alpha,beta,test_output)
 
-    Network.embed_input_and_sol(test_input, test_sol)
+    Network.embed_input_and_sol(test_input, test_output)
     Network.forward_function()
     output = Network.Y
     return output, a1, b1, a2, b2
@@ -46,7 +46,6 @@ def generate_input(function,domain,d0,I,d):
             result[:d0,i] = num
     """
     result = np.zeros((d,I))
-    
     if d0 == 1:
         for i in range(I):
             num = np.random.uniform(domain[0],domain[1])
@@ -58,6 +57,10 @@ def generate_input(function,domain,d0,I,d):
         for i in range(I):
             num = np.random.uniform(domain[1][0],domain[1][1])
             result[1,i] = num
+    return result
+
+# Brukes dette til noe? Er denne eller den funksjonen nedenfor korrekt?
+def get_solution(function,input_values,d,I,d0):
     if d0 == 3:
         for i in range(I):
             num = np.random.uniform(domain[0][0],domain[0][1])
@@ -95,51 +98,56 @@ def get_solution(function,inp_values,d,I,d0):
     return result
     
 
-def plot_graph_and_output(output,inp,function,domain,d0,d, scaling, alpha, beta, a1, b1, a2, b2):
-    """
-    Plot results from testing the network together with the analytical graph
-    """
+def plot_graph_and_output(output,inp,function,domain,d0,d, scaling, alpha, beta, a1, b1, a2, b2, savename = ""):
+    """Plot results from testing the network together with the analytical graph."""
     if d0 == 1:
         # Plot the output from the network.
         x = inp[0,:]
+
         if scaling:
             x = scale_up(a1,b1,alpha,beta,x)
             output = scale_up(a2, b2, alpha, beta, output)
- 
+        
         fig, ax = plt.subplots()
         ax.scatter(x,output, color="orange", label="Network")
         fig.suptitle("Analytical Solution Compared to Output From Network", fontweight = "bold")
         ax.set_xlabel("Domain [y]")
         ax.set_ylabel("F(y)")
 
-        # Plot the analytical solution
+        # Plot analytical solution.
         x = np.linspace(domain[0],domain[1])
         ax.plot(x,function(x), color="blue", label="Function")
         ax.legend()
-        #plt.savefig("compTest1Pic2.pdf", bbox_inches='tight')
+        if savename != "":
+            plt.savefig(savename+".pdf", bbox_inches='tight')
         plt.show()
 
     elif d0 == 2:
-        # Plot output.
-        ax = plt.axes(projection='3d')
+        # Plot output from network. 
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
         zdata = output
         xdata = inp[0,:]
         ydata = inp[1,:]
+        
         if scaling:
             xdata = scale_up(a1,b1,alpha,beta,xdata)
             ydata = scale_up(a1,b1,alpha,beta,ydata)
             zdata = scale_up(a2,b2,alpha,beta,zdata)
+            
         ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Reds')
         
-        # Plotting analytical graph
+        # Plot analytical solution.
         x = np.linspace(domain[0][0],domain[0][1], 30)
         y = np.linspace(domain[1][0], domain[1][1], 30)
         
         X, Y = np.meshgrid(x, y)
         Z = function([X, Y])
-
+        fig.suptitle("Analytical Solution Compared to Output From Network", fontweight = "bold")
         ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
                 cmap='Greys', edgecolor='none', alpha = 0.5)
+        if savename != "":
+            plt.savefig(savename+".pdf", bbox_inches='tight')
         plt.show()
 
 

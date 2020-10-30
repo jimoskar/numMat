@@ -96,7 +96,8 @@ q0  = np.array([100,100])
 p0 = np.array([0.2,0.3])
 times = np.linspace(0, 40, 10000)
 
-network_sol, times = symplectic_euler_network(NNT, NNV, q0, p0, times, d0)
+network_sol, times = stormer_verlet_network(NNT, NNV, q0, p0, times, d0)
+
 exact_sol, times = stormer_verlet_exact(q0, p0, times, kepler.grad_T, kepler.grad_V, d0)
 
 plt.plot(times, network_sol[0,:])
