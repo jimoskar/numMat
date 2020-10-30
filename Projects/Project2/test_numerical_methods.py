@@ -52,11 +52,7 @@ plt.show()
 #Plotting the hamiltonian. It should be constant along the exact solution.
 #q_data = embed_data(network_sol[0,:],d)
 #p_data = embed_data(network_sol[1,:],d)
-<<<<<<< HEAD
-network_ham =  NNT.calculate_output(network_sol[1,:].reshape(1,1000)) + NNV.calculate_output(network_sol[0,:].reshape(1,1000))
-=======
 network_ham = NNT.calculate_output(network_sol[1,:].reshape(1,1000)) + NNV.calculate_output(network_sol[0,:].reshape(1,1000))
->>>>>>> bf777ef997eb194bfd6166d322f2b1f3bf87061d
 #print(p_data.shape)
 #print(NNT.calculate_output(p_data).shape)
 #print(network_ham.shape)
@@ -75,12 +71,7 @@ plt.show()
 #=========================#
 # Kepler Two-body Problem #
 #=========================#
-<<<<<<< HEAD
-
-
-=======
 """
->>>>>>> bf777ef997eb194bfd6166d322f2b1f3bf87061d
 domain_T = domain_V = [[-2, 2], [-2, 2]]
 kepler = Kepler(domain_T, domain_V)
 d0 = 2
@@ -105,12 +96,7 @@ q0  = np.array([100,100])
 p0 = np.array([0.2,0.3])
 times = np.linspace(0, 40, 10000)
 
-<<<<<<< HEAD
-network_sol, times = stormer_verlet_network(NNT, NNV, q0, p0, times, d0)
-
-=======
 network_sol, times = symplectic_euler_network(NNT, NNV, q0, p0, times, d0)
->>>>>>> bf777ef997eb194bfd6166d322f2b1f3bf87061d
 exact_sol, times = stormer_verlet_exact(q0, p0, times, kepler.grad_T, kepler.grad_V, d0)
 
 plt.plot(times, network_sol[0,:])
@@ -130,11 +116,7 @@ plt.legend()
 plt.show()
 
 
-<<<<<<< HEAD
-
-=======
 """
->>>>>>> bf777ef997eb194bfd6166d322f2b1f3bf87061d
 #======================#
 # Henon-Heiles Problem #
 #======================#
