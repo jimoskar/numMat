@@ -1,4 +1,4 @@
-"""Test the numerical methods."""
+"""Test the numerical methods on the supplied examples of separable Hamiltonian problems."""
 from numerical_methods import *
 from import_data import *
 from hamiltonian_problems_ex import *
