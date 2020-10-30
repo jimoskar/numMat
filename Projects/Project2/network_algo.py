@@ -251,10 +251,11 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
     if plot:
         fig, ax = plt.subplots()
         ax.plot(it,J_list)
+        plt.yscale("log")
         fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
         ax.set_ylabel("J")
         ax.set_xlabel("Iteration")
-        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 6)), 
                 horizontalalignment="center", verticalalignment="center", 
                 transform=ax.transAxes, fontsize = 16)
         if savename != "": 
@@ -288,7 +289,6 @@ def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scali
     counter = 0
     for j in range(1,iterations+1):
 
-
         NN.forward_function()
         gradient = NN.back_propagation()
         NN.theta.update_parameters(gradient,"adams",tau,j)
@@ -311,10 +311,11 @@ def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scali
     if plot:
         fig, ax = plt.subplots()
         ax.plot(it,J_list)
+        plt.yscale("log")
         fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
         ax.set_ylabel("J")
         ax.set_xlabel("Iteration")
-        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 6)), 
                 horizontalalignment="center", verticalalignment="center", 
                 transform=ax.transAxes, fontsize = 16)
         if savename != "": 

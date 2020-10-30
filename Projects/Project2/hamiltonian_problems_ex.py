@@ -37,7 +37,7 @@ class Kepler:
         return 0.5*np.inner(p,p)
 
     def grad_T(self, p):
-        return p
+        return p#np.array([p[0], p[1]])
 
     def V(self, q):
         return -1/np.sqrt(q[0]**2 + q[1]**2)
