@@ -154,7 +154,7 @@ class Network:
         if d0 < self.d:
             while d0 < d:
                 zero_row = np.zeros(self.I)
-                inp = input.vstack((inp,zero_row))
+                inp = inp.vstack((inp,zero_row))
                 d0 += 1
        
 
@@ -167,9 +167,9 @@ class Network:
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
     
-    def calculate_output(self, input):
+    def calculate_output(self, inp):
         """Calculates and returns the networks output from a given input"""
-        self.embed_test_input(input,input)
+        self.embed_input_and_sol(inp,inp)
         self.forward_function()
         print("Ys shape: \n")
         print(self.Y.shape)
@@ -194,9 +194,9 @@ class Network:
 
 
     
-    def calculate_output(self, input):
+    def calculate_output(self, inp):
         """Calculates and returns the networks output from a given input"""
-        self.embed_input(input)
+        self.embed_input(inp)
         self.forward_function()
         print("Ys shape: \n")
         print(self.Y.shape)
@@ -329,7 +329,7 @@ def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, 
                 horizontalalignment="center", verticalalignment="center", 
                 transform=ax.transAxes, fontsize = 16)
         if savename != "": 
-            plt.savefig(savename, bbox_inches='tight')
+            plt.savefig(savename + ".pdf", bbox_inches='tight')
         plt.yscale("log")
         plt.show()
     return NN 

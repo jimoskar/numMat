@@ -26,7 +26,7 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
         test_input, a1, b1 = scale_data(alpha,beta,test_input)
         test_output, a2, b2 = scale_data(alpha,beta,test_output)
 
-    Network.embed_test_input(test_input, test_output)
+    Network.embed_input_and_sol(test_input, test_output)
     Network.forward_function()
     output = Network.Y
     #print("\nJ resulting from test: " + str(Network.J()))
@@ -110,7 +110,8 @@ def plot_graph_and_output(output,input,function,domain,d0,d, scaling, alpha, bet
 
     elif d0 == 2:
         # Plot output from network. 
-        ax = plt.axes(projection='3d')
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
         zdata = output
         xdata = input[0,:]
         ydata = input[1,:]
@@ -126,7 +127,7 @@ def plot_graph_and_output(output,input,function,domain,d0,d, scaling, alpha, bet
         
         X, Y = np.meshgrid(x, y)
         Z = function([X, Y])
-
+        fig.suptitle("Analytical Solution Compared to Output From Network", fontweight = "bold")
         ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
                 cmap='Greys', edgecolor='none', alpha = 0.5)
         if savename != "":
