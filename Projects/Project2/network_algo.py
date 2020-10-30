@@ -150,7 +150,7 @@ class Network:
     def embed_input_and_sol(self, inp, sol):
         """Embed the input into d-dimensional space. This function is used for testing."""
         self.I = inp.shape[1]
-        inp.shape[0] = d0
+        d0 = inp.shape[0]
         if d0 < self.d:
             while d0 < d:
                 zero_row = np.zeros(self.I)
@@ -266,7 +266,7 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
     
     return NN
 
-def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, alpha, beta, plot = False, savename = ""):
+def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta, plot = False, savename = ""):
     """Main training algorithm."""
 
     input = generate_input(function,domain,d0,I,d)
@@ -319,18 +319,68 @@ def algorithm_sgd(I,d, d0, K,h,iterations, tau, chunk, function,domain,scaling, 
                 transform=ax.transAxes, fontsize = 16)
         if savename != "": 
             plt.savefig(savename, bbox_inches='tight')
+        plt.yscale("log")
         plt.show()
     return NN 
 
-def get_random_sample(input, sol, index_list, chunk, d):
-    sample = np.zeros((d,chunk))
-    sample_sol = np.zeros(chunk)
-    random_indices = random.sample(index_list,chunk)
+def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,domain,scaling, alpha, beta, plot = False, savename = ""):
+    """Main training algorithm with sgd and option to scale."""
 
-    for i in range(chunk):
-        rand_index = random_indices[i]
-        index_list.remove(rand_index)
-        sample[:,i] = input[:,rand_index]
-        sample_sol[i] = sol[rand_index]
+    input = generate_input(function,domain,d0,I,d)
+    output = get_solution(function,input,d,I,d0)
 
-    return sample, sample_sol, index_list
+    a1 = b1 = a2 = b2 = None
+    if scaling:
+        input, a1, b1 = scale_data(alpha,beta,input)
+        output, a2, b2 = scale_data(alpha,beta,output)
+
+    index_list = [i for i in range(I)]
+
+    Z_0, c_0, index_list = get_random_sample(input,output,index_list,chunk,d)
+    NN = Network(K,d,chunk,h,Z_0,c_0)
+
+    # For plotting J. 
+    J_list = np.zeros(iterations)
+    it = np.zeros(iterations)
+
+    counter = 0
+    for j in range(1,iterations+1):
+
+
+        NN.forward_function()
+        gradient = NN.back_propagation()
+        NN.theta.update_parameters(gradient,method,tau,j)
+
+        #For plotting
+        J_list[j-1] = NN.J()
+        it[j-1] = j
+
+        if counter < I/chunk - 1:
+            Z, c, index_list = get_random_sample(input,output,index_list,chunk,d)
+            NN.Z_list[0,:,:] = Z
+            NN.c = c
+            counter += 1
+        else:
+            #All data has been sifted through
+            counter = 0
+            index_list = [i for i in range(I)]
+
+
+    if plot:
+        fig, ax = plt.subplots()
+        ax.plot(it,J_list)
+        fig.suptitle("Objective Function J as a Function of Iterations.", fontweight = "bold")
+        ax.set_ylabel("J")
+        ax.set_xlabel("Iteration")
+        plt.text(0.5, 0.5, "Value of J at iteration "+str(iterations)+": "+str(round(J_list[-1], 4)), 
+                horizontalalignment="center", verticalalignment="center", 
+                transform=ax.transAxes, fontsize = 16)
+        if savename != "": 
+            plt.savefig(savename, bbox_inches='tight')
+        plt.show()
+    return NN, a1, b1, a2, b2, J_list, it
+
+
+
+
+

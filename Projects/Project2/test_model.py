@@ -5,6 +5,7 @@ import matplotlib as mpl
 import math
 import numpy.linalg as la
 from mpl_toolkits import mplot3d
+import random
 
 
 
@@ -146,13 +147,17 @@ def plot_graph_and_output(output,input,function,domain,d0,d, scaling, alpha, bet
         plt.show()
 
 
+#Utilites for scaling:
+
 def scale_data(alpha, beta, input):
+    """scales the input relative to alpha and beta"""
     a = np.min(input)
     b = np.max(input)
     dim = input.shape
         
 
     def max_min(dim,input,a,b,alpha,beta):
+        """max-min transformation"""
         if len(dim) == 1:
             input = 1/(b-a) * ((b*np.ones(dim[0]) - input)*alpha \
                                    + (input - a*np.ones(dim[0]))*beta)
@@ -166,6 +171,7 @@ def scale_data(alpha, beta, input):
 
 
 def scale_up(a, b, alpha, beta, data):
+    """The inverse of the min-max transformation"""
     dim = data.shape
     if len(dim) == 1:
         data = 1/(beta-alpha) * ((b-a)*np.ones(dim[0])*data - np.ones(dim[0])*(b*alpha - a*beta))
@@ -174,4 +180,18 @@ def scale_up(a, b, alpha, beta, data):
             data[i] = 1/(beta-alpha) * ((b-a)*np.ones(dim[0])*data[i] - np.ones(dim[0])*(b*alpha - a*beta))
     
     return data
+
+def get_random_sample(input, sol, index_list, chunk, d):
+    """Get random sample from input of size chunk and update sola nd index_list. Used in"""
+    sample = np.zeros((d,chunk))
+    sample_sol = np.zeros(chunk)
+    random_indices = random.sample(index_list,chunk)
+
+    for i in range(chunk):
+        rand_index = random_indices[i]
+        index_list.remove(rand_index)
+        sample[:,i] = input[:,rand_index]
+        sample_sol[i] = sol[rand_index]
+
+    return sample, sample_sol, index_list
     

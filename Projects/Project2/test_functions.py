@@ -25,7 +25,7 @@ chunk = int(I/10)
 def test_function1(x):
     return 0.5*x**2
 
-NN = algorithm(I,d,d0, K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta)
+NN = algorithm_sgd(I,d,d0, K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta,plot = True)
 test_input = generate_input(test_function1,domain,d0,I,d)
 
 #The a's and b's are for potential scaling fo the data
