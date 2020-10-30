@@ -1,13 +1,6 @@
 """The supplied examples of separable Hamiltonian problems tested."""
 import numpy as np
 
-def H(p,q):
-    """Maybe split into T and V for all these problems."""
-    g = 9.81
-    m = 1
-    theta = np.pi/6
-    return 0.5*p**2+m*g*(1-np.cos(theta))
-
 class Pendulum:
     """Nonlinear pendulum."""
     def __init__(self, domain_T, domain_V):
@@ -37,7 +30,7 @@ class Kepler:
         return 0.5*np.inner(p,p)
 
     def grad_T(self, p):
-        return p#np.array([p[0], p[1]])
+        return p #np.array([p[0], p[1]])
 
     def V(self, q):
         return -1/np.sqrt(q[0]**2 + q[1]**2)

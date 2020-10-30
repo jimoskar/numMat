@@ -18,7 +18,6 @@ beta = 0.8
 #Test function 1 #
 #================#
 
-
 d0 = 1 # Dimension of the input layer. 
 domain = [-2,2]
 chunk = int(I/10)

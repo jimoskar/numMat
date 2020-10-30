@@ -1,6 +1,6 @@
+"""Need to write a sweet description here also!"""
 from network_algo import *
 from test_model import *
-
 
 
 I = 500 # Amount of points ran through the network at once. 
