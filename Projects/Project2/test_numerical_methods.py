@@ -5,6 +5,7 @@ from hamiltonian_problems_ex import *
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 
+# Do a similar cleanup here also!
 
 #====================#
 # Nonlinear Pendulum #
@@ -31,31 +32,39 @@ NNT = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, pendulum.T, pendulum
 NNV = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, pendulum.V, pendulum.domain_V, scaling, alpha, beta)
 
 
-#Initial position and momentum
+# Initial position and momentum.
 q0 = np.array([0.2])
 p0 = np.array([0.2])
 times = np.linspace(0, 10, 1000)
 
 
-#Network and exact solution. 'Exact' refers to that the gradient can be computed exactly.
+# Network and exact solution. 'Exact' refers to that the gradient can be computed exactly.
 network_sol, times = symplectic_euler_network(NNT, NNV, p0, q0, times,d0)
 exact_sol, times= symplectic_euler_exact(p0, q0, times, pendulum.grad_T, pendulum.grad_V, d0)
 
 
-#Plotting the exact position/impulse and the network position/impulse resulting from symplectic Euler
-plt.plot(times, network_sol[0,:], linewidth = 0.5, label = "network")
-plt.plot(times, exact_sol[0,:], linewidth = 0.5, label = "exact")
+# Plotting the exact position and the network position resulting from symplectic Euler.
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.plot(times, network_sol[0,:], linewidth = 0.5, label = "Network")
+plt.plot(times, exact_sol[0,:], linewidth = 0.5, label = "Exact")
 plt.legend()
+plt.xlabel("Time")
+plt.ylabel("First Coord")
+fig.suptitle("Position Against Time", fontweight = "bold")
+plt.savefig("PendulumFirstPosCoordTime.pdf", bbox_inches='tight')
 plt.show()
 
 
-#Plotting the hamiltonian. It should be constant along the exact solution.
+# Plotting the hamiltonian. It should be constant along the exact solution.
 #q_data = embed_data(network_sol[0,:],d)
 #p_data = embed_data(network_sol[1,:],d)
 network_ham = NNT.calculate_output(network_sol[1,:].reshape(1,1000)) + NNV.calculate_output(network_sol[0,:].reshape(1,1000))
 #print(p_data.shape)
 #print(NNT.calculate_output(p_data).shape)
 #print(network_ham.shape)
+fig = plt.figure()
+ax = fig.add_subplot(111)
 plt.plot(times, network_ham, label = "network", color = "red", linestyle = "dashed")
 
 
@@ -64,8 +73,11 @@ exact_ham = pendulum.T(exact_sol[1,:])+pendulum.V(exact_sol[0,:])
 #Hamilton = pendulum.T(exact_sol[1,:]) + pendulum.V(exact_sol[0,:])
 plt.plot(times, exact_ham, color = "blue", label = "num method (sympl euler)")
 plt.axhline(y = pendulum.T(p0)+pendulum.V(q0), color = "yellow", label = "anal")
-plt.title("Hamiltonian function")
+fig.suptitle("Hamiltonian Functions", fontweight = "bold")
+plt.xlabel("Time")
+plt.ylabel("Hamiltonian")
 plt.legend()
+plt.savefig("PendulumHamiltonian.pdf", bbox_inches='tight')
 plt.show()
 """
 #=========================#
@@ -100,28 +112,41 @@ network_sol, times = stormer_verlet_network(NNT, NNV, q0, p0, times, d0)
 
 exact_sol, times = stormer_verlet_exact(q0, p0, times, kepler.grad_T, kepler.grad_V, d0)
 
-plt.plot(times, network_sol[0,:])
-plt.plot(times, exact_sol[0,:])
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.plot(times, network_sol[0,:], label = "Network")
+plt.plot(times, exact_sol[0,:], label = "Exact")
+plt.legend()
+plt.xlabel("Time")
+plt.ylabel("First Coord")
+fig.suptitle("Position Against Time", fontweight = "bold")
+plt.savefig("KeplerFirstPosCoordTime.pdf", bbox_inches='tight')
 plt.show()
 
-
-ax = plt.axes(projection="3d")# Data for a three-dimensional line
+fig = plt.figure()
+ax = fig.add_subplot(111, projection = "3d")
 zline = times #time
 xline = exact_sol[0,:]
 yline = exact_sol[1,:]
-ax.plot3D(xline, yline, zline, "gray")# Data for three-dimensional 
+ax.plot3D(xline, yline, zline, "gray", label = "Exact")
 xnet = network_sol[0,:]
 ynet = network_sol[1,:]
-ax.plot3D(xnet, ynet, zline, "red", label = "network") 
+ax.plot3D(xnet, ynet, zline, "red", label = "Network") 
+fig.suptitle("Position in Time", fontweight = "bold")
+ax.set_xlabel("Coord 1")
+ax.set_ylabel("Coord 2")
+ax.set_zlabel("Time")
+ax.axes.yaxis.set_ticklabels([])
+ax.axes.xaxis.set_ticklabels([])
+ax.axes.zaxis.set_ticklabels([])
 plt.legend()
+plt.savefig("Kepler3d.pdf", bbox_inches='tight')
 plt.show()
-
-
 """
 #======================#
 # Henon-Heiles Problem #
 #======================#
-"""
+
 domain_T = domain_V = [[-2, 2], [-2, 2]]
 HH = Henon_Heiles(domain_T, domain_V)
 d0 = 2
@@ -144,29 +169,33 @@ times = np.linspace(0, 10, 1000)
 network_sol, times = stormer_verlet_network(NNT, NNV, q0, p0, times, d0)
 exact_sol, times = stormer_verlet_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
 
+fig = plt.figure()
+ax = fig.add_subplot(111)
 plt.plot(times, exact_sol[0,:], label="Exact")
 plt.plot(times, network_sol[0,:], label="Network")
 plt.legend()
+plt.xlabel("Time")
+plt.ylabel("First Coord")
+fig.suptitle("Position Against Time", fontweight = "bold")
+plt.savefig("HenonFirstPosCoordTime.pdf", bbox_inches='tight')
 plt.show()
 
-ax = plt.axes(projection="3d")# Data for a three-dimensional line
+fig = plt.figure()
+ax = fig.add_subplot(111, projection = "3d")
 zline = times #time
 xline = exact_sol[0,:]
 yline = exact_sol[1,:]
-ax.plot3D(xline, yline, zline, "gray", label = "exact")# Data for three-dimensional 
+ax.plot3D(xline, yline, zline, "gray", label = "Exact")# Data for three-dimensional 
 xnet = network_sol[0,:]
 ynet = network_sol[1,:]
-ax.plot3D(xnet, ynet, zline, "red", label = "network") 
-
-# Visual changes to the figure. 
-ax.xaxis.pane.fill = False # Remove grey panel orthogonal to x-axis. 
-ax.xaxis.pane.set_edgecolor('white') # Set edgecolor to white. 
-ax.yaxis.pane.fill = False # Remove grey panel orthogonal to t-axis. 
-ax.yaxis.pane.set_edgecolor('white') # Set edgecolor to white. 
-ax.w_zaxis.line.set_lw(0.) # Remove z-axis. 
-ax.set_zticks([]) # Remove ticks from z-axis.
-ax.set_xticks([]) # Remove ticks from x-axis.
-ax.set_yticks([]) # Remove ticks from y-axis.
+ax.plot3D(xnet, ynet, zline, "red", label = "Network") 
 plt.legend()
+fig.suptitle("Position in Time", fontweight = "bold")
+ax.set_xlabel("Coord 1")
+ax.set_ylabel("Coord 2")
+ax.set_zlabel("Time")
+ax.axes.yaxis.set_ticklabels([])
+ax.axes.xaxis.set_ticklabels([])
+ax.axes.zaxis.set_ticklabels([])
+plt.savefig("Henon3d.pdf", bbox_inches='tight')
 plt.show()
-"""

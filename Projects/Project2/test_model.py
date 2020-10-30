@@ -93,7 +93,7 @@ def get_solution(function,inp_values,d,I,d0):
 
     """
     for i in range(I):
-        result[i] = function(input_values[:d0,i])
+        result[i] = function(inp_values[:d0,i])
 
     return result
     

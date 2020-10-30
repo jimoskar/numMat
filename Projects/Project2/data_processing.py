@@ -20,7 +20,6 @@ print(sys.path[0])
 binpath = "data/markov/tol0point005BIN/"
 csvpath = "data/markov/tol0point005CSV/"
 
- 
 def find_filenames(binpath, csvpath):
     """Find filenames from testing and training respectively, after finding all filenames in binpath."""
     filenames = os.listdir(binpath)
