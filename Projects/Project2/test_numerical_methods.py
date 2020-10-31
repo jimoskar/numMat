@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 
 # Do a similar cleanup here also!
+# Maybe split into functions!
 
 #====================#
 # Nonlinear Pendulum #
@@ -112,11 +113,6 @@ network_sol, times = stormer_verlet_network(NNT, NNV, q0, p0, times, d0)
 
 exact_sol, times = stormer_verlet_exact(q0, p0, times, kepler.grad_T, kepler.grad_V, d0)
 
-<<<<<<< HEAD
-plt.plot(times, network_sol[0,:], label = "network")
-plt.plot(times, exact_sol[0,:], label = "exact")
-plt.legend()
-=======
 fig = plt.figure()
 ax = fig.add_subplot(111)
 plt.plot(times, network_sol[0,:], label = "Network")
@@ -124,14 +120,13 @@ plt.plot(times, exact_sol[0,:], label = "Exact")
 plt.legend()
 plt.xlabel("Time")
 plt.ylabel("First Coord")
-fig.suptitle("Position Against Time", fontweight = "bold")
+fig.suptitle("Position against Time", fontweight = "bold")
 plt.savefig("KeplerFirstPosCoordTime.pdf", bbox_inches='tight')
->>>>>>> 0f9c2c5aa836ff3fb2ac428f591b919e89954295
 plt.show()
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection = "3d")
-zline = times #time
+zline = times 
 xline = exact_sol[0,:]
 yline = exact_sol[1,:]
 ax.plot3D(xline, yline, zline, "gray", label = "Exact")
@@ -148,10 +143,8 @@ ax.axes.zaxis.set_ticklabels([])
 plt.legend()
 plt.savefig("Kepler3d.pdf", bbox_inches='tight')
 plt.show()
-<<<<<<< HEAD
 
-#Plotting Hamiltionian
-
+# Plot Hamiltionian.
 exact_ham = kepler.T(exact_sol[d0:,:])+kepler.V(exact_sol[:d0,:])
 plt.plot(times, exact_ham, color = "blue", label = "num method (sympl euler)")
 plt.axhline(y = kepler.T(p0)+kepler.V(q0), color = "yellow", label = "anal")
@@ -161,13 +154,10 @@ plt.show()
 
 
 
-=======
-"""
->>>>>>> 0f9c2c5aa836ff3fb2ac428f591b919e89954295
 #======================#
 # Henon-Heiles Problem #
 #======================#
-
+"""
 domain_T = domain_V = [[-2, 2], [-2, 2]]
 HH = Henon_Heiles(domain_T, domain_V)
 d0 = 2
@@ -197,7 +187,7 @@ plt.plot(times, network_sol[0,:], label="Network")
 plt.legend()
 plt.xlabel("Time")
 plt.ylabel("First Coord")
-fig.suptitle("Position Against Time", fontweight = "bold")
+fig.suptitle("Position against Time", fontweight = "bold")
 plt.savefig("HenonFirstPosCoordTime.pdf", bbox_inches='tight')
 plt.show()
 
@@ -220,3 +210,4 @@ ax.axes.xaxis.set_ticklabels([])
 ax.axes.zaxis.set_ticklabels([])
 plt.savefig("Henon3d.pdf", bbox_inches='tight')
 plt.show()
+"""
