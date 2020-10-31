@@ -34,10 +34,10 @@ class Kepler:
         self.domain_V = domain_V
         
     def T(self, p):
-        return 0.5*np.inner(p,p)
+        return 0.5*(p[0]**2 + p[1]**2)
 
     def grad_T(self, p):
-        return p#np.array([p[0], p[1]])
+        return p
 
     def V(self, q):
         return -1/np.sqrt(q[0]**2 + q[1]**2)

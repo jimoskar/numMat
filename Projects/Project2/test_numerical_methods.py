@@ -71,7 +71,7 @@ plt.show()
 #=========================#
 # Kepler Two-body Problem #
 #=========================#
-"""
+
 domain_T = domain_V = [[-2, 2], [-2, 2]]
 kepler = Kepler(domain_T, domain_V)
 d0 = 2
@@ -92,15 +92,16 @@ NNV = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, kepler.V, kepler.dom
 input_T = generate_input(kepler.T, kepler.domain_T, d0, I, d)
 input_V = generate_input(kepler.V, kepler.domain_V, d0, I, d)
 
-q0  = np.array([100,100])
-p0 = np.array([0.2,0.3])
-times = np.linspace(0, 40, 10000)
+q0  = np.array([0.2,0.2])
+p0 = np.array([0,0])
+times = np.linspace(0, 40, 1000)
 
 network_sol, times = symplectic_euler_network(NNT, NNV, q0, p0, times, d0)
 exact_sol, times = stormer_verlet_exact(q0, p0, times, kepler.grad_T, kepler.grad_V, d0)
 
-plt.plot(times, network_sol[0,:])
-plt.plot(times, exact_sol[0,:])
+plt.plot(times, network_sol[0,:], label = "network")
+plt.plot(times, exact_sol[0,:], label = "exact")
+plt.legend()
 plt.show()
 
 
@@ -115,8 +116,17 @@ ax.plot3D(xnet, ynet, zline, "red", label = "network")
 plt.legend()
 plt.show()
 
+#Plotting Hamiltionian
 
-"""
+exact_ham = kepler.T(exact_sol[d0:,:])+kepler.V(exact_sol[:d0,:])
+plt.plot(times, exact_ham, color = "blue", label = "num method (sympl euler)")
+plt.axhline(y = kepler.T(p0)+kepler.V(q0), color = "yellow", label = "anal")
+plt.title("Hamiltonian function")
+plt.legend()
+plt.show()
+
+
+
 #======================#
 # Henon-Heiles Problem #
 #======================#

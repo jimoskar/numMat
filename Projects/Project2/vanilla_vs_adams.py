@@ -50,9 +50,6 @@ def compute_avg(runs, I, d, d0, K, h, iterations, tau, chunk, function, domain, 
         J_adam_arr[i,:] = J_adam
         J_vanilla_arr[i,:] = J_vanilla
 
-        print(J_adam[0])
-
-    print(np.average(J_adam_arr, axis = 0)[0])
     return np.average(J_adam_arr, axis = 0), np.average(J_vanilla_arr, axis = 0), it 
 
         
@@ -61,8 +58,8 @@ def compute_avg(runs, I, d, d0, K, h, iterations, tau, chunk, function, domain, 
 I = 1000 # Amount of points ran through the network at once. 
 K = 20 # Amount of hidden layers in the network.
 d = 2 # Dimension of the hidden layers in the network. 
-h = 0.05 # Scaling of the activation function application in algorithm.  
-iterations = 20000 #Number of iterations in the Algorithm 
+h = 0.1 # Scaling of the activation function application in algorithm.  
+iterations = 5000 #Number of iterations in the Algorithm 
 #For scaling
 scaling = False
 alpha = 0.2
@@ -93,19 +90,19 @@ d = 4
 domain = [[-2,2],[-2,2]]
 chunk = int(I/10)
 
-def f(x,y):
-    return 0.5*(x**2 + y**2)
+def f(x):
+    return 0.5*(x[0]**2 + x[1]**2)
 
 
 tau = 0.005
 
-runs = 1
+runs = 15
 J_adam_avg, J_vanilla_avg, it = compute_avg(runs, I, d, d0, K, h, iterations, tau, chunk, f, domain, scaling, alpha, beta)
 
 plt.plot(it, J_vanilla_avg, label = "Vanilla")
 plt.plot(it, J_adam_avg, label = "ADAM")
 plt.xlabel("Iteraion")
-plt.ylabel(r"$\widebar{\mathcal{J}}$")
+plt.ylabel(r"$\overline{\mathrm{J}}$")
 plt.yscale("log")
 plt.legend()
 plt.show()

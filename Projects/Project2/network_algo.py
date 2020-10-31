@@ -64,7 +64,7 @@ class Parameters:
 
 class Network:
     """Class for the Neural Network (ResNet)."""
-    def __init__(self,K,d,I,h,Z_0,c):
+    def __init__(self,K,d,I,h,Z_0,c, hypothesis = 1):
         self.theta = Parameters(K,d,I)
         self.Z_list = np.zeros((K+1,d,I))
         self.Z_list[0,:,:] = Z_0
@@ -74,6 +74,7 @@ class Network:
         self.I = I
         self.d = d
         self.Y = None
+        self.hypothesis = hypothesis
 
         self.J_last = None # For use in the testing (instead of returning J from algorithm, save in NN)
     
@@ -92,14 +93,18 @@ class Network:
 
     def eta(self, x):
         """Hypothesis function. Appears in the final layer of the neural network."""
-        val = x
-        #val = 0.5*(1+ np.tanh(x/2))
+        if self.hypothesis == 1:
+            val = x
+        elif self.hypothesis == 2:
+            val = 0.5*(1+ np.tanh(x/2))
         return val
 
     def eta_der(self, x):
         """The derivative of the hypothesis function."""
-        val = np.ones(x.shape)
-        #val = 0.25*self.sigma_der(x/2) 
+        if self.hypothesis == 1:
+            val = np.ones(x.shape)
+        elif self.hypothesis == 2:
+            val = 0.25*self.sigma_der(x/2) 
         return val
 
     def forward_function(self): 
@@ -324,7 +329,7 @@ def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scali
         plt.show()
     return NN 
 
-def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,domain,scaling, alpha, beta, plot = False, savename = ""):
+def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,domain,scaling, alpha, beta, hypothesis = 1, plot = False, savename = ""):
     """Main training algorithm with sgd and option to scale."""
 
     input = generate_input(function,domain,d0,I,d)
