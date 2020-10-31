@@ -37,6 +37,7 @@ def run_test_on_test_function1():
     output, a1, b1, a2, b2 = testing(NN, test_input, test_function1, domain, d0, d, I, scaling, alpha, beta)
     plot_graph_and_output(output, test_input, test_function1, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2, savename = "ONEGraphBestTesting")
 
+
 #================#
 #Test function 2 #
 #================#
@@ -98,3 +99,5 @@ def run_test_on_test_function4():
     # The a's and b's are for potential scaling fo the data.
     output, a1, b1, a2, b2 = testing(NN, test_input, test_function4, domain, d0, d, I, scaling, alpha, beta)
     plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2, savename = "FOURGraphBestTesting")
+
+run_test_on_test_function4()

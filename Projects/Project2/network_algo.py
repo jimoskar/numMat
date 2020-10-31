@@ -192,6 +192,8 @@ class Network:
 
         self.Z_list = np.zeros((self.K+1,self.d,self.I))
         self.Z_list[0,:d0,:] = inp
+        
+        #changing b_K_I in case self.I has changed
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
@@ -334,13 +336,8 @@ def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scali
         plt.show()
     return NN 
 
-<<<<<<< HEAD
 def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,domain,scaling, alpha, beta, hypothesis = 1, plot = False, savename = ""):
     """Main training algorithm with sgd and option to scale."""
-=======
-def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,domain,scaling, alpha, beta, plot = False, savename = ""):
-    """Main training algorithm with SGD and option to scale."""
->>>>>>> 0f9c2c5aa836ff3fb2ac428f591b919e89954295
 
     inp = generate_input(function,domain,d0,I,d)
     output = get_solution(function,inp,d,I,d0)

@@ -1,4 +1,4 @@
-"""Need to write a sweet description here also!!"""
+"""Testing convergence rates when using Vanilla gradient descent vs ADAM method"""
 from test_model import *
 from network_algo import *
 

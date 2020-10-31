@@ -30,11 +30,7 @@ class Kepler:
         return 0.5*(p[0]**2 + p[1]**2)
 
     def grad_T(self, p):
-<<<<<<< HEAD
-        return p
-=======
-        return p #np.array([p[0], p[1]])
->>>>>>> 0f9c2c5aa836ff3fb2ac428f591b919e89954295
+        return np.array([p[0], p[1]])
 
     def V(self, q):
         return -1/np.sqrt(q[0]**2 + q[1]**2)
@@ -51,13 +47,13 @@ class Henon_Heiles:
         self.domain_V = domain_V
         
     def T(self, p):
-        return 0.5*np.inner(p,p)
+        return 0.5*(p[0]**2 + p[1]**2)
     
     def grad_T(self, p):
         return np.array([p[0], p[1]])
 
     def V(self, q):
-        return 0.5*np.inner(q,q) + q[0]**2*q[1] - (1/3)*q[1]**3
+        return 0.5*(q[0]**2 + q[1]**2) + q[0]**2*q[1] - (1/3)*q[1]**3
     
     def grad_V(self, q):
         comp1 = q[0] + 2*q[0]*q[1]

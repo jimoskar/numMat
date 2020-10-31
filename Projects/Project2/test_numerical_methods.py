@@ -39,8 +39,8 @@ times = np.linspace(0, 10, 1000)
 
 
 # Network and exact solution. 'Exact' refers to that the gradient can be computed exactly.
-network_sol, times = symplectic_euler_network(NNT, NNV, p0, q0, times,d0)
-exact_sol, times= symplectic_euler_exact(p0, q0, times, pendulum.grad_T, pendulum.grad_V, d0)
+network_sol = symplectic_euler_network(NNT, NNV, p0, q0, times,d0)
+exact_sol = symplectic_euler_exact(p0, q0, times, pendulum.grad_T, pendulum.grad_V, d0)
 
 
 # Plotting the exact position and the network position resulting from symplectic Euler.
@@ -84,51 +84,64 @@ plt.show()
 # Kepler Two-body Problem #
 #=========================#
 
+
+
 domain_T = domain_V = [[-2, 2], [-2, 2]]
 kepler = Kepler(domain_T, domain_V)
 d0 = 2
 I = 1000
 d = 4
 K = 30
-h = 0.1
-iterations = 2000
-tau = alpha = beta = None
-scaling = False
+h = 0.05
+iterations = 5000
+tau = 0.01
+alpha = 0.2
+beta = 0.8
+scaling = True
+method = "adams"
 chunk = int(I/10)
 
 
 # Train the neural networks. 
-NNT = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, kepler.T, kepler.domain_T, scaling, alpha, beta)
-NNV = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, kepler.V, kepler.domain_V, scaling, alpha, beta)
+NNT = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, kepler.T, kepler.domain_T, scaling, alpha, beta, plot = True)
+NNV = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, kepler.V, kepler.domain_V, scaling, alpha, beta, plot = True)
 
-input_T = generate_input(kepler.T, kepler.domain_T, d0, I, d)
-input_V = generate_input(kepler.V, kepler.domain_V, d0, I, d)
+#For scaling, migth do this later
+#NNT, ta1, tb1, ta2, tb2, _, _= algorithm_scaling(I, d, d0, K, h, iterations, tau, chunk, method, kepler.T, kepler.domain_T, scaling, alpha, beta)
+#NNV, va1, vb1, va2, vb2, _, _ = algorithm_scaling(I, d, d0, K, h, iterations, tau, chunk, method, kepler.V, kepler.domain_V, scaling, alpha, beta)
 
-q0  = np.array([0.2,0.2])
-p0 = np.array([0,0])
-times = np.linspace(0, 40, 1000)
+#maybe delete these?
+#input_T = generate_input(kepler.T, kepler.domain_T, d0, I, d)
+#input_V = generate_input(kepler.V, kepler.domain_V, d0, I, d)
 
-network_sol, times = stormer_verlet_network(NNT, NNV, q0, p0, times, d0)
+e = 0.00001 #e is between 0 and 1
+q0  = np.array([1-e,0])
+p0 = np.array([0,np.sqrt((1+e)/1-e)])
+timesteps = 1000
+times = np.linspace(0, 40, timesteps)
 
-exact_sol, times = stormer_verlet_exact(q0, p0, times, kepler.grad_T, kepler.grad_V, d0)
+#q0_scaled = scale_data(alpha, beta, q0)
+#p0_scaled = scale_data(alpha, beta, p0)
+network_sol_stormer = stormer_verlet_network(NNT, NNV, q0, p0, times, d0, scaling = True)
+network_sol_euler = symplectic_euler_network(NNT,NNV, q0, p0, times, d0, scaling = True)
 
-<<<<<<< HEAD
-plt.plot(times, network_sol[0,:], label = "network")
-plt.plot(times, exact_sol[0,:], label = "exact")
-plt.legend()
-=======
+
+exact_sol_stormer = stormer_verlet_exact(q0, p0, times, kepler.grad_T, kepler.grad_V, d0)
+exact_sol_euler = symplectic_euler_exact(q0, p0, times, kepler.grad_T, kepler.grad_V, d0)
+
+
 fig = plt.figure()
 ax = fig.add_subplot(111)
-plt.plot(times, network_sol[0,:], label = "Network")
-plt.plot(times, exact_sol[0,:], label = "Exact")
+plt.plot(times, network_sol_stormer[0,:], label = "Network")
+plt.plot(times, exact_sol_stormer[0,:], label = "Exact")
 plt.legend()
 plt.xlabel("Time")
 plt.ylabel("First Coord")
 fig.suptitle("Position Against Time", fontweight = "bold")
-plt.savefig("KeplerFirstPosCoordTime.pdf", bbox_inches='tight')
->>>>>>> 0f9c2c5aa836ff3fb2ac428f591b919e89954295
+#plt.savefig("KeplerFirstPosCoordTime.pdf", bbox_inches='tight')
 plt.show()
 
+"""
 fig = plt.figure()
 ax = fig.add_subplot(111, projection = "3d")
 zline = times #time
@@ -146,28 +159,45 @@ ax.axes.yaxis.set_ticklabels([])
 ax.axes.xaxis.set_ticklabels([])
 ax.axes.zaxis.set_ticklabels([])
 plt.legend()
-plt.savefig("Kepler3d.pdf", bbox_inches='tight')
+#plt.savefig("Kepler3d.pdf", bbox_inches='tight')
 plt.show()
-<<<<<<< HEAD
+"""
 
-#Plotting Hamiltionian
+#Plotting hamiltonian
+exact_ham_stormer = kepler.T(exact_sol_stormer[d0:,:])+kepler.V(exact_sol_stormer[:d0,:])
+exact_ham_euler = kepler.T(exact_sol_euler[d0:,:])+kepler.V(exact_sol_euler[:d0,:])
+network_ham_stormer = NNT.calculate_output(network_sol_stormer[d0:,:].reshape(d0,timesteps)) + NNV.calculate_output(network_sol_stormer[:d0,:].reshape(d0,timesteps))
+network_ham_euler = NNT.calculate_output(network_sol_euler[d0:,:].reshape(d0,timesteps)) + NNV.calculate_output(network_sol_euler[:d0,:].reshape(d0,timesteps))
 
-exact_ham = kepler.T(exact_sol[d0:,:])+kepler.V(exact_sol[:d0,:])
-plt.plot(times, exact_ham, color = "blue", label = "num method (sympl euler)")
-plt.axhline(y = kepler.T(p0)+kepler.V(q0), color = "yellow", label = "anal")
-plt.title("Hamiltonian function")
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.xlabel("Time")
+plt.ylabel("Hamiltonian")
+fig.suptitle("Hamiltonian along Trajectory of Network", fontweight = "bold")
+plt.plot(times, network_ham_stormer, label = "network with størmer-verlet", color = "orange", linewidth = 0.5)
+plt.plot(times, network_ham_euler, label = "network with sympl. euler", color = "red", linewidth = 0.5)
+plt.legend()
+plt.show()
+
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.xlabel("Time")
+plt.ylabel("Hamiltonian")
+fig.suptitle("Hamiltonian along Trajectory of Exact Methods", fontweight = "bold")
+plt.plot(times, exact_ham_stormer, color = "blue", label = "størmer-verlet", linewidth = 0.5)
+plt.plot(times, exact_ham_euler, color = "green", label = "symplectic euler", linewidth = 0.5)
+plt.axhline(y = kepler.T(p0)+ kepler.V(q0), color = "yellow", label = "analytic", linestyle = "dashed")
 plt.legend()
 plt.show()
 
 
 
-=======
-"""
->>>>>>> 0f9c2c5aa836ff3fb2ac428f591b919e89954295
 #======================#
 # Henon-Heiles Problem #
 #======================#
 
+"""
 domain_T = domain_V = [[-2, 2], [-2, 2]]
 HH = Henon_Heiles(domain_T, domain_V)
 d0 = 2
@@ -175,7 +205,7 @@ I = 1000
 d = 4
 K = 30
 h = 0.1
-iterations = 5000
+iterations = 1000
 tau = alpha = beta = None
 scaling = False
 chunk = int(I/10)
@@ -185,10 +215,45 @@ NNT = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, HH.T, HH.domain_T, s
 NNV = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, HH.V, HH.domain_V, scaling, alpha, beta)
 
 q0  = p0 = np.array([0.2,0.2])
-times = np.linspace(0, 10, 1000)
+timesteps = 5000
+times = np.linspace(0, 20, timesteps)
 
-network_sol, times = stormer_verlet_network(NNT, NNV, q0, p0, times, d0)
-exact_sol, times = stormer_verlet_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
+network_sol_stormerm = stormer_verlet_network(NNT, NNV, q0, p0, times, d0)
+network_sol_euler = symplectic_euler_network(NNT, NNV, q0, p0, times, d0)
+exact_sol_stormer = stormer_verlet_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
+exact_sol_euler = symplectic_euler_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
+
+
+#Plotting hamiltonian
+exact_ham_stormer = HH.T(exact_sol_stormer[d0:,:])+HH.V(exact_sol_stormer[:d0,:])
+exact_ham_euler = HH.T(exact_sol_euler[d0:,:])+HH.V(exact_sol_euler[:d0,:])
+network_ham_stormer = NNT.calculate_output(network_sol_stormer[d0:,:].reshape(d0,timesteps)) + NNV.calculate_output(network_sol_stormer[:d0,:].reshape(d0,timesteps))
+network_ham_euler = NNT.calculate_output(network_sol_euler[d0:,:].reshape(d0,timesteps)) + NNV.calculate_output(network_sol_euler[:d0,:].reshape(d0,timesteps))
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.xlabel("Time")
+plt.ylabel("Hamiltonian")
+fig.suptitle("Hamiltonian along Trajectory of Network", fontweight = "bold")
+plt.plot(times, network_ham_stormer, label = "network with størmer-verlet", color = "orange", linewidth = 0.5)
+plt.plot(times, network_ham_euler, label = "network with sympl. euler", color = "red", linewidth = 0.5)
+#plt.axhline(y = HH.T(p0)+ HH.V(q0), color = "yellow", label = "analytic", linestyle = "dashed")
+plt.legend()
+plt.show()
+
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.xlabel("Time")
+plt.ylabel("Hamiltonian")
+fig.suptitle("Hamiltonian along Trajectory of Exact Methods", fontweight = "bold")
+plt.plot(times, exact_ham_stormer, color = "blue", label = "størmer-verlet", linewidth = 0.5)
+plt.plot(times, exact_ham_euler, color = "green", label = "symplectic euler", linewidth = 0.5)
+plt.axhline(y = HH.T(p0)+ HH.V(q0), color = "yellow", label = "analytic", linestyle = "dashed")
+plt.legend()
+plt.show()
+
+
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
@@ -218,5 +283,6 @@ ax.set_zlabel("Time")
 ax.axes.yaxis.set_ticklabels([])
 ax.axes.xaxis.set_ticklabels([])
 ax.axes.zaxis.set_ticklabels([])
-plt.savefig("Henon3d.pdf", bbox_inches='tight')
+#plt.savefig("Henon3d.pdf", bbox_inches='tight')
 plt.show()
+"""

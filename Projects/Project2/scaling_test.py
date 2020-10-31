@@ -1,9 +1,8 @@
-"""Need to write a sweet description here also!"""
+"""Testing the convergence rate when scaling input and output"""
 from network_algo import *
 from test_model import *
 
 
-<<<<<<< HEAD
 def compute_avg_scaling(runs, I,d,d0, K, h, iterations, tau, chunk, method, function, domain, scaling, alpha, beta, hypothesis = 1, plot = False): 
     "Computes average J_list after n runs"
     J_arr = np.zeros((runs, iterations))
@@ -15,8 +14,6 @@ def compute_avg_scaling(runs, I,d,d0, K, h, iterations, tau, chunk, method, func
     return np.average(J_arr, axis = 0), it 
 
 
-=======
->>>>>>> 0f9c2c5aa836ff3fb2ac428f591b919e89954295
 I = 500 # Amount of points ran through the network at once. 
 K = 23 # Amount of hidden layers in the network.
 d = 2 # Dimension of the hidden layers in the network. 

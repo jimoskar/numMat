@@ -36,15 +36,6 @@ def generate_input(function,domain,d0,I,d):
     Done by drawing from a uniform distribution on the domain.
     """
 
-    # Kan dette fjernes? Trenger opprydding. 
-    """
-    #Might generelize this later
-    result = np.zeros((d,I))
-    for i in range(d0):
-        for j in range(I):
-            num = np.random.uniform(domain[0,i],domain[1])
-            result[:d0,i] = num
-    """
     result = np.zeros((d,I))
     if d0 == 1:
         for i in range(I):
@@ -59,39 +50,12 @@ def generate_input(function,domain,d0,I,d):
             result[1,i] = num
     return result
 
-# Brukes dette til noe? Er denne eller den funksjonen nedenfor korrekt?
-def get_solution(function,input_values,d,I,d0):
-    if d0 == 3:
-        for i in range(I):
-            num = np.random.uniform(domain[0][0],domain[0][1])
-            result[0,i] = num
-        for i in range(I):
-            num = np.random.uniform(domain[1][0],domain[1][1])
-            result[1,i] = num
-        for i in range(I):
-            num = np.random.uniform(domain[2][0],domain[2][1])
-            result[2,i] = num
-    return result
 
 
 def get_solution(function,inp_values,d,I,d0):
     """Generate points from the test function on the given domain."""
     result = np.zeros(I)
-    # Brukes dette til noe?
-    """
-    if d0 == 1:
-        for i in range(I):
-            result[i] = function(input_values[0,i])
-        
-    if d0 == 2:
-        for i in range(I):
-            result[i] = function(input_values[0,i],input_values[1,i])
 
-    if d0 == 3:
-        for i in range(I):
-            result[i] = function(input_values[0,i],input_values[1,i],input_values[2,i])
-
-    """
     for i in range(I):
         result[i] = function(inp_values[:d0,i])
 
