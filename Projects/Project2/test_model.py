@@ -7,8 +7,6 @@ import numpy.linalg as la
 from mpl_toolkits import mplot3d
 import random
 
-
-
 # Add parameters for plotting. 
 mpl.rcParams['figure.titleweight'] = "bold"
 mpl.rcParams['font.size'] = 14
@@ -20,18 +18,15 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
     
     The parameters found from the training of the Neural Network are employed.
     """
-    test_sol = get_solution(function, test_input, d, I, d0)
+    test_output = get_solution(function, test_input, d, I, d0)
     a1, b1, a2, b2 = None, None, None, None
     if scaling:
         test_input, a1, b1 = scale_data(alpha,beta,test_input)
-        test_sol, a2, b2 = scale_data(alpha,beta,test_sol)
+        test_output, a2, b2 = scale_data(alpha,beta,test_output)
 
-    Network.embed_input_and_sol(test_input, test_sol)
+    Network.embed_input_and_sol(test_input, test_output)
     Network.forward_function()
     output = Network.Y
-    #print("\nJ resulting from test: " + str(Network.J()))
-
-    
     return output, a1, b1, a2, b2
 
 
@@ -40,6 +35,8 @@ def generate_input(function,domain,d0,I,d):
     
     Done by drawing from a uniform distribution on the domain.
     """
+
+    # Kan dette fjernes? Trenger opprydding. 
     """
     #Might generelize this later
     result = np.zeros((d,I))
@@ -49,7 +46,6 @@ def generate_input(function,domain,d0,I,d):
             result[:d0,i] = num
     """
     result = np.zeros((d,I))
-    
     if d0 == 1:
         for i in range(I):
             num = np.random.uniform(domain[0],domain[1])
@@ -61,6 +57,10 @@ def generate_input(function,domain,d0,I,d):
         for i in range(I):
             num = np.random.uniform(domain[1][0],domain[1][1])
             result[1,i] = num
+    return result
+
+# Brukes dette til noe? Er denne eller den funksjonen nedenfor korrekt?
+def get_solution(function,input_values,d,I,d0):
     if d0 == 3:
         for i in range(I):
             num = np.random.uniform(domain[0][0],domain[0][1])
@@ -71,14 +71,13 @@ def generate_input(function,domain,d0,I,d):
         for i in range(I):
             num = np.random.uniform(domain[2][0],domain[2][1])
             result[2,i] = num
-
-
     return result
 
 
-def get_solution(function,input_values,d,I,d0):
+def get_solution(function,inp_values,d,I,d0):
     """Generate points from the test function on the given domain."""
     result = np.zeros(I)
+    # Brukes dette til noe?
     """
     if d0 == 1:
         for i in range(I):
@@ -94,80 +93,85 @@ def get_solution(function,input_values,d,I,d0):
 
     """
     for i in range(I):
-        result[i] = function(input_values[:d0,i])
+        result[i] = function(inp_values[:d0,i])
 
     return result
     
 
-def plot_graph_and_output(output,input,function,domain,d0,d, scaling, alpha, beta, a1, b1, a2, b2):
-    """
-    Plot results from testing the network together with the analytical graph
-    """
+def plot_graph_and_output(output,inp,function,domain,d0,d, scaling, alpha, beta, a1, b1, a2, b2, savename = ""):
+    """Plot results from testing the network together with the analytical graph."""
     if d0 == 1:
-        # Plotting the output from the network.
-        x = input[0,:]
+        # Plot the output from the network.
+        x = inp[0,:]
+
         if scaling:
             x = scale_up(a1,b1,alpha,beta,x)
             output = scale_up(a2, b2, alpha, beta, output)
- 
+        
         fig, ax = plt.subplots()
         ax.scatter(x,output, color="orange", label="Network")
         fig.suptitle("Analytical Solution Compared to Output From Network", fontweight = "bold")
         ax.set_xlabel("Domain [y]")
         ax.set_ylabel("F(y)")
 
-        # Plotting the analytical solution
+        # Plot analytical solution.
         x = np.linspace(domain[0],domain[1])
         ax.plot(x,function(x), color="blue", label="Function")
         ax.legend()
-        #plt.savefig("compTest1Pic2.pdf", bbox_inches='tight')
+        if savename != "":
+            plt.savefig(savename+".pdf", bbox_inches='tight')
         plt.show()
 
     elif d0 == 2:
-        # Plotting output
-        ax = plt.axes(projection='3d')
+        # Plot output from network. 
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
         zdata = output
-        xdata = input[0,:]
-        ydata = input[1,:]
+        xdata = inp[0,:]
+        ydata = inp[1,:]
+        
         if scaling:
             xdata = scale_up(a1,b1,alpha,beta,xdata)
             ydata = scale_up(a1,b1,alpha,beta,ydata)
             zdata = scale_up(a2,b2,alpha,beta,zdata)
+            
         ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Reds')
         
-        # Plotting analytical graph
+        # Plot analytical solution.
         x = np.linspace(domain[0][0],domain[0][1], 30)
         y = np.linspace(domain[1][0], domain[1][1], 30)
         
         X, Y = np.meshgrid(x, y)
         Z = function([X, Y])
-
+        fig.suptitle("Analytical Solution Compared to Output From Network", fontweight = "bold")
         ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
                 cmap='Greys', edgecolor='none', alpha = 0.5)
+        if savename != "":
+            plt.savefig(savename+".pdf", bbox_inches='tight')
         plt.show()
 
 
-#Utilites for scaling:
+# Utilites for scaling follow. 
 
-def scale_data(alpha, beta, input):
+def scale_data(alpha, beta, inp):
     """scales the input relative to alpha and beta"""
-    a = np.min(input)
-    b = np.max(input)
-    dim = input.shape
+    a = np.min(inp)
+    b = np.max(inp)
+    dim = inp.shape
         
 
-    def max_min(dim,input,a,b,alpha,beta):
+    def max_min(dim,inp,a,b,alpha,beta):
         """max-min transformation"""
         if len(dim) == 1:
-            input = 1/(b-a) * ((b*np.ones(dim[0]) - input)*alpha \
-                                   + (input - a*np.ones(dim[0]))*beta)
+            inp = 1/(b-a) * ((b*np.ones(dim[0]) - inp)*alpha \
+                                   + (inp - a*np.ones(dim[0]))*beta)
         else:
             for i in range(dim[1]):
-                input[:,i] = 1/(b-a) * ((b*np.ones(dim[0]) - input[:,i])*alpha \
-                                    + (input[:,i] - a*np.ones(dim[0]))*beta)
-        return input
+                inp[:,i] = 1/(b-a) * ((b*np.ones(dim[0]) - inp[:,i])*alpha \
+                                    + (inp[:,i] - a*np.ones(dim[0]))*beta)
+        return inp
     
-    return max_min(dim,input,a,b,alpha,beta), a, b
+    return max_min(dim,inp,a,b,alpha,beta), a, b
 
 
 def scale_up(a, b, alpha, beta, data):
@@ -181,7 +185,7 @@ def scale_up(a, b, alpha, beta, data):
     
     return data
 
-def get_random_sample(input, sol, index_list, chunk, d):
+def get_random_sample(inp, sol, index_list, chunk, d):
     """Get random sample from input of size chunk and update sola nd index_list. Used in"""
     sample = np.zeros((d,chunk))
     sample_sol = np.zeros(chunk)
@@ -190,7 +194,7 @@ def get_random_sample(input, sol, index_list, chunk, d):
     for i in range(chunk):
         rand_index = random_indices[i]
         index_list.remove(rand_index)
-        sample[:,i] = input[:,rand_index]
+        sample[:,i] = inp[:,rand_index]
         sample_sol[i] = sol[rand_index]
 
     return sample, sample_sol, index_list

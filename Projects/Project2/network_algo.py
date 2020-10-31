@@ -159,7 +159,7 @@ class Network:
         if d0 < self.d:
             while d0 < d:
                 zero_row = np.zeros(self.I)
-                inp = input.vstack((inp,zero_row))
+                inp = inp.vstack((inp,zero_row))
                 d0 += 1
        
 
@@ -171,9 +171,18 @@ class Network:
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
+    
+    def calculate_output(self, inp):
+        """Calculates and returns the networks output from a given input"""
+        self.embed_input_and_sol(inp,inp)
+        self.forward_function()
+        print("Ys shape: \n")
+        print(self.Y.shape)
+        return self.Y
 
+    # Brukes denne fortsatt eller hvordan er det? Den brukes i Euler og Størmer-Verlet ser det ut som (til å beregne gradienten).
     def embed_input(self, inp):
-        if inp.ndim == 1: #the input is a point
+        if inp.ndim == 1: # the input is a point
             self.I = 1
             d0 = inp.shape[0]
             inp = inp.reshape(d0, 1)
@@ -189,15 +198,11 @@ class Network:
 
 
     
-    def calculate_output(self, input):
-        """Calculates and returns the networks output from a given input"""
-        self.embed_input(input)
+    def calculate_output(self, inp):
+        """Calculate and return the network's output from a given input."""
+        self.embed_input(inp)
         self.forward_function()
-        print("Ys shape: \n")
-        print(self.Y.shape)
         return self.Y
-
-
 
     def Hamiltonian_gradient(self):
         """Calculate the gradient of F, according to the theoretical derivation.
@@ -208,7 +213,7 @@ class Network:
         one_vec = np.ones((self.I,1)) 
 
     
-        w = self.theta.w.reshape((self.d,1)) #need different dimensions for w 
+        w = self.theta.w.reshape((self.d,1)) # Need different dimensions for w. 
         A = w @ self.eta_der(w.T@self.Z_list[self.K,:,:] + self.theta.my*one_vec.T) 
                                                     
 
@@ -264,7 +269,7 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
                 horizontalalignment="center", verticalalignment="center", 
                 transform=ax.transAxes, fontsize = 16)
         if savename != "": 
-            plt.savefig(savename, bbox_inches='tight')
+            plt.savefig(savename+".pdf", bbox_inches='tight')
         plt.show()
     
     
@@ -273,18 +278,18 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
     return NN
 
 def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta, plot = False, savename = ""):
-    """Main training algorithm."""
+    """Main training algorithm with Stochastic Gradient Descent."""
 
-    input = generate_input(function,domain,d0,I,d)
-    output = get_solution(function,input,d,I,d0)
+    inp = generate_input(function,domain,d0,I,d)
+    output = get_solution(function,inp,d,I,d0)
 
     if scaling:
-        input, a1, b1 = scale_data(alpha,beta,input)
+        inp, a1, b1 = scale_data(alpha,beta,inp)
         output, a2, b2 = scale_data(alpha,beta,output)
 
     index_list = [i for i in range(I)]
 
-    Z_0, c_0, index_list = get_random_sample(input,output,index_list,chunk,d)
+    Z_0, c_0, index_list = get_random_sample(inp,output,index_list,chunk,d)
     NN = Network(K,d,chunk,h,Z_0,c_0)
 
     # For plotting J. 
@@ -298,17 +303,17 @@ def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scali
         gradient = NN.back_propagation()
         NN.theta.update_parameters(gradient,"adams",tau,j)
 
-        #For plotting
+        # For plotting.
         J_list[j-1] = NN.J()
         it[j-1] = j
 
         if counter < I/chunk - 1:
-            Z, c, index_list = get_random_sample(input,output,index_list,chunk,d)
+            Z, c, index_list = get_random_sample(inp,output,index_list,chunk,d)
             NN.Z_list[0,:,:] = Z
             NN.c = c
             counter += 1
         else:
-            #All data has been sifted through
+            # All data has been sifted through.
             counter = 0
             index_list = [i for i in range(I)]
 
@@ -324,25 +329,30 @@ def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scali
                 horizontalalignment="center", verticalalignment="center", 
                 transform=ax.transAxes, fontsize = 16)
         if savename != "": 
-            plt.savefig(savename, bbox_inches='tight')
+            plt.savefig(savename + ".pdf", bbox_inches='tight')
         plt.yscale("log")
         plt.show()
     return NN 
 
+<<<<<<< HEAD
 def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,domain,scaling, alpha, beta, hypothesis = 1, plot = False, savename = ""):
     """Main training algorithm with sgd and option to scale."""
+=======
+def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,domain,scaling, alpha, beta, plot = False, savename = ""):
+    """Main training algorithm with SGD and option to scale."""
+>>>>>>> 0f9c2c5aa836ff3fb2ac428f591b919e89954295
 
-    input = generate_input(function,domain,d0,I,d)
-    output = get_solution(function,input,d,I,d0)
+    inp = generate_input(function,domain,d0,I,d)
+    output = get_solution(function,inp,d,I,d0)
 
     a1 = b1 = a2 = b2 = None
     if scaling:
-        input, a1, b1 = scale_data(alpha,beta,input)
+        inp, a1, b1 = scale_data(alpha,beta,inp)
         output, a2, b2 = scale_data(alpha,beta,output)
 
     index_list = [i for i in range(I)]
 
-    Z_0, c_0, index_list = get_random_sample(input,output,index_list,chunk,d)
+    Z_0, c_0, index_list = get_random_sample(inp,output,index_list,chunk,d)
     NN = Network(K,d,chunk,h,Z_0,c_0)
 
     # For plotting J. 
@@ -357,17 +367,17 @@ def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,doma
         gradient = NN.back_propagation()
         NN.theta.update_parameters(gradient,method,tau,j)
 
-        #For plotting
+        # For plotting.
         J_list[j-1] = NN.J()
         it[j-1] = j
 
         if counter < I/chunk - 1:
-            Z, c, index_list = get_random_sample(input,output,index_list,chunk,d)
+            Z, c, index_list = get_random_sample(inp,output,index_list,chunk,d)
             NN.Z_list[0,:,:] = Z
             NN.c = c
             counter += 1
         else:
-            #All data has been sifted through
+            # All data has been sifted through.
             counter = 0
             index_list = [i for i in range(I)]
 
@@ -382,11 +392,8 @@ def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,doma
                 horizontalalignment="center", verticalalignment="center", 
                 transform=ax.transAxes, fontsize = 16)
         if savename != "": 
-            plt.savefig(savename, bbox_inches='tight')
+            plt.savefig(savename + ".pdf", bbox_inches='tight')
         plt.show()
+        
+    NN.J_last = J_list[-1] # Save last value of J_list in NN, to check which converges best in tests. 
     return NN, a1, b1, a2, b2, J_list, it
-
-
-
-
-
