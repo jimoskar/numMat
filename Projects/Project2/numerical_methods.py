@@ -13,9 +13,10 @@ def symplectic_euler_network(NNT, NNV, q0, p0, times, d0):
     for n in range(len(times)-1):
         t1 = times[n+1]
         t0 = times[n]
-        stepsize = t1-t0 # In case the stepsize is not constant.
+        stepsize = t1 - t0 # In case the stepsize is not constant.
 
-        grad_T = calculate_gradient(NNT, solution[d0:, n])[:d0,:].reshape(d0)
+        grad_T = calculate_gradient(NNT, solution[d0:, n])[:d0,:].reshape(d0) # Hvorfor plukke ut coordinater fra grad slik? Og reshape?
+                                                                            # Er pga embedding i større dimensjoner tror jeg!?
         print(grad_T.shape)
         q_new = solution[:d0, n] + stepsize*grad_T # Reshape is necessary for dimension.
 
@@ -26,12 +27,13 @@ def symplectic_euler_network(NNT, NNV, q0, p0, times, d0):
 
         solution[:d0, n+1] = q_new
         solution[d0:, n+1] = p_new
-    return solution, times # Using the indices from 0 in the solution, not times as indices. 
+    return solution, times
+    # Hvorfor returene times? times - lista endres jo ikke noe sted her (+ hvis den endres så er det pass by reference uansett.)
 
 def symplectic_euler_exact(q0, p0, times, grad_T, grad_V, d0):
     """Symplectic Euler; first order method for integrating functions numerically.
     
-    The exact gradients of V and T in the problems are used. 
+    The exact gradients (functions) of V and T in the problems are used. 
     """
 
     solution = np.zeros((2*d0,len(times)))
@@ -39,7 +41,7 @@ def symplectic_euler_exact(q0, p0, times, grad_T, grad_V, d0):
     for n in range(len(times)-1):
         t1 = times[n+1]
         t0 = times[n]
-        stepsize = t1 -t0
+        stepsize = t1 - t0
 
         q_new = solution[:d0,n] + stepsize*grad_T(solution[d0:,n])
         p_new = solution[d0:,n] - stepsize*grad_V(q_new)
@@ -47,7 +49,7 @@ def symplectic_euler_exact(q0, p0, times, grad_T, grad_V, d0):
         solution[:d0, n+1] = q_new
         solution[d0:, n+1] = p_new
 
-    return solution, times
+    return solution, times # Samme kommentar her + nedover :)
 
 def stormer_verlet_network(NNT, NNV, q0, p0, times, d0):
     """Størmer-Verlet; second order method for integrating functions numerically.
@@ -109,7 +111,7 @@ def calculate_gradient(NN, point):
     grad = NN.Hamiltonian_gradient()
     return grad
 
-def embed_data(inp, d):
+def embed_data(inp, d): # Brukes denne noe sted? Fjernes hvis ikke ?
     result = np.zeros((d,len(inp)))
     result[0,:] = inp
     return result

@@ -175,11 +175,9 @@ class Network:
         print(self.Y.shape)
         return self.Y
 
-
-
-    # Brukes denne fortsatt eller hvordan er det?
+    # Brukes denne fortsatt eller hvordan er det? Den brukes i Euler og Størmer-Verlet ser det ut som (til å beregne gradienten).
     def embed_input(self, inp):
-        if inp.ndim == 1: #the input is a point
+        if inp.ndim == 1: # the input is a point
             self.I = 1
             d0 = inp.shape[0]
             inp = inp.reshape(d0, 1)
