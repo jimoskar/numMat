@@ -15,20 +15,15 @@ def symplectic_euler_network(NNT, NNV, q0, p0, times, d0):
         t0 = times[n]
         stepsize = t1 - t0 # In case the stepsize is not constant.
 
-        grad_T = calculate_gradient(NNT, solution[d0:, n])[:d0,:].reshape(d0) # Hvorfor plukke ut coordinater fra grad slik? Og reshape?
-                                                                            # Er pga embedding i større dimensjoner tror jeg!?
-        print(grad_T.shape)
+        grad_T = calculate_gradient(NNT, solution[d0:, n])[:d0,:].reshape(d0)   
         q_new = solution[:d0, n] + stepsize*grad_T # Reshape is necessary for dimension.
-
-        print(q_new.shape)
 
         grad_V = calculate_gradient(NNV, q_new)[:d0,:].reshape(d0)
         p_new = solution[d0:, n] - stepsize*grad_V
 
         solution[:d0, n+1] = q_new
         solution[d0:, n+1] = p_new
-    return solution, times
-    # Hvorfor returene times? times - lista endres jo ikke noe sted her (+ hvis den endres så er det pass by reference uansett.)
+    return solution
 
 def symplectic_euler_exact(q0, p0, times, grad_T, grad_V, d0):
     """Symplectic Euler; first order method for integrating functions numerically.
@@ -49,7 +44,7 @@ def symplectic_euler_exact(q0, p0, times, grad_T, grad_V, d0):
         solution[:d0, n+1] = q_new
         solution[d0:, n+1] = p_new
 
-    return solution, times # Samme kommentar her + nedover :)
+    return solution
 
 def stormer_verlet_network(NNT, NNV, q0, p0, times, d0):
     """Størmer-Verlet; second order method for integrating functions numerically.
@@ -76,7 +71,7 @@ def stormer_verlet_network(NNT, NNV, q0, p0, times, d0):
         solution[:d0, n+1] = q_new
         solution[d0:, n+1] = p_new
 
-    return solution, times
+    return solution
 
 def stormer_verlet_exact(q0, p0, times, grad_T, grad_V, d0):
     """Størmer-Verlet; second order method for integrating functions numerically.
@@ -97,7 +92,7 @@ def stormer_verlet_exact(q0, p0, times, grad_T, grad_V, d0):
         solution[:d0, n+1] = q_new
         solution[d0:, n+1] = p_new
 
-    return solution, times
+    return solution
 
 def calculate_gradient(NN, point):
     """Calculate gradient in specific point from network."""
