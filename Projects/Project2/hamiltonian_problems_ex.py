@@ -30,7 +30,11 @@ class Kepler:
         return 0.5*(p[0]**2 + p[1]**2)
 
     def grad_T(self, p):
+<<<<<<< HEAD
         return np.array([p[0], p[1]])
+=======
+        return p
+>>>>>>> 573959055ee855863375bfd0490f1689c6e3206f
 
     def V(self, q):
         return -1/np.sqrt(q[0]**2 + q[1]**2)
