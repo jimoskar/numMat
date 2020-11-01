@@ -29,7 +29,6 @@ def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, bet
     output = Network.Y
     return output, a1, b1, a2, b2
 
-
 def generate_input(function,domain,d0,I,d):
     """Generate and embed input in d-dimensional space.
     
@@ -50,8 +49,6 @@ def generate_input(function,domain,d0,I,d):
             result[1,i] = num
     return result
 
-
-
 def get_solution(function,inp_values,d,I,d0):
     """Generate points from the test function on the given domain."""
     result = np.zeros(I)
@@ -61,7 +58,6 @@ def get_solution(function,inp_values,d,I,d0):
 
     return result
     
-
 def plot_graph_and_output(output,inp,function,domain,d0,d, scaling, alpha, beta, a1, b1, a2, b2, savename = ""):
     """Plot results from testing the network together with the analytical graph."""
     if d0 == 1:

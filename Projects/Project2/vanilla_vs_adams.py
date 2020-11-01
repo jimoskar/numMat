@@ -1,4 +1,4 @@
-"""Testing convergence rates when using Vanilla gradient descent vs ADAM method"""
+"""Testing convergence rates when using Vanilla gradient descent vs ADAM method."""
 from test_model import *
 from network_algo import *
 

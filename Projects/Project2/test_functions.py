@@ -114,7 +114,7 @@ def run_test_on_test_function4():
     def test_function4(x):
         return -1/np.sqrt(x[0]**2 + x[1]**2)
 
-    NN = algorithm_sgd(I,d,d0,K,h,iterations, tau, chunk, test_function4,domain,scaling,alpha,beta, plot = True)#, savename = "FOURJBestTesting")
+    NN = algorithm_sgd(I,d,d0,K,h,iterations, tau, chunk, test_function4,domain,scaling,alpha,beta, plot = True, savename = "FOURJBestTesting")
     test_input = generate_input(test_function4,domain,d0,I,d)
 
     # Find amount of correctly classified points (within some tolerance).
@@ -124,11 +124,5 @@ def run_test_on_test_function4():
 
     # The a's and b's are for potential scaling fo the data.
     output, a1, b1, a2, b2 = testing(NN, test_input, test_function4, domain, d0, d, I, scaling, alpha, beta)
-<<<<<<< HEAD
     plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2, savename = "FOURGraphBestTesting")
-
-run_test_on_test_function4()
-=======
-    plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)#, savename = "FOURGraphBestTesting")
     print(ratio)
->>>>>>> 573959055ee855863375bfd0490f1689c6e3206f

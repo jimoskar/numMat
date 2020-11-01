@@ -111,12 +111,12 @@ def kepler_test():
     I = 1000
     d = 4
     K = 30
-    h = 0.05
+    h = 0.1
     iterations = 5000
     tau = 0.01
     alpha = 0.2
     beta = 0.8
-    scaling = True
+    scaling = False
     method = "adams"
     chunk = int(I/10)
 
@@ -239,7 +239,7 @@ def kepler_test():
     plt.savefig("KeplerFirstPosCoordTime.pdf", bbox_inches='tight')
     plt.show()
     """
-kepler_test()
+    
 
 #======================#
 # Henon-Heiles Problem #
@@ -361,8 +361,8 @@ def hehon_heiles_test():
     # Can be used to plot 1d-stuff if wanted. Remove before innlevering if not in use (probably not)!
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    plt.plot(times, exact_sol[0,:], label="Exact")
-    plt.plot(times, network_sol[0,:], label="Network")
+    plt.plot(times, exact_sol_SV[0,:], label="Exact")
+    plt.plot(times, network_sol_SV[0,:], label="Network")
     plt.legend()
     plt.xlabel("Time")
     plt.ylabel("First Coord")
