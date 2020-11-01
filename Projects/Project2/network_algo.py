@@ -337,11 +337,7 @@ def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scali
     return NN 
 
 def algorithm_scaling(I,d, d0, K,h,iterations, tau, chunk, method, function,domain,scaling, alpha, beta, hypothesis = 1, plot = False, savename = ""):
-<<<<<<< HEAD
-    """Main training algorithm with sgd and option to scale."""
-=======
     """Main training algorithm with SGD and option to scale."""
->>>>>>> 573959055ee855863375bfd0490f1689c6e3206f
 
     inp = generate_input(function,domain,d0,I,d)
     output = get_solution(function,inp,d,I,d0)

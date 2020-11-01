@@ -24,10 +24,6 @@ def symplectic_euler_network(NNT, NNV, q0, p0, times, d0):
         solution[:d0, n+1] = q_new
         solution[d0:, n+1] = p_new
     return solution
-<<<<<<< HEAD
-    
-=======
->>>>>>> 573959055ee855863375bfd0490f1689c6e3206f
 
 def symplectic_euler_exact(q0, p0, times, grad_T, grad_V, d0):
     """Symplectic Euler; first order method for integrating functions numerically.
