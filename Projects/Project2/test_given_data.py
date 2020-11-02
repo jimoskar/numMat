@@ -13,12 +13,9 @@ def embed_input(inp,d):
         d0 += 1
     return inp
 
-def algorithm_input_and_sol_sgd(inp, sol, method, I, d, d0, K, h, iterations, tau, chunk, scaling, alpha, beta, plot = False, savename = ""):
+def algorithm_input_and_sol_sgd(inp, sol, method, I, d, d0, K, h, iterations, tau, chunk, plot = False, savename = ""):
     """Train a network based on prespecified input and solution. Returns the trained network. Uses SGD."""
 
-    if scaling:
-        inp, a1, b1 = scale_data(alpha,beta,inp)
-        sol, a2, b2 = scale_data(alpha,beta,sol)
     
     index_list = [i for i in range(I)]
     
@@ -109,20 +106,16 @@ def run_example1():
     K = 30 # Amount of hidden layers in the network.
     d0 = 3 # Input dimensions. 
     h = 0.1 # Scaling of the activation function application in algorithm.  
-    iterations = 100 # Number of iterations in the Algorithm.
+    iterations = 3000 # Number of iterations in the Algorithm.
     method = "adams"
     tau = 0.1 # For the Vanilla Gradient method.
     chunk = int(I/256) 
 
 
-    # For scaling.
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
 
     # Training.
-    NNV = algorithm_input_and_sol_sgd(inp_Q, sol_Q, method, I, d, d0, K, h, iterations, tau, chunk, scaling, alpha, beta, plot = True, savename = "JDataGivenNNV")
-    NNT = algorithm_input_and_sol_sgd(inp_P, sol_P, method, I, d, d0, K, h, iterations, tau, chunk, scaling, alpha, beta, plot = True, savename = "JDataGivenNNT")
+    NNV = algorithm_input_and_sol_sgd(inp_Q, sol_Q, method, I, d, d0, K, h, iterations, tau, chunk, plot = True, savename = "JDataGivenNNV")
+    NNT = algorithm_input_and_sol_sgd(inp_P, sol_P, method, I, d, d0, K, h, iterations, tau, chunk, plot = True, savename = "JDataGivenNNT")
 
     print("Ratios from training: (tol = 0.05, batch = I/256)")
     ratio_NNV = find_ratio(NNV, tol = 0.05)
@@ -214,14 +207,9 @@ def run_example2():
     chunk = int(I/256) 
 
 
-    # For scaling.
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
-
     # Training.
-    NNV = algorithm_input_and_sol_sgd(inp_Q, sol_Q, method, I, d, d0, K, h, iterations, tau, chunk, scaling, alpha, beta, plot = True, savename = "JDataGivenNNV")
-    NNT = algorithm_input_and_sol_sgd(inp_P, sol_P, method, I, d, d0, K, h, iterations, tau, chunk, scaling, alpha, beta, plot = True, savename = "JDataGivenNNT")
+    NNV = algorithm_input_and_sol_sgd(inp_Q, sol_Q, method, I, d, d0, K, h, iterations, tau, chunk, plot = True, savename = "JDataGivenNNV")
+    NNT = algorithm_input_and_sol_sgd(inp_P, sol_P, method, I, d, d0, K, h, iterations, tau, chunk, plot = True, savename = "JDataGivenNNT")
 
     print("Ratios from training: (tol = 0.05, batch = I/256)")
     ratio_NNV = find_ratio(NNV, tol = 0.05)
@@ -311,5 +299,5 @@ def run_example2():
 
 #Run examples here
 
-#run_example1()
+run_example1()
 #run_example2()
