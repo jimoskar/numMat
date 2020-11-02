@@ -336,55 +336,53 @@ def hehon_heiles_test():
 
 
 #=====================================#
-
-
 # Symplectic Euler vs. Størmer-Verlet #
-
-
 #=====================================#
 
-d0 = 2
-HH = Henon_Heiles(None, None)
-q0 = p0 = np.array([0.2,0.2])
-timesteps = 100
-times = np.linspace(0, 10, timesteps)
 
-exact_sol_euler = symplectic_euler_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
-exact_sol_SV = stormer_verlet_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
+def SE_vs_SV():
+    d0 = 2
+    HH = Henon_Heiles(None, None)
+    q0 = p0 = np.array([0.2,0.2])
+    timesteps = 100
+    times = np.linspace(0, 10, timesteps)
 
-exact_ham_stormer = HH.T(exact_sol_SV[d0:,:])+HH.V(exact_sol_SV[:d0,:])
-exact_ham_euler = HH.T(exact_sol_euler[d0:,:])+HH.V(exact_sol_euler[:d0,:])
+    exact_sol_euler = symplectic_euler_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
+    exact_sol_SV = stormer_verlet_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
 
-# Plot Hamiltonian.
-fig = plt.figure()
-ax = fig.add_subplot(111)
-plt.xlabel("Time")
-plt.ylabel("Hamiltonian")
-fig.suptitle("Hamiltonian in Henon-Heiles", fontweight = "bold")
-plt.plot(times, exact_ham_stormer, color = "blue", label = "størmer-verlet", linewidth = 0.5)
-plt.plot(times, exact_ham_euler, color = "green", label = "symplectic euler", linewidth = 0.5)
-plt.axhline(y = HH.T(p0)+ HH.V(q0), color = "yellow", label = "analytic", linestyle = "dashed")
-plt.legend()
-plt.show()
+    exact_ham_stormer = HH.T(exact_sol_SV[d0:,:])+HH.V(exact_sol_SV[:d0,:])
+    exact_ham_euler = HH.T(exact_sol_euler[d0:,:])+HH.V(exact_sol_euler[:d0,:])
 
-d0 = 1
-NP = Pendulum(None, None)
-q0 = p0 = np.array([0.2])
+    # Plot Hamiltonian.
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.xlabel("Time")
+    plt.ylabel("Hamiltonian")
+    fig.suptitle("Hamiltonian in Henon-Heiles", fontweight = "bold")
+    plt.plot(times, exact_ham_stormer, color = "blue", label = "størmer-verlet", linewidth = 0.5)
+    plt.plot(times, exact_ham_euler, color = "green", label = "symplectic euler", linewidth = 0.5)
+    plt.axhline(y = HH.T(p0)+ HH.V(q0), color = "yellow", label = "analytic", linestyle = "dashed")
+    plt.legend()
+    plt.show()
 
-exact_sol_euler = symplectic_euler_exact(q0, p0, times, NP.grad_T, NP.grad_V, d0)
-exact_sol_SV = stormer_verlet_exact(q0, p0, times, NP.grad_T, NP.grad_V, d0)
+    d0 = 1
+    NP = Pendulum(None, None)
+    q0 = p0 = np.array([0.2])
 
-exact_ham_stormer = NP.T(exact_sol_SV[d0:,:])+NP.V(exact_sol_SV[:d0,:])
-exact_ham_euler = NP.T(exact_sol_euler[d0:,:])+NP.V(exact_sol_euler[:d0,:])
+    exact_sol_euler = symplectic_euler_exact(q0, p0, times, NP.grad_T, NP.grad_V, d0)
+    exact_sol_SV = stormer_verlet_exact(q0, p0, times, NP.grad_T, NP.grad_V, d0)
 
-# Plot Hamiltonian 
-fig = plt.figure()
-ax = fig.add_subplot(111)
-plt.xlabel("Time")
-plt.ylabel("Hamiltonian")
-fig.suptitle("Hamiltonian in Nonlinear Pendulum", fontweight = "bold")
-plt.plot(times, exact_ham_stormer.reshape(timesteps), color = "blue", label = "SV", linewidth = 0.5)
-plt.plot(times, exact_ham_euler.reshape(timesteps), color = "red", label = "Euler", linewidth = 0.5)
-plt.axhline(y = NP.T(p0)+ NP.V(q0), color = "yellow", label = "correct", linestyle = "dashed")
-plt.legend()
-plt.show()
+    exact_ham_stormer = NP.T(exact_sol_SV[d0:,:])+NP.V(exact_sol_SV[:d0,:])
+    exact_ham_euler = NP.T(exact_sol_euler[d0:,:])+NP.V(exact_sol_euler[:d0,:])
+
+    # Plot Hamiltonian 
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.xlabel("Time")
+    plt.ylabel("Hamiltonian")
+    fig.suptitle("Hamiltonian in Nonlinear Pendulum", fontweight = "bold")
+    plt.plot(times, exact_ham_stormer.reshape(timesteps), color = "blue", label = "SV", linewidth = 0.5)
+    plt.plot(times, exact_ham_euler.reshape(timesteps), color = "red", label = "Euler", linewidth = 0.5)
+    plt.axhline(y = NP.T(p0)+ NP.V(q0), color = "yellow", label = "correct", linestyle = "dashed")
+    plt.legend()
+    plt.show()
