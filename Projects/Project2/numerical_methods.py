@@ -106,8 +106,4 @@ def calculate_gradient(NN, point):
     grad = NN.Hamiltonian_gradient()
     return grad
 
-def embed_data(inp, d): # Ser at denne ikke brukes noe sted! Da kan den vel fjernes!
-    """ DERSOM DEN SKAL BEHOLDES, MANGLER DOCSTRING!"""
-    result = np.zeros((d,len(inp)))
-    result[0,:] = inp
-    return result
+
