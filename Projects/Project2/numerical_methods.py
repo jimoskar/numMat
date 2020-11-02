@@ -46,7 +46,7 @@ def symplectic_euler_exact(q0, p0, times, grad_T, grad_V, d0):
 
     return solution
 
-def stormer_verlet_network(NNT, NNV, q0, p0, times, d0, scaling = False):
+def stormer_verlet_network(NNT, NNV, q0, p0, times, d0):
     """Størmer-Verlet; second order method for integrating functions numerically.
 
     Two trained Neural Networks are input.
@@ -106,7 +106,8 @@ def calculate_gradient(NN, point):
     grad = NN.Hamiltonian_gradient()
     return grad
 
-def embed_data(inp, d): # Brukes denne noe sted? Fjernes hvis ikke ?
+def embed_data(inp, d): # Ser at denne ikke brukes noe sted! Da kan den vel fjernes!
+    """ DERSOM DEN SKAL BEHOLDES, MANGLER DOCSTRING!"""
     result = np.zeros((d,len(inp)))
     result[0,:] = inp
     return result

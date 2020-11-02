@@ -19,13 +19,12 @@ def nonlinear_pendulum_test():
     K = 30
     h = 0.1
     iterations = 5000
-    tau = alpha = beta = None
-    scaling = False
+    tau = None
     chunk = int(I/10)
 
     # Train the neural networks. 
-    NNT = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, pendulum.T, pendulum.domain_T, scaling, alpha, beta)
-    NNV = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, pendulum.V, pendulum.domain_V, scaling, alpha, beta)
+    NNT = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, pendulum.T, pendulum.domain_T)
+    NNV = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, pendulum.V, pendulum.domain_V)
 
     # Initial position and momentum.
     q0 = np.array([0.2])
@@ -114,25 +113,18 @@ def kepler_test():
     h = 0.1
     iterations = 5000
     tau = 0.01
-    alpha = 0.2
-    beta = 0.8
-    scaling = False
     method = "adams"
     chunk = int(I/10)
 
     # Train the neural networks. 
-    NNT = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, kepler.T, kepler.domain_T, scaling, alpha, beta)
-    NNV = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, kepler.V, kepler.domain_V, scaling, alpha, beta)
+    NNT = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, kepler.T, kepler.domain_T)
+    NNV = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, kepler.V, kepler.domain_V)
 
     e = 0.00001 # e is between 0 and 1.
     q0  = np.array([1-e,0])
     p0 = np.array([0,np.sqrt((1+e)/1-e)])
     timesteps = 1000
     times = np.linspace(0, 40, timesteps)
-
-    # Removed if not in use.
-    #q0_scaled = scale_data(alpha, beta, q0)
-    #p0_scaled = scale_data(alpha, beta, p0)
 
     # Network and exact solution. 'Exact' refers to that the gradient can be computed exactly.
     network_sol_euler = symplectic_euler_network(NNT, NNV, q0, p0, times, d0)
@@ -153,7 +145,6 @@ def kepler_test():
     xline = exact_sol_euler[0,:]
     yline = exact_sol_euler[1,:]
     ax.plot3D(xline, yline, zline, "black", label = "Exact (Euler)", linestyle = "dashed")
-    
     xnet = network_sol_euler[0,:]
     ynet = network_sol_euler[1,:]
     ax.plot3D(xnet, ynet, zline, "red", label = "Network (Euler)", linestyle = "dashed") 
@@ -225,21 +216,6 @@ def kepler_test():
     plt.legend()
     plt.savefig("KeplerHamiltonianNetwork.pdf", bbox_inches='tight')
     plt.show()
-    
-    """
-    # Can be used to plot 1d-stuff if wanted. Remove before innlevering if not in use (probably not)!
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    plt.plot(times, network_sol_SV[0,:], label = "Network")
-    plt.plot(times, exact_sol_SV[0,:], label = "Exact")
-    plt.legend()
-    plt.xlabel("Time")
-    plt.ylabel("First Coord")
-    fig.suptitle("Position against Time", fontweight = "bold")
-    plt.savefig("KeplerFirstPosCoordTime.pdf", bbox_inches='tight')
-    plt.show()
-    """
-    
 
 #======================#
 # Henon-Heiles Problem #
@@ -255,13 +231,12 @@ def hehon_heiles_test():
     K = 30
     h = 0.1
     iterations = 5000
-    tau = alpha = beta = None
-    scaling = False
+    tau = None
     chunk = int(I/10)
 
     # Train the neural networks. 
-    NNT = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, HH.T, HH.domain_T, scaling, alpha, beta)
-    NNV = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, HH.V, HH.domain_V, scaling, alpha, beta)
+    NNT = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, HH.T, HH.domain_T)
+    NNV = algorithm_sgd(I, d, d0, K, h, iterations, tau, chunk, HH.V, HH.domain_V)
 
     q0  = p0 = np.array([0.2,0.2])
     timesteps = 5000
@@ -358,15 +333,58 @@ def hehon_heiles_test():
     plt.savefig("HenonHeilesHamiltonianNetwork.pdf", bbox_inches='tight')
     plt.show()
     
-    # Can be used to plot 1d-stuff if wanted. Remove before innlevering if not in use (probably not)!
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    plt.plot(times, exact_sol_SV[0,:], label="Exact")
-    plt.plot(times, network_sol_SV[0,:], label="Network")
-    plt.legend()
-    plt.xlabel("Time")
-    plt.ylabel("First Coord")
-    fig.suptitle("Position against Time", fontweight = "bold")
-    plt.savefig("HenonFirstPosCoordTime.pdf", bbox_inches='tight')
-    plt.show()
-    
+
+
+#=====================================#
+
+
+# Symplectic Euler vs. Størmer-Verlet #
+
+
+#=====================================#
+
+d0 = 2
+HH = Henon_Heiles(None, None)
+q0 = p0 = np.array([0.2,0.2])
+timesteps = 100
+times = np.linspace(0, 10, timesteps)
+
+exact_sol_euler = symplectic_euler_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
+exact_sol_SV = stormer_verlet_exact(q0, p0, times, HH.grad_T, HH.grad_V, d0)
+
+exact_ham_stormer = HH.T(exact_sol_SV[d0:,:])+HH.V(exact_sol_SV[:d0,:])
+exact_ham_euler = HH.T(exact_sol_euler[d0:,:])+HH.V(exact_sol_euler[:d0,:])
+
+# Plot Hamiltonian.
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.xlabel("Time")
+plt.ylabel("Hamiltonian")
+fig.suptitle("Hamiltonian in Henon-Heiles", fontweight = "bold")
+plt.plot(times, exact_ham_stormer, color = "blue", label = "størmer-verlet", linewidth = 0.5)
+plt.plot(times, exact_ham_euler, color = "green", label = "symplectic euler", linewidth = 0.5)
+plt.axhline(y = HH.T(p0)+ HH.V(q0), color = "yellow", label = "analytic", linestyle = "dashed")
+plt.legend()
+plt.show()
+
+d0 = 1
+NP = Pendulum(None, None)
+q0 = p0 = np.array([0.2])
+
+exact_sol_euler = symplectic_euler_exact(q0, p0, times, NP.grad_T, NP.grad_V, d0)
+exact_sol_SV = stormer_verlet_exact(q0, p0, times, NP.grad_T, NP.grad_V, d0)
+
+exact_ham_stormer = NP.T(exact_sol_SV[d0:,:])+NP.V(exact_sol_SV[:d0,:])
+exact_ham_euler = NP.T(exact_sol_euler[d0:,:])+NP.V(exact_sol_euler[:d0,:])
+
+# Plot Hamiltonian 
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.xlabel("Time")
+plt.ylabel("Hamiltonian")
+fig.suptitle("Hamiltonian in Nonlinear Pendulum", fontweight = "bold")
+plt.plot(times, exact_ham_stormer.reshape(timesteps), color = "blue", label = "SV", linewidth = 0.5)
+plt.plot(times, exact_ham_euler.reshape(timesteps), color = "red", label = "Euler", linewidth = 0.5)
+plt.axhline(y = NP.T(p0)+ NP.V(q0), color = "yellow", label = "correct", linestyle = "dashed")
+plt.legend()
+plt.show()

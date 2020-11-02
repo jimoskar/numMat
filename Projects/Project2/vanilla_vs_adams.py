@@ -3,6 +3,7 @@ from test_model import *
 from network_algo import *
 
 
+# Trengs scaling her i denne algortimen? Du kan velge ;)
 def algorithm_input(inp, method, I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta):
     """Trains a network based on prespecified input and returns the values of the Objective functions"""
   
@@ -54,7 +55,6 @@ def compute_avg(runs, I, d, d0, K, h, iterations, tau, chunk, function, domain, 
     return np.average(J_adam_arr, axis = 0), np.average(J_vanilla_arr, axis = 0), it 
 
         
-
 
 I = 1000 # Amount of points ran through the network at once. 
 K = 20 # Amount of hidden layers in the network.

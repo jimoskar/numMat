@@ -114,7 +114,7 @@ class Network:
                 self.h*self.sigma(self.theta.W_k[i,:,:] @ \
                     self.Z_list[i,:,:] + self.theta.b_k_I[i,:,:])
             
-        ZT_K = np.transpose(self.Z_list[-1,:,:]) #Enklere notasjon
+        ZT_K = np.transpose(self.Z_list[-1,:,:]) 
         one_vec = np.ones(self.I)
         Y = self.eta(ZT_K @ self.theta.w + self.theta.my*one_vec)
         self.Y = Y
@@ -172,17 +172,10 @@ class Network:
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
     
-    def calculate_output(self, inp):
-        """Calculates and returns the networks output from a given input"""
-        self.embed_input_and_sol(inp,inp)
-        self.forward_function()
-        print("Ys shape: \n")
-        print(self.Y.shape)
-        return self.Y
 
-    # Brukes denne fortsatt eller hvordan er det? Den brukes i Euler og Størmer-Verlet ser det ut som (til å beregne gradienten).
     def embed_input(self, inp):
-        if inp.ndim == 1: # the input is a point
+        """ MANGLER DOCSTRING.""" # Ser at denne og den ovenfor brukes litt om hverandre, Trengs begge?
+        if inp.ndim == 1: # The input is a point.
             self.I = 1
             d0 = inp.shape[0]
             inp = inp.reshape(d0, 1)
@@ -193,13 +186,12 @@ class Network:
         self.Z_list = np.zeros((self.K+1,self.d,self.I))
         self.Z_list[0,:d0,:] = inp
         
-        #changing b_K_I in case self.I has changed
+        # Changing b_K_I in case self.I has changed.
         self.theta.b_k_I = np.zeros((self.K,self.d,self.I))
         for i in range(self.K):
             self.theta.b_k_I[i,:,:] = self.theta.b_k[i,:,:]
 
 
-    
     def calculate_output(self, inp):
         """Calculate and return the network's output from a given input."""
         self.embed_input(inp)
@@ -225,37 +217,25 @@ class Network:
         
         return A
 
-def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta, plot = False, savename = ""):
+def algorithm(I, d, d0, K, h, iterations, tau, function, domain, plot = False, savename = ""):
     """Main training algorithm."""
       
     inp = generate_input(function,domain,d0,I,d)
     output = get_solution(function,inp,d,I,d0)
 
-    if scaling:
-        inp, a1, b1 = scale_data(alpha,beta,inp)
-        output, a2, b2 = scale_data(alpha,beta,output)
-
-
-    Z_0 = inp[:,0:chunk]
-    c_0 = output[0:chunk]
-    NN = Network(K,d,chunk,h,Z_0,c_0)
+    Z_0 = inp
+    c_0 = output
+    NN = Network(K,d,I,h,Z_0,c_0)
     
     # For plotting J. 
     J_list = np.zeros(iterations)
     it = np.zeros(iterations)
 
-    counter = 0
     for j in range(1,iterations+1):
         
         NN.forward_function()
         gradient = NN.back_propagation()
         NN.theta.update_parameters(gradient,"adams",tau,j)
-
-        if counter < I/chunk - 1:
-            NN.Z_list[0,:,:] = inp[:,chunk*(counter+1):chunk*(counter+2)]
-            NN.c = output[chunk*(counter + 1):chunk*(counter + 2)]
-        else:
-            counter = 0
 
         J_list[j-1] = NN.J()
         it[j-1] = j
@@ -279,15 +259,11 @@ def algorithm(I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling,
     
     return NN
 
-def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta, plot = False, savename = ""):
+def algorithm_sgd(I,d, d0, K, h, iterations, tau, chunk, function, domain, plot = False, savename = ""):
     """Main training algorithm with Stochastic Gradient Descent."""
 
     inp = generate_input(function,domain,d0,I,d)
     output = get_solution(function,inp,d,I,d0)
-
-    if scaling:
-        inp, a1, b1 = scale_data(alpha,beta,inp)
-        output, a2, b2 = scale_data(alpha,beta,output)
 
     index_list = [i for i in range(I)]
 

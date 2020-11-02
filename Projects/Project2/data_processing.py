@@ -14,7 +14,6 @@ import pickle
 import os
 import subprocess
 import sys
-print(sys.path[0])
 
 # (relative) paths.
 binpath = "data/markov/tol0point005BIN/"

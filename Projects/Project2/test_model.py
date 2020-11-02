@@ -13,21 +13,17 @@ mpl.rcParams['font.size'] = 14
 mpl.rcParams['axes.titlesize'] = 13
 mpl.rcParams['axes.titleweight'] = "bold"
 
-def testing(Network, test_input, function, domain, d0, d, I, scaling, alpha, beta):
+def testing(Network, test_input, function, domain, d0, d, I):
     """Testing the Neural Network with new random data. 
     
     The parameters found from the training of the Neural Network are employed.
     """
     test_output = get_solution(function, test_input, d, I, d0)
-    a1, b1, a2, b2 = None, None, None, None
-    if scaling:
-        test_input, a1, b1 = scale_data(alpha,beta,test_input)
-        test_output, a2, b2 = scale_data(alpha,beta,test_output)
 
     Network.embed_input_and_sol(test_input, test_output)
     Network.forward_function()
     output = Network.Y
-    return output, a1, b1, a2, b2
+    return output
 
 def generate_input(function,domain,d0,I,d):
     """Generate and embed input in d-dimensional space.
@@ -58,15 +54,11 @@ def get_solution(function,inp_values,d,I,d0):
 
     return result
     
-def plot_graph_and_output(output,inp,function,domain,d0,d, scaling, alpha, beta, a1, b1, a2, b2, savename = ""):
+def plot_graph_and_output(output,inp,function,domain,d0,d, savename = ""):
     """Plot results from testing the network together with the analytical graph."""
     if d0 == 1:
         # Plot the output from the network.
         x = inp[0,:]
-
-        if scaling:
-            x = scale_up(a1,b1,alpha,beta,x)
-            output = scale_up(a2, b2, alpha, beta, output)
         
         fig, ax = plt.subplots()
         ax.scatter(x,output, color="orange", label="Network")
@@ -90,11 +82,6 @@ def plot_graph_and_output(output,inp,function,domain,d0,d, scaling, alpha, beta,
         xdata = inp[0,:]
         ydata = inp[1,:]
         
-        if scaling:
-            xdata = scale_up(a1,b1,alpha,beta,xdata)
-            ydata = scale_up(a1,b1,alpha,beta,ydata)
-            zdata = scale_up(a2,b2,alpha,beta,zdata)
-            
         ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Reds')
         
         # Plot analytical solution.
@@ -114,28 +101,29 @@ def plot_graph_and_output(output,inp,function,domain,d0,d, scaling, alpha, beta,
 # Utilites for scaling follow. 
 
 def scale_data(alpha, beta, inp):
-    """scales the input relative to alpha and beta"""
+    """Scale the input relative to alpha and beta."""
     a = np.min(inp)
     b = np.max(inp)
     dim = inp.shape
         
-
+    # Skal denne være inne i scalø_data?
     def max_min(dim,inp,a,b,alpha,beta):
-        """max-min transformation"""
+        """Max-min transformation."""
         if len(dim) == 1:
             inp = 1/(b-a) * ((b*np.ones(dim[0]) - inp)*alpha \
-                                   + (inp - a*np.ones(dim[0]))*beta)
+                                    + (inp - a*np.ones(dim[0]))*beta)
         else:
             for i in range(dim[1]):
                 inp[:,i] = 1/(b-a) * ((b*np.ones(dim[0]) - inp[:,i])*alpha \
                                     + (inp[:,i] - a*np.ones(dim[0]))*beta)
         return inp
-    
+
     return max_min(dim,inp,a,b,alpha,beta), a, b
 
 
+# Denne brukes ikke noe sted!! (kan fortsatt ha den her i guess)
 def scale_up(a, b, alpha, beta, data):
-    """The inverse of the min-max transformation"""
+    """The inverse of the min-max transformation."""
     dim = data.shape
     if len(dim) == 1:
         data = 1/(beta-alpha) * ((b-a)*np.ones(dim[0])*data - np.ones(dim[0])*(b*alpha - a*beta))
@@ -146,7 +134,7 @@ def scale_up(a, b, alpha, beta, data):
     return data
 
 def get_random_sample(inp, sol, index_list, chunk, d):
-    """Get random sample from input of size chunk and update sola nd index_list. Used in"""
+    """Get random sample from input of size chunk and update sol nd index_list."""
     sample = np.zeros((d,chunk))
     sample_sol = np.zeros(chunk)
     random_indices = random.sample(index_list,chunk)

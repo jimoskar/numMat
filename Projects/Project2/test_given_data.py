@@ -93,6 +93,8 @@ tau = 0.1 # For the Vanilla Gradient method.
 chunk = int(I/256) 
 
 
+# Trengs scaling i denne algoritmen da? Du kan velge. 
+
 # For scaling.
 scaling = False
 alpha = 0.2
@@ -139,6 +141,8 @@ def plot3d(xex, yex, zex, xnet, ynet, znet, suptitle, xlabel, ylabel, zlabel, sa
 
 network_sol = stormer_verlet_network(NNT, NNV, Q_data[:,0],P_data[:,0], times, d0)
 
+# Example 1. 
+
 # Plot the two first positional coord with time on third axis.
 plot3d(Q_data[0,:], Q_data[1,:], times, network_sol[0,:], network_sol[1,:], times, 
         "Position in Time", "$q_1$", "$q_2$", "Time", "givenDataAndNetwork3dTimePos")
@@ -156,9 +160,7 @@ plot3d(P_data[0,:], P_data[1,:], P_data[2,:], network_sol[3,:], network_sol[4,:]
         "Momentum in Space", "$p_1$", "$p_2$", "$p_3$", "givenDataAndNetwork3dMomentum")
 
 
-# For reference (to check if some of the coordinates actually are any good!)
-
-# Plot the impulse in 2d (for reference)
+# Plot the momentum in 2d (for reference).
 fig = plt.figure()
 plt.subplot(111)
 plt.suptitle("Impulse against Time", fontweight = "bold")
@@ -170,7 +172,7 @@ plt.legend()
 plt.savefig("2dImpulse4Reference.pdf", bbox_inches='tight')
 plt.show()
 
-# Plot the pos in 2d (for reference)
+# Plot the pos in 2d (for reference).
 fig = plt.figure()
 plt.subplot(111)
 plt.suptitle("Position against Time", fontweight = "bold")

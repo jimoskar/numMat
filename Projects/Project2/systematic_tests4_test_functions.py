@@ -33,9 +33,6 @@ def training_test_function1(filename, sgd = False):
     """Only training the test function 1."""
     d0 = 1 # Dimension of the input layer. 
     domain = [-2,2]
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
     tau = 1
     def test_function1(x):
         return 0.5*x**2
@@ -48,12 +45,10 @@ def training_test_function1(filename, sgd = False):
             for h in h_values:
                 if sgd:
                     chunk = int(I/10)
-                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta) 
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain) 
                 else:
-                    chunk = I
-                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta) 
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, test_function1, domain) 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.
-                        
                 del NN # Safety measure to avoid leak. 
 
     # Save data to file.
@@ -66,9 +61,6 @@ def testing_test_function1(filename, tol = tol, sgd = False):
     """Training and testing random data with test function 1."""
     d0 = 1 # Dimension of the input layer. 
     domain = [-2,2]
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
     tau = 1
     def test_function1(x):
         return 0.5*x**2
@@ -81,12 +73,11 @@ def testing_test_function1(filename, tol = tol, sgd = False):
             for h in h_values:
                 if sgd:
                     chunk = int(I/10)
-                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta) 
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain) 
                 else:
-                    chunk = I
-                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function1, domain, scaling, alpha, beta) 
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, test_function1, domain) 
                 test_input = generate_input(test_function1,domain,d0,I,d)
-                testing(NN, test_input, test_function1, domain, d0, d, I, scaling, alpha, beta)
+                testing(NN, test_input, test_function1, domain, d0, d, I)
 
                 # Find amount of correctly classified points (within some tolerance).
                 placeholder = np.array([NN.Y, NN.c])
@@ -109,9 +100,6 @@ def training_test_function2(filename, sgd = False):
     d0 = 1 # Dimension of the input layer. 
     domain = [-2,2]
     chunk = int(I/1)
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
     tau = 1
     def test_function2(x):
         return 1 - np.cos(x)
@@ -124,10 +112,9 @@ def training_test_function2(filename, sgd = False):
             for h in h_values:
                 if sgd:
                     chunk = int(I/10)
-                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain) 
                 else:
-                    chunk = I
-                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, test_function2, domain) 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.            
                 del NN # Safety measure to avoid leak. 
 
@@ -141,9 +128,6 @@ def testing_test_function2(filename, tol = tol, sgd = False):
     """Training and testing random data with test function 2."""
     d0 = 1 # Dimension of the input layer. 
     domain = [-2,2]
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
     tau = 1
     def test_function2(x):
         return 1 - np.cos(x)
@@ -157,12 +141,11 @@ def testing_test_function2(filename, tol = tol, sgd = False):
             for h in h_values:
                 if sgd:
                     chunk = int(I/10)
-                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain) 
                 else:
-                    chunk = I
-                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function2, domain, scaling, alpha, beta) 
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, test_function2, domain) 
                 test_input = generate_input(test_function2,domain,d0,I,d)
-                testing(NN, test_input, test_function2, domain, d0, d, I, scaling, alpha, beta)
+                testing(NN, test_input, test_function2, domain, d0, d, I)
 
                 # Find amount of correctly classified points (within some tolerance).
                 placeholder = np.array([NN.Y, NN.c])
@@ -185,16 +168,10 @@ def training_test_function3(filename, sgd = False):
     d = 4
     tau = 1
     domain = [[-2,2],[-2,2]]
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
     tau = 1
 
-    def test_function3(x,y):
-        return 0.5*(x**2 + y**2)
+    def test_function3(x):
+        return 0.5*(x[0]**2 + x[1]**2)
 
     config = {}
     for K in K_values:
@@ -204,12 +181,11 @@ def training_test_function3(filename, sgd = False):
             for h in h_values:
                 if sgd:
                     chunk = int(I/10)
-                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) 
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain) 
                 else:
-                    chunk = I
-                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) 
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, test_function3, domain) 
                 # The below adds the J_list from training. 
-                config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.               
+                config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.           
                 del NN # Safety measure to avoid leak.
 
     # Save data to file. 
@@ -217,20 +193,17 @@ def training_test_function3(filename, sgd = False):
     outfile = open(filenm,'wb')
     pickle.dump(config, outfile)
     outfile.close()
-
+    
 def testing_test_function3(filename, tol = tol, sgd = False):
     """Training and testing random data with test function 3."""
     d0 = 2
     tau = 1
     d = 4
     domain = [[-2,2],[-2,2]]
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
     tau = 1
 
-    def test_function3(x,y):
-        return 0.5*(x**2 + y**2)
+    def test_function3(x):
+        return 0.5*(x[0]**2 + x[1]**2)
 
     config = {}
     for K in K_values:
@@ -240,12 +213,11 @@ def testing_test_function3(filename, tol = tol, sgd = False):
             for h in h_values:
                 if sgd:
                     chunk = int(I/10)
-                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) 
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain) 
                 else:
-                    chunk = I
-                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function3, domain, scaling, alpha, beta) 
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, test_function3, domain) 
                 test_input = generate_input(test_function3,domain,d0,I,d)
-                testing(NN, test_input, test_function3, domain, d0, d, I, scaling, alpha, beta)
+                testing(NN, test_input, test_function3, domain, d0, d, I)
 
                 # Find amount of correctly classified points (within some tolerance).
                 placeholder = np.array([NN.Y, NN.c])
@@ -267,16 +239,10 @@ def training_test_function4(filename, sgd = False):
     d0 = 2
     d = 4
     domain = [[-2,2],[-2,2]]
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
     tau = 1
 
-    def test_function4(x,y):
-        return -1/np.sqrt(x**2 + y**2)
+    def test_function4(x):
+        return -1/np.sqrt(x[0]**2 + x[1]**2)
 
     config = {}
     for K in K_values:
@@ -286,10 +252,9 @@ def training_test_function4(filename, sgd = False):
             for h in h_values:
                 if sgd:
                     chunk = int(I/10)
-                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) 
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain) 
                 else:
-                    chunk = I
-                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) 
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, test_function4, domain) 
                 # The below adds the J_list from training. 
                 config[K][d][h] = NN.J_last # add the value of J in the last iteration to the hash table.               
                 del NN # Safety measure to avoid leak. 
@@ -305,13 +270,10 @@ def testing_test_function4(filename, tol = tol, sgd = False):
     d0 = 2
     d = 4
     domain = [[-2,2],[-2,2]]
-    scaling = False
-    alpha = 0.2
-    beta = 0.8 
     tau = 1
 
-    def test_function4(x,y):
-        return -1/np.sqrt(x**2 + y**2)
+    def test_function4(x):
+        return -1/np.sqrt(x[0]**2 + x[1]**2)
 
     config = {}
     for K in K_values:
@@ -321,12 +283,11 @@ def testing_test_function4(filename, tol = tol, sgd = False):
             for h in h_values:
                 if sgd:
                     chunk = int(I/10)
-                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) 
+                    NN = algorithm_sgd(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain) 
                 else:
-                    chunk = I
-                    NN = algorithm(I,d,d0,K,h,iterations,tau, chunk, test_function4, domain, scaling, alpha, beta) 
+                    NN = algorithm(I,d,d0,K,h,iterations,tau, test_function4, domain) 
                 test_input = generate_input(test_function4,domain,d0,I,d)
-                testing(NN, test_input, test_function4, domain, d0, d, I, scaling, alpha, beta)
+                testing(NN, test_input, test_function4, domain, d0, d, I)
 
                 # Find amount of correctly classified points (within some tolerance).
                 placeholder = np.array([NN.Y, NN.c])

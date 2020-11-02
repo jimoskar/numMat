@@ -16,11 +16,6 @@ tau = 0.1 # For the Vanilla Gradient method.
 # Tolerance used to find the ratio of correctly classified points.
 tol = 0.005
 
-# For scaling.
-scaling = False
-alpha = 0.2
-beta = 0.8 
-
 #================#
 #Test function 1 #
 #================#
@@ -33,7 +28,7 @@ def run_test_on_test_function1():
     def test_function1(x):
         return 0.5*x**2
 
-    NN = algorithm_sgd(I,d,d0, K,h,iterations, tau, chunk, test_function1,domain,scaling, alpha, beta, plot = True, savename = "ONEJBestTesting")
+    NN = algorithm_sgd(I,d,d0, K,h,iterations, tau, chunk, test_function1,domain,plot = True, savename = "ONEJBestTesting")
     test_input = generate_input(test_function1,domain,d0,I,d)
 
     # Find amount of correctly classified points (within some tolerance).
@@ -41,11 +36,9 @@ def run_test_on_test_function1():
     diff = np.diff(placeholder, axis = 0)
     ratio = len(diff[abs(diff)<tol])/len(diff[0])
 
-    # The a's and b's are for potential scaling fo the data.
-    output, a1, b1, a2, b2 = testing(NN, test_input, test_function1, domain, d0, d, I, scaling, alpha, beta)
-    plot_graph_and_output(output, test_input, test_function1, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2, savename = "ONEGraphBestTesting")
+    output = testing(NN, test_input, test_function1, domain, d0, d, I)
+    plot_graph_and_output(output, test_input, test_function1, domain, d0,d, savename = "ONEGraphBestTesting")
     print(ratio)
-
 
 #================#
 #Test function 2 #
@@ -59,7 +52,7 @@ def run_test_on_test_function2():
     def test_function2(x):
         return 1 - np.cos(x)
 
-    NN = algorithm_sgd(I,d,d0, K,h,iterations,tau,chunk, test_function2,domain, scaling, alpha, beta, plot = True, savename = "TWOJBestTesting")
+    NN = algorithm_sgd(I,d,d0, K,h,iterations,tau,chunk, test_function2,domain, plot = True, savename = "TWOJBestTesting")
     test_input = generate_input(test_function2,domain,d0,I,d)
 
     # Find amount of correctly classified points (within some tolerance).
@@ -67,11 +60,9 @@ def run_test_on_test_function2():
     diff = np.diff(placeholder, axis = 0)
     ratio = len(diff[abs(diff)<tol])/len(diff[0])
 
-    # The a's and b's are for potential scaling fo the data.
-    output, a1, b1, a2, b2 = testing(NN, test_input, test_function2, domain, d0, d, I, scaling, alpha, beta)
-    plot_graph_and_output(output, test_input, test_function2, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2, savename = "TWOGraphBestTesting")
+    output  = testing(NN, test_input, test_function2, domain, d0, d, I )
+    plot_graph_and_output(output, test_input, test_function2, domain, d0,d, savename = "TWOGraphBestTesting")
     print(ratio)
-
 
 #================#
 #Test function 3 #
@@ -86,7 +77,7 @@ def run_test_on_test_function3():
     def test_function3(x):
         return 0.5*(x[0]**2 + x[1]**2)
 
-    NN = algorithm_sgd(I,d,d0, K,h,iterations, tau, chunk, test_function3,domain,scaling,alpha,beta, plot = True, savename = "THREEJBestTesting")
+    NN = algorithm_sgd(I,d,d0, K,h,iterations, tau, chunk, test_function3,domain,plot = True, savename = "THREEJBestTesting")
     test_input = generate_input(test_function3,domain,d0,I,d)
 
     # Find amount of correctly classified points (within some tolerance).
@@ -94,11 +85,9 @@ def run_test_on_test_function3():
     diff = np.diff(placeholder, axis = 0)
     ratio = len(diff[abs(diff)<tol])/len(diff[0])
 
-    # The a's and b's are for potential scaling fo the data.
-    output, a1, b1, a2, b2 = testing(NN, test_input, test_function3, domain, d0, d, I, scaling, alpha, beta)
-    plot_graph_and_output(output, test_input, test_function3, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2, savename = "THREEGraphBestTesting")
+    output  = testing(NN, test_input, test_function3, domain, d0, d, I)
+    plot_graph_and_output(output, test_input, test_function3, domain, d0,d, savename = "THREEGraphBestTesting")
     print(ratio)
-
 
 #================#
 #Test function 4 #
@@ -114,7 +103,7 @@ def run_test_on_test_function4():
     def test_function4(x):
         return -1/np.sqrt(x[0]**2 + x[1]**2)
 
-    NN = algorithm_sgd(I,d,d0,K,h,iterations, tau, chunk, test_function4,domain,scaling,alpha,beta, plot = True, savename = "FOURJBestTesting")
+    NN = algorithm_sgd(I,d,d0,K,h,iterations, tau, chunk, test_function4,domain, plot = True, savename = "FOURJBestTesting")
     test_input = generate_input(test_function4,domain,d0,I,d)
 
     # Find amount of correctly classified points (within some tolerance).
@@ -122,7 +111,6 @@ def run_test_on_test_function4():
     diff = np.diff(placeholder, axis = 0)
     ratio = len(diff[abs(diff)<tol])/len(diff[0])
 
-    # The a's and b's are for potential scaling fo the data.
-    output, a1, b1, a2, b2 = testing(NN, test_input, test_function4, domain, d0, d, I, scaling, alpha, beta)
-    plot_graph_and_output(output, test_input, test_function4, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2, savename = "FOURGraphBestTesting")
+    output = testing(NN, test_input, test_function4, domain, d0, d, I)
+    plot_graph_and_output(output, test_input, test_function4, domain, d0,d, savename = "FOURGraphBestTesting")
     print(ratio)

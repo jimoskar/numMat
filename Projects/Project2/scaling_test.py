@@ -18,14 +18,13 @@ I = 500 # Amount of points ran through the network at once.
 K = 23 # Amount of hidden layers in the network.
 d = 2 # Dimension of the hidden layers in the network. 
 h = 0.1 # Scaling of the activation function application in algorithm.  
-iterations = 10000 #Number of iterations in the Algorithm 
-tau = 0.01 #For the Vanilla Gradient method
+iterations = 10000 #Number of iterations in the Algorithm.
+tau = 0.01 #For the Vanilla Gradient method.
 
-#For scaling
+# For scaling.
 scaling = True
 alpha = 0.2
 beta = 0.8 
-
 
 d0 = 1 # Dimension of the input layer. 
 domain = [-2,2]
@@ -44,11 +43,7 @@ J_list4, it = compute_avg_scaling(runs, I,d,d0, K,h,iterations, tau, chunk, meth
 scaling = False
 J_list5, it = compute_avg_scaling(runs, I,d,d0, K,h,iterations, tau, chunk, method, test_function1,domain,scaling, alpha, beta, plot = False)
 
-
-
-
-
-#plotting convergence:
+# Plotting convergence.
 plt.plot(it, J_list1, label = "Vanilla and scaling. Hypothesis = 1", linewidth = 0.5)
 plt.plot(it, J_list2, label = "Vanilla and scaling. Hypothesis = 2", linewidth = 0.5)
 plt.plot(it, J_list3, label = "ADAM and scaling. Hypothesis = 1", linewidth = 0.5)
