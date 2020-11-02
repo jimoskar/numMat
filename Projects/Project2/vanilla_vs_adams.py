@@ -3,16 +3,10 @@ from test_model import *
 from network_algo import *
 
 
-# Trengs scaling her i denne algortimen? Du kan velge ;)
-def algorithm_input(inp, method, I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta):
+def algorithm_input(inp, method, I, d, d0, K, h, iterations, tau, chunk, function, domain):
     """Trains a network based on prespecified input and returns the values of the Objective functions"""
   
     sol = get_solution(function,inp,d,I,d0)
-
-    if scaling:
-        inp, a1, b1 = scale_data(alpha,beta,inp)
-        sol, a2, b2 = scale_data(alpha,beta,sol)
-
     Z_0 = inp[:,0:chunk]
     c_0 = sol[0:chunk]
     NN = Network(K,d,chunk,h,Z_0,c_0)
@@ -40,14 +34,14 @@ def algorithm_input(inp, method, I, d, d0, K, h, iterations, tau, chunk, functio
     return J_list, it
 
 
-def compute_avg(runs, I, d, d0, K, h, iterations, tau, chunk, function, domain, scaling, alpha, beta): 
+def compute_avg(runs, I, d, d0, K, h, iterations, tau, chunk, function, domain): 
     J_adam_arr = np.zeros((runs, iterations))
     J_vanilla_arr = np.zeros((runs, iterations))
     it = None
     for i in range(runs):
         inp = generate_input(f,domain,d0,I,d)
-        J_vanilla, it = algorithm_input(inp, "vanilla", I, d, d0, K, h, iterations, tau, chunk, f, domain, scaling, alpha, beta)
-        J_adam, it = algorithm_input(inp, "adams", I, d, d0, K, h, iterations, tau, chunk, f, domain, scaling, alpha, beta)  
+        J_vanilla, it = algorithm_input(inp, "vanilla", I, d, d0, K, h, iterations, tau, chunk, f, domain)
+        J_adam, it = algorithm_input(inp, "adams", I, d, d0, K, h, iterations, tau, chunk, f, domain)  
 
         J_adam_arr[i,:] = J_adam
         J_vanilla_arr[i,:] = J_vanilla
@@ -61,30 +55,6 @@ K = 20 # Amount of hidden layers in the network.
 d = 2 # Dimension of the hidden layers in the network. 
 h = 0.1 # Scaling of the activation function application in algorithm.  
 iterations = 5000 #Number of iterations in the Algorithm 
-#For scaling
-scaling = False
-alpha = 0.2
-beta = 0.8 
-
-"""
-d0 = 1 # Dimension of the input layer. 
-domain = [-2,2]
-chunk = int(I/10)
-
-def f(x):
-    return 0.5*x**2
-
-tau = 0.01
-
-inp = generate_input(f,domain,d0,I,d)
-J_vanilla, it = algorithm_input(inp, "vanilla", I, d, d0, K, h, iterations, tau, chunk, f, domain, scaling, alpha, beta)
-J_adam, it = algorithm_input(inp, "adams", I, d, d0, K, h, iterations, tau, chunk, f, domain, scaling, alpha, beta)
-
-plt.plot(it, J_vanilla, label = "vanilla")
-plt.plot(it, J_adam, label = "adam")
-plt.legend()
-plt.show()
-"""
 
 d0 = 2
 d = 4
@@ -98,7 +68,7 @@ def f(x):
 tau = 0.005
 
 runs = 15
-J_adam_avg, J_vanilla_avg, it = compute_avg(runs, I, d, d0, K, h, iterations, tau, chunk, f, domain, scaling, alpha, beta)
+J_adam_avg, J_vanilla_avg, it = compute_avg(runs, I, d, d0, K, h, iterations, tau, chunk, f, domain)
 
 plt.plot(it, J_vanilla_avg, label = "Vanilla")
 plt.plot(it, J_adam_avg, label = "ADAM")

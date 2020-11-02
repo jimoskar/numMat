@@ -106,7 +106,7 @@ def scale_data(alpha, beta, inp):
     b = np.max(inp)
     dim = inp.shape
         
-    # Skal denne være inne i scalø_data?
+    
     def max_min(dim,inp,a,b,alpha,beta):
         """Max-min transformation."""
         if len(dim) == 1:

@@ -174,7 +174,7 @@ class Network:
     
 
     def embed_input(self, inp):
-        """ MANGLER DOCSTRING.""" # Ser at denne og den ovenfor brukes litt om hverandre, Trengs begge?
+        """ Embed the input in d-dimenstional space when no solution is provided.""" 
         if inp.ndim == 1: # The input is a point.
             self.I = 1
             d0 = inp.shape[0]
