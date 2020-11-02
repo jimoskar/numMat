@@ -4,7 +4,7 @@ from test_model import *
 
 
 def compute_avg_scaling(runs, I,d,d0, K, h, iterations, tau, chunk, method, function, domain, scaling, alpha, beta, hypothesis = 1, plot = False): 
-    "Computes average J_list after n runs"
+    """Computes average J_list after n runs"""
     J_arr = np.zeros((runs, iterations))
     it = None
     for i in range(runs):
@@ -56,10 +56,4 @@ plt.ylabel(r"$\overline{\mathrm{J}}$")
 plt.xlabel("Iteration")
 plt.legend()
 plt.show()
-#test_input = generate_input(test_function1,domain,d0,I,d)
 
-
-
-#The a's and b's are for potential scaling fo the data
-#output, a1, b1, a2, b2 = testing(NN, test_input, test_function1, domain, d0, d, I, scaling, alpha, beta)
-#plot_graph_and_output(output, test_input, test_function1, domain, d0,d, scaling, alpha, beta, a1, b1, a2, b2)
