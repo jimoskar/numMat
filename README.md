@@ -1,1 +1,1 @@
-# Numerical-Mathematics
+# Projects, assignments + some exam prepping for the course Numerical Mathematics.
