@@ -1,1 +1,2 @@
-# Projects, assignments + some exam prepping for the course Numerical Mathematics.
+# numMat
+Projects, assignments + some exam prepping for the course 'Numerical Mathematics'.
